@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Site navigation — tmux bar</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+</style>
+</helmet>
+<nav aria-label="Pages" style="width: 100%; min-height: 44px; box-sizing: border-box; display: flex; align-items: center; gap: 4px; flex-wrap: wrap; padding: 0 10px; background: #7ee787; color: #0c0f0d; font-family: 'JetBrains Mono', ui-monospace, Menlo, monospace; font-size: 14px; line-height: 1">
+<span style="font-weight: 700; padding-right: 10px">[kushal]</span>
+<sc-for list="{{items}}" as="it" hint-placeholder-count="9">
+<sc-if value="{{it.active}}" hint-placeholder-val="{{ false }}">
+<a href="{{it.href}}" aria-current="page" style="display: inline-flex; align-items: center; min-height: 44px; padding: 0 10px; background: #0c0f0d; color: #7ee787; font-weight: 700; text-decoration: none">{{it.num}}:{{it.label}}*</a>
+</sc-if>
+<sc-if value="{{it.idle}}" hint-placeholder-val="{{ true }}">
+<a href="{{it.href}}" style="display: inline-flex; align-items: center; min-height: 44px; padding: 0 10px; color: #0c0f0d; text-decoration: none">{{it.num}}:{{it.label}}</a>
+</sc-if>
+</sc-for>
+<span style="margin-left: auto; padding-left: 10px">{{clock}}</span>
+</nav>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"current":{"editor":"enum","default":"shell","options":["shell","dashboard","about","projects","experience","leadership","skills","resume","journey","guide"]},"$preview":{"width":1280,"height":44}}'>
+var PAGES = [
+  ['shell', 'Main.dc.html'], ['dashboard', 'Tui.dc.html'], ['about', 'Man.dc.html'],
+  ['projects', 'Projects.dc.html'], ['experience', 'Experience.dc.html'], ['leadership', 'Leadership.dc.html'],
+  ['skills', 'Skills.dc.html'], ['resume', 'Resume.dc.html'], ['journey', 'Journey.dc.html'], ['guide', 'Guide.dc.html']
+];
+class Component extends DCLogic {
+  componentDidMount() { this.tick = setInterval(() => this.forceUpdate(), 30000); }
+  componentWillUnmount() { if (this.tick) clearInterval(this.tick); }
+  renderVals() {
+    var cur = this.props.current ?? 'shell';
+    var d = new Date();
+    var pad = (n) => (n < 10 ? '0' : '') + n;
+    return {
+      items: PAGES.map((p, i) => ({ num: i, label: p[0], href: p[1], active: p[0] === cur, idle: p[0] !== cur })),
+      clock: d.toDateString().slice(0, 10) + ' ' + pad(d.getHours()) + ':' + pad(d.getMinutes())
+    };
+  }
+}
+</script>
+</body>
+</html>

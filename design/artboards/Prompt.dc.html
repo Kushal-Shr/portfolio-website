@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Typed prompt line</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+@keyframes blink{50%{opacity:0}}
+.blink{animation:blink 1s steps(1) infinite}
+@media (prefers-reduced-motion: reduce){.blink{animation:none}}
+</style>
+</helmet>
+<p aria-label="{{full}}" style="margin: 0; width: 100%; min-height: 48px; box-sizing: border-box; display: flex; align-items: center; font-family: 'JetBrains Mono', ui-monospace, Menlo, monospace; font-size: 16px; color: #d4dccf; white-space: pre"><span style="color: #7ee787">guest@portfolio</span><span style="color: #8a9785">:</span><span style="color: #79c0ff">{{path}}</span><span style="color: #8a9785">$ </span>{{shown}}<span class="blink" style="color: #7ee787">█</span></p>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"cmd":{"editor":"text","default":"ls -l"},"path":{"editor":"text","default":"~"},"$preview":{"width":1280,"height":48}}'>
+class Component extends DCLogic {
+  componentDidMount() {
+    var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduce) return;
+    this.setState({ n: 0 });
+    this.timer = setInterval(() => {
+      var n = (this.state && this.state.n) || 0;
+      var cmd = this.props.cmd ?? 'ls -l';
+      if (n >= cmd.length) { clearInterval(this.timer); this.timer = null; return; }
+      this.setState({ n: n + 1 });
+    }, 55);
+  }
+  componentWillUnmount() { if (this.timer) clearInterval(this.timer); }
+  renderVals() {
+    var cmd = this.props.cmd ?? 'ls -l';
+    var path = this.props.path ?? '~';
+    var n = this.state && this.state.n != null ? this.state.n : cmd.length;
+    return { path: path, shown: cmd.slice(0, n), full: 'guest@portfolio:' + path + '$ ' + cmd };
+  }
+}
+</script>
+</body>
+</html>

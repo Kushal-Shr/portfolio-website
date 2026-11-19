@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Terminal portfolio — guide</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#0c0f0d}
+a{color:#79c0ff}a:hover{color:#a5d6ff}
+pre{margin:0;font:inherit}
+p{margin:0}
+h1,h2{margin:0;font-size:inherit}
+@keyframes blink{50%{opacity:0}}
+.blink{animation:blink 1s steps(1) infinite}
+@media (prefers-reduced-motion: reduce){.blink{animation:none}}
+</style>
+</helmet>
+<div style="width: 1280px; height: 1240px; box-sizing: border-box; padding: 24px 24px 0; background: #0c0f0d; color: #d4dccf; font-family: 'JetBrains Mono', ui-monospace, Menlo, monospace; font-size: 15px; line-height: 1.6; display: flex; flex-direction: column; gap: 24px">
+<dc-import name="Prompt" cmd="tldr portfolio-sh" path="~" hint-size="100%,48px"></dc-import>
+<div style="display: grid; grid-template-columns: minmax(0, 1fr) 420px; gap: 32px; align-items: start">
+<div style="display: flex; flex-direction: column; gap: 10px">
+<h1 style="font-size: 28px; font-weight: 700">portfolio-sh <span style="color: #8a9785; font-weight: 400">— how to get around</span></h1>
+<p style="max-width: 64ch">This site works like a terminal: you type a command, press <span style="color: #7ee787">Enter</span>, and it answers. You don't need to know Linux. Click any example below to see what it prints, then try it for real in the <a href="Main.dc.html">shell</a>.</p>
+<p style="color: #8a9785; max-width: 64ch">Rather not type? Every page is one click away in the tab bar at the bottom.</p>
+</div>
+<aside style="position: relative; border: 1px solid #e3b341; padding: 22px 20px 14px; display: flex; flex-direction: column; gap: 4px">
+<h2 style="position: absolute; top: -12px; left: 14px; padding: 0 6px; background: #0c0f0d; color: #e3b341; font-weight: 700">┤ 30-second version ├</h2>
+<p><span style="color: #7ee787">1.</span> type <span style="color: #7ee787">neofetch</span> — meet me</p>
+<p><span style="color: #7ee787">2.</span> type <span style="color: #7ee787">ls</span> — see what's here</p>
+<p><span style="color: #7ee787">3.</span> type <span style="color: #7ee787">cd projects</span> — go into a folder</p>
+<p><span style="color: #7ee787">4.</span> type <span style="color: #7ee787">cat about.md</span> — read a file</p>
+<p><span style="color: #7ee787">5.</span> lost? type <span style="color: #7ee787">help</span> or <span style="color: #7ee787">cd ~</span></p>
+</aside>
+</div>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 30px 28px; padding-top: 6px">
+<sc-for list="{{sections}}" as="sec" hint-placeholder-count="4">
+<section style="position: relative; border: 1px solid #3a463b; padding: 24px 20px 14px; display: flex; flex-direction: column; gap: 12px">
+<h2 style="position: absolute; top: -12px; left: 14px; padding: 0 6px; background: #0c0f0d; color: #7ee787; font-weight: 700">┤ {{sec.title}} ├</h2>
+<sc-for list="{{sec.items}}" as="it" hint-placeholder-count="3">
+<div style="display: flex; flex-direction: column; gap: 4px">
+<p style="color: #8a9785">- {{it.what}}</p>
+<button type="button" aria-expanded="{{it.expanded}}" onClick="{{it.toggle}}" style="align-self: flex-start; min-height: 44px; padding: 0 14px; border: 1px solid {{it.border}}; background: #121713; color: #d4dccf; font: inherit; cursor: pointer; text-align: left"><span style="color: #8a9785">$ </span><span style="color: #7ee787">{{it.cmd}}</span><span style="color: #8a9785">  {{it.hint}}</span></button>
+<sc-if value="{{it.open}}" hint-placeholder-val="{{ false }}">
+<pre style="margin-left: 2ch; padding: 8px 12px; border-left: 2px solid #7ee787; background: #121713; white-space: pre-wrap">{{it.out}}</pre>
+</sc-if>
+</div>
+</sc-for>
+</section>
+</sc-for>
+</div>
+<section style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 28px; border-top: 1px solid #2a332b; padding-top: 18px">
+<div><p style="color: #e3b341; font-weight: 700">~ means home</p><p style="color: #8a9785">It's the top folder. <span style="color: #d4dccf">cd ~</span> always brings you back.</p></div>
+<div><p style="color: #e3b341; font-weight: 700">folders end in /</p><p style="color: #8a9785">In <span style="color: #d4dccf">ls</span>, blue names are folders you can <span style="color: #d4dccf">cd</span> into; the rest are files you can <span style="color: #d4dccf">cat</span>.</p></div>
+<div><p style="color: #e3b341; font-weight: 700">.. means up one level</p><p style="color: #8a9785">Paths chain with /: <span style="color: #d4dccf">cat projects/zenith.md</span> works from anywhere in ~.</p></div>
+</section>
+<p style="color: #8a9785">psst — a few commands aren't listed here. A recruiter with root access might find one. <span class="blink" style="color: #7ee787">█</span></p>
+<div style="margin: auto -24px 0">
+<dc-import name="Nav" current="guide" hint-size="100%,44px"></dc-import>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":1240}}'>
+var SECTIONS = [
+  { title: 'start here', items: [
+    ['meet me: picture, role, what I am building', 'neofetch', '', '[ascii portrait]   guest@portfolio\n                   Name:  Kushal Shrestha\n                   Role:  CS student · data & AI …'],
+    ['list every command', 'help', '', 'ls [dir]       list files\ncd <dir>       move around\ncat <file>     read a file …'],
+    ['see the whole site at once', 'tree', '', '~\n├── dashboard/\n├── about.md\n├── projects/\n│   ├── rant-and-heal.md …']
+  ]},
+  { title: 'move around', items: [
+    ['list what is in this folder', 'ls', '-l for details', 'dashboard/  about.md  projects/  experience.log\nleadership/  skills.txt  resume.txt  journey/'],
+    ['go into a folder', 'cd projects', '', 'the prompt changes to ~/projects\n↗ open ~/projects as a page'],
+    ['go up one level, or straight home', 'cd ..', 'or cd ~', 'back to ~'],
+    ['where am I?', 'pwd', '', '/home/guest/projects']
+  ]},
+  { title: 'read things', items: [
+    ['read a file', 'cat about.md', '', '# about\nCS student at Webster University (ML emphasis) in St. Louis …\n↗ open ~/about.md as a page'],
+    ["today's journey entry", 'tail journey', '', '==> ~/journey/today.md <==\nlearned  …\nbuilt    …\nnext     …'],
+    ['open any section as a full page', 'open skills', 'or: open resume', '↗ open ~/skills.txt']
+  ]},
+  { title: 'shortcuts', items: [
+    ['finish a word for you', 'cd pro', 'then press Tab', 'cd projects/'],
+    ['bring back earlier commands', '↑  ↓', 'arrow keys', 'cycles through what you typed'],
+    ['wipe the screen / see what you ran', 'clear', 'or history', '    1  neofetch\n    2  ls\n    3  cd projects']
+  ]}
+];
+class Component extends DCLogic {
+  renderVals() {
+    var open = (this.state && this.state.open) || {};
+    return {
+      sections: SECTIONS.map((s, si) => ({
+        title: s.title,
+        items: s.items.map((it, ii) => {
+          var key = si + '-' + ii, on = !!open[key];
+          return {
+            what: it[0], cmd: it[1], hint: it[2], out: it[3], open: on,
+            expanded: on ? 'true' : 'false', border: on ? '#7ee787' : '#2a332b',
+            toggle: () => { var n = Object.assign({}, (this.state && this.state.open) || {}); n[key] = !n[key]; this.setState({ open: n }); }
+          };
+        })
+      }))
+    };
+  }
+}
+</script>
+</body>
+</html>

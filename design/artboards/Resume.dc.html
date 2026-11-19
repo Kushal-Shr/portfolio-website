@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Terminal portfolio — resume</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#0c0f0d}
+a{color:#79c0ff}a:hover{color:#a5d6ff}
+pre{margin:0;font:inherit}
+p{margin:0}
+h1,h2{margin:0;font-size:inherit}
+@keyframes blink{50%{opacity:0}}
+.blink{animation:blink 1s steps(1) infinite}
+@media (prefers-reduced-motion: reduce){.blink{animation:none}}
+</style>
+</helmet>
+<div style="width: 1280px; height: 1919px; box-sizing: border-box; padding: 24px 24px 0; background: #0c0f0d; color: #d4dccf; font-family: 'JetBrains Mono', ui-monospace, Menlo, monospace; font-size: 15px; line-height: 1.55; display: flex; flex-direction: column; gap: 24px">
+<dc-import name="Prompt" cmd="cat resume.txt" path="~" hint-size="100%,48px"></dc-import>
+<div style="display: flex; justify-content: center; gap: 16px; flex-wrap: wrap">
+<a href="#" style="display: inline-flex; align-items: center; min-height: 44px; padding: 0 18px; background: #7ee787; color: #0c0f0d; font-weight: 700; text-decoration: none">wget resume.pdf</a>
+<a href="#" style="display: inline-flex; align-items: center; min-height: 44px; padding: 0 18px; border: 1px solid #3a463b; color: #d4dccf; text-decoration: none">lpr resume.txt (print)</a>
+<a href="Main.dc.html" style="display: inline-flex; align-items: center; min-height: 44px; padding: 0 18px; border: 1px solid #3a463b; color: #d4dccf; text-decoration: none">cd ~</a>
+</div>
+<pre style="align-self: center; width: 78ch; line-height: 1.55"><span style="color: #3a463b">==============================================================================</span>
+<span style="font-weight: 700; font-size: 22px">Kushal Shrestha</span>
+Data engineering · AI/ML · full-stack · St. Louis, MO
+kushalshrestha@webster.edu · github.com/Kushal-Shr
+linkedin.com/in/kushal-shrestha-28350927b
+<span style="color: #3a463b">==============================================================================</span>
+
+<span style="color: #e3b341; font-weight: 700">SUMMARY</span>
+<span style="color: #3a463b">------------------------------------------------------------------------------</span>
+CS student (ML emphasis, GPA 3.82) who builds data pipelines and AI products:
+Airflow and BigQuery at Schnuck Markets, LLM apps on Next.js, and three
+hackathon wins.
+
+<span style="color: #e3b341; font-weight: 700">EXPERIENCE</span>
+<span style="color: #3a463b">------------------------------------------------------------------------------</span>
+<span style="font-weight: 700">Data Engineering Intern, </span>Schnuck Markets, Inc.               2025-05 – 2026-09
+  - Built Python data pipelines in Airflow: FastAPI in, BigQuery out.
+  - Built 2 data agents and automated workflows on Agent Engine, lifting
+    operational efficiency 20%.
+  - Migrated 10+ datasets from Oracle to BigQuery with automated Talend ETL
+    jobs.
+  - Cleansed 3 core legacy datasets by refactoring stored procedures: 100%
+    data quality.
+<span style="font-weight: 700">Frontend Engineering Intern, </span>Amigo Groups (remote)           2024-03 – 2024-06
+  - Built OAuth 2.0 authentication flows to protect backend data endpoints.
+  - Grew a React.js blog past 300 daily visitors.
+<span style="font-weight: 700">Website Management Intern, </span>Avenues Khabar                    2023-09 – 2024-03
+  - Cut load times 30% through defect tracking, testing and UI optimization.
+  - Drove a 40% engagement increase from traffic analysis and front-end
+    changes.
+<span style="font-weight: 700">Data Science Instructor, </span>Freelance                           2023-11 – 2024-01
+  - Raised student grades 35% with tailored plans in Python, data analysis,
+    MySQL.
+
+<span style="color: #e3b341; font-weight: 700">PROJECTS</span>
+<span style="color: #3a463b">------------------------------------------------------------------------------</span>
+<span style="font-weight: 700">Rant &amp; Heal</span>  Next.js, RAG, Firebase, WebRTC
+  Hybrid AI + human mental-health app (Gemini text, voice, live therapy).
+<span style="font-weight: 700">Zenith</span>  TypeScript, VS Code API, LLM, p5.js
+  VS Code extension that visualizes data structures live as you code.
+<span style="font-weight: 700">SurgiPath</span>  Python, Streamlit, OpenCV, LLM
+  AI surgical training simulator with instrument-triggered checklists.
+<span style="font-weight: 700">AirDesk</span>  Python
+  Controls a Mac with hand gestures; write in the air on a whiteboard.
+
+<span style="color: #e3b341; font-weight: 700">LEADERSHIP</span>
+<span style="color: #3a463b">------------------------------------------------------------------------------</span>
+<span style="font-weight: 700">President, </span>Computer Science Club                       former Coding Team Lead
+<span style="font-weight: 700">Senator, </span>Student Government Association          GHW School of Business &amp; Tech
+
+<span style="color: #e3b341; font-weight: 700">COMPETITIONS</span>
+<span style="color: #3a463b">------------------------------------------------------------------------------</span>
+<span style="font-weight: 700">Webster Hackfest 2025, </span>Best Overall Project                        Rant &amp; Heal
+<span style="font-weight: 700">PickHacks 2025, </span>Community Vote Winner                       real-life Among Us
+<span style="font-weight: 700">Byte Bash 2.0, </span>1st Place                                    Webster University
+
+<span style="color: #e3b341; font-weight: 700">EDUCATION</span>
+<span style="color: #3a463b">------------------------------------------------------------------------------</span>
+<span style="font-weight: 700">Webster University, </span>B.S. Computer Science (ML emphasis)            2024 – 2028
+  GPA 3.82
+
+<span style="color: #e3b341; font-weight: 700">SKILLS</span>
+<span style="color: #3a463b">------------------------------------------------------------------------------</span>
+Languages     SQL, Python, C++, TypeScript, JavaScript
+Web           React, Next.js, Node.js, Flask, Tailwind CSS
+AI &amp; Data     LLM, scikit-learn, TensorFlow, Data Modeling, BigQuery, Airflow,
+              Talend
+Cloud &amp; Tools AWS, GCP, REST APIs, Git, Kubernetes, Jenkins, Firebase, WebRTC
+<span style="color: #3a463b">==============================================================================</span>
+<span style="color: #8a9785">-- EOF --  (78 columns, prints cleanly on one page)</span></pre>
+<div style="margin: auto -24px 0">
+<dc-import name="Nav" current="resume" hint-size="100%,44px"></dc-import>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":1919}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

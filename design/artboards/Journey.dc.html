@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Terminal portfolio — journey</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#0c0f0d}
+a{color:#79c0ff}a:hover{color:#a5d6ff}
+pre{margin:0;font:inherit}
+p{margin:0}
+h1,h2{margin:0;font-size:inherit}
+@keyframes blink{50%{opacity:0}}
+.blink{animation:blink 1s steps(1) infinite}
+@media (prefers-reduced-motion: reduce){.blink{animation:none}}
+</style>
+</helmet>
+<div style="width: 1280px; height: 1240px; box-sizing: border-box; padding: 24px 24px 0; background: #0c0f0d; color: #d4dccf; font-family: 'JetBrains Mono', ui-monospace, Menlo, monospace; font-size: 15px; line-height: 1.6; display: flex; flex-direction: column; gap: 24px">
+<dc-import name="Prompt" cmd="tail -f ~/journey/log" path="~" hint-size="100%,48px"></dc-import>
+<div style="display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: 12px">
+<p><span style="font-weight: 700; font-size: 20px">~/journey</span><span style="color: #8a9785">  ·  what I learned and built, every single day</span></p>
+<p style="color: #8a9785">day <span style="color: #7ee787; font-weight: 700">[N]</span> · streak <span style="color: #e3b341; font-weight: 700">[N] days</span> · <a href="#">journey.rss</a></p>
+</div>
+<section aria-label="Activity over the last 26 weeks" style="position: relative; border: 1px solid #3a463b; padding: 24px 20px 14px">
+<h2 style="position: absolute; top: -12px; left: 14px; padding: 0 6px; background: #0c0f0d; color: #7ee787; font-weight: 700">┤ last 26 weeks ├</h2>
+<div style="display: flex; flex-direction: column; font-size: 14px; line-height: 1.25; letter-spacing: 3px">
+<sc-for list="{{grid}}" as="row" hint-placeholder-count="7">
+<div style="display: flex"><span style="color: #8a9785; width: 5ch; letter-spacing: 0">{{row.label}}</span><sc-for list="{{row.cells}}" as="c" hint-placeholder-count="26"><span style="color: {{c.color}}">{{c.ch}}</span></sc-for></div>
+</sc-for>
+</div>
+<p style="color: #8a9785; font-size: 13px; padding-top: 8px">· no entry   <span style="color: #7ee787">█</span> entry logged   — fills itself in as you post</p>
+</section>
+<div style="display: flex; flex-direction: column; gap: 26px">
+<sc-for list="{{entries}}" as="e" hint-placeholder-count="3">
+<article style="display: flex; flex-direction: column; gap: 4px">
+<h2 style="color: #e3b341; font-weight: 700; white-space: pre">── day {{e.day}} · {{e.date}} ──────────────────────────────</h2>
+<div style="display: grid; grid-template-columns: 12ch minmax(0, 1fr); row-gap: 2px; padding-left: 2ch">
+<span style="color: #7ee787">learned</span><span>[What clicked today — a concept, a bug, a trick.]</span>
+<span style="color: #79c0ff">built</span><span>[What you shipped or wrote, with a link if it exists.]</span>
+<span style="color: #ff7b72">stuck on</span><span>[What is still fuzzy — honesty makes this page interesting.]</span>
+<span style="color: #8a9785">next</span><span>[Tomorrow's one thing.]</span>
+</div>
+<p style="padding-left: 2ch; color: #8a9785">tags: <span style="color: #d2a8ff">#[topic] #[topic]</span></p>
+</article>
+</sc-for>
+</div>
+<p style="color: #8a9785">tail: waiting for tomorrow's entry <span class="blink" style="color: #7ee787">█</span></p>
+<div style="margin: auto -24px 0">
+<dc-import name="Nav" current="journey" hint-size="100%,44px"></dc-import>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":1240}}'>
+function ago(n) { var d = new Date(); d.setHours(12, 0, 0, 0); d.setDate(d.getDate() - n); return d; }
+var DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+var LOGGED = [0, 1, 2];
+class Component extends DCLogic {
+  renderVals() {
+    var today = ago(0), back = 26 * 7 - 1 - (6 - today.getDay());
+    var rows = [];
+    for (var wd = 0; wd < 7; wd++) {
+      var cells = [];
+      for (var w = 0; w < 26; w++) {
+        var offset = back - (w * 7 + wd);
+        var on = LOGGED.indexOf(offset) >= 0;
+        cells.push(offset < 0 ? { ch: ' ', color: '#0c0f0d' } : { ch: on ? '█' : '·', color: on ? '#7ee787' : '#3a463b' });
+      }
+      rows.push({ label: wd % 2 ? DAYS[wd] : '', cells: cells });
+    }
+    return {
+      grid: rows,
+      entries: LOGGED.map(function (n, i) {
+        var d = ago(n);
+        return { day: '[N' + (i ? '-' + i : '') + ']', date: d.toDateString() };
+      })
+    };
+  }
+}
+</script>
+</body>
+</html>
