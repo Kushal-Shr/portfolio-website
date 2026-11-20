@@ -3,6 +3,7 @@ import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { achievements, experience, leadership, profile, projects, skillGroups } from '@/content';
 import { lineText, renderResume, RESUME_WIDTH } from '@/lib/resume';
+import { hasDesign } from './design-files';
 
 const content = { profile, experience, projects, leadership, achievements, skillGroups };
 const ours = renderResume(content).map(lineText);
@@ -62,7 +63,7 @@ describe('renderResume', () => {
     expect(ours.join('\n')).not.toMatch(/\d{3}[-. ]\d{3}[-. ]\d{4}/);
   });
 
-  it('matches the design artboard except for the decided differences', () => {
+  it.skipIf(!hasDesign)('matches the design artboard except for the decided differences', () => {
     expect(lineDiff(designLines(), ours)).toEqual([
       // Phase 2: Byte Bash 2.0 is a coding competition, not a hackathon.
       '-hackathon wins.',

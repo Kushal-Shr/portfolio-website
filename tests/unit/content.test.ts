@@ -8,6 +8,7 @@ import { isTodo } from '@/content/types';
 import { profile } from '@/content/profile';
 import { projects } from '@/content/projects';
 import { walk } from '@/lib/content-walk';
+import { hasDesign } from './design-files';
 
 const root = process.cwd();
 const read = (path: string) => readFileSync(join(root, path), 'utf8');
@@ -126,7 +127,7 @@ describe('diagrams', () => {
     expect(Math.max(...widths)).toBeLessThanOrEqual(60);
   });
 
-  it('matches the design artboards for the four designed projects', () => {
+  it.skipIf(!hasDesign)('matches the design artboards for the four designed projects', () => {
     const pres = (file: string) =>
       [...read(file).matchAll(/<pre aria-hidden="true"[^>]*>([\s\S]*?)<\/pre>/g)].map((m) =>
         (m[1] ?? '').replace(/&amp;/g, '&'),
@@ -139,7 +140,7 @@ describe('diagrams', () => {
   });
 });
 
-describe('portrait', () => {
+describe.skipIf(!hasDesign)('portrait', () => {
   const extract = (file: string): string[] => {
     const match = /var PORTRAIT = (\[[^\n]*\]);/.exec(read(file));
     return JSON.parse(match?.[1] ?? '[]') as string[];
@@ -162,8 +163,8 @@ describe('placeholders', () => {
   });
 });
 
-describe('resume cross-check', () => {
-  const resume = read('design/source/resume.md');
+describe.skipIf(!hasDesign)('resume cross-check', () => {
+  const resume = hasDesign ? read('design/source/resume.md') : '';
   const MONTHS = [
     'January',
     'February',
