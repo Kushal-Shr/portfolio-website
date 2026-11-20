@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import type { Line, Segment, Tone } from '@/lib/shell/types';
 
-const TONE: Record<Tone, string> = {
+export const TONE: Record<Tone, string> = {
   fg: 'text-fg',
   dim: 'text-fg-dim',
   dir: 'text-blue',

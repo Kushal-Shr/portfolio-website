@@ -154,8 +154,16 @@ export type GuideItem = {
   cmd: string;
   hint: string;
   kind: 'command' | 'key';
-  /** Static output, only for non-command items. Phase 5 generates the rest from the shell. */
+  /** Static output, only for items the shell can't run (like the arrow keys). */
   output?: string;
+  /** Commands run first so the example has context (e.g. `cd projects` before `cd ..`). */
+  setup?: readonly string[];
+  /** Run this instead of `cmd` to produce the output (the `clear` item shows `history`). */
+  show?: string;
+  /** Body lines to keep before truncating with `…` (default 4). */
+  maxLines?: number;
+  /** The output is the Tab completion of `cmd`, computed by the shell. */
+  complete?: boolean;
 };
 
 export type Guide = {

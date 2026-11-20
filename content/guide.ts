@@ -36,8 +36,14 @@ export const guide: Guide = {
           hint: '',
           kind: 'command',
         },
-        { what: 'list every command', cmd: 'help', hint: '', kind: 'command' },
-        { what: 'see the whole site at once', cmd: 'tree', hint: '', kind: 'command' },
+        { what: 'list every command', cmd: 'help', hint: '', kind: 'command', maxLines: 3 },
+        {
+          what: 'see the whole site at once',
+          cmd: 'tree',
+          hint: '',
+          kind: 'command',
+          maxLines: 5,
+        },
       ],
     },
     {
@@ -55,14 +61,21 @@ export const guide: Guide = {
           cmd: 'cd ..',
           hint: 'or cd ~',
           kind: 'command',
+          setup: ['cd projects'],
         },
-        { what: 'where am I?', cmd: 'pwd', hint: '', kind: 'command' },
+        {
+          what: 'where am I?',
+          cmd: 'pwd',
+          hint: '',
+          kind: 'command',
+          setup: ['cd projects'],
+        },
       ],
     },
     {
       title: 'read things',
       items: [
-        { what: 'read a file', cmd: 'cat about.md', hint: '', kind: 'command' },
+        { what: 'read a file', cmd: 'cat about.md', hint: '', kind: 'command', maxLines: 3 },
         { what: "today's journey entry", cmd: 'tail journey', hint: '', kind: 'command' },
         {
           what: 'open any section as a full page',
@@ -80,7 +93,7 @@ export const guide: Guide = {
           cmd: 'cd pro',
           hint: 'then press Tab',
           kind: 'key',
-          output: 'cd projects/',
+          complete: true,
         },
         {
           what: 'bring back earlier commands',
@@ -94,6 +107,8 @@ export const guide: Guide = {
           cmd: 'clear',
           hint: 'or history',
           kind: 'command',
+          setup: ['neofetch', 'ls', 'cd projects'],
+          show: 'history',
         },
       ],
     },

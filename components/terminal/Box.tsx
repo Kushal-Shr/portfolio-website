@@ -11,6 +11,8 @@ type BoxProps = {
   as?: 'section' | 'article' | 'aside' | 'div';
   headingLevel?: 2 | 3;
   id?: string;
+  /** Marks the box for the skills filter (`data-section`). */
+  section?: string;
   className?: string;
   children?: ReactNode;
 };
@@ -29,6 +31,7 @@ export function Box({
   as: Tag = 'section',
   headingLevel = 2,
   id,
+  section,
   className = 'px-5 pt-6 pb-4',
   children,
 }: BoxProps) {
@@ -38,6 +41,7 @@ export function Box({
   return (
     <Tag
       id={id}
+      data-section={section}
       className={`relative border ${BORDER[tone]} ${variant === 'tui' ? 'box-tui' : ''} ${className}`}
     >
       <Heading className={`box-title ${titleColor}`}>
