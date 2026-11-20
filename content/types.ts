@@ -37,7 +37,7 @@ export type Profile = {
   email: string;
   links: { github: Link; linkedin: Link };
   resume: { href: string; label: string };
-  manPage: { title: string; section: number; date: string };
+  manPage: { title: string; section: number };
   education: {
     school: string;
     degree: string;

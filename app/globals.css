@@ -64,8 +64,10 @@
     font-size: inherit;
   }
 
+  /* Preflight strips the default underline; the design keeps it, and in-text links need it. */
   a {
     color: var(--color-blue);
+    text-decoration: underline;
     text-underline-offset: 3px;
   }
 
@@ -111,6 +113,12 @@
 
   .box-badge {
     right: 14px;
+  }
+
+  .box-tui .box-title {
+    top: -11px;
+    left: 12px;
+    font-weight: 400;
   }
 
   .skip-link {
@@ -164,5 +172,50 @@ html.js [data-typing='pending'] {
 
   [data-typing] {
     visibility: visible !important;
+  }
+}
+
+/* Print: black on white, no chrome. The resume must fit one Letter page. */
+@media print {
+  @page {
+    margin: 0.5in;
+  }
+
+  html,
+  body {
+    background: #fff !important;
+  }
+
+  * {
+    color: #000 !important;
+    background: transparent !important;
+    animation: none !important;
+  }
+
+  nav,
+  .skip-link,
+  [data-print='hide'] {
+    display: none !important;
+  }
+
+  .page-frame,
+  .page-column {
+    min-height: 0 !important;
+    padding: 0 !important;
+    display: block !important;
+  }
+
+  .resume-text {
+    width: auto !important;
+    font-size: 9pt !important;
+    line-height: 1.1 !important;
+  }
+
+  .resume-text [style] {
+    font-size: 13pt !important;
+  }
+
+  a {
+    text-decoration: none;
   }
 }

@@ -17,3 +17,15 @@ export function yearsSince(start: string, now: Date): number {
   const months = (now.getFullYear() - y) * 12 + (now.getMonth() + 1 - m);
   return Math.max(0, Math.floor(months / 12));
 }
+
+/** `November 2026`, in the build machine's locale-independent English form. */
+export function formatMonthYear(date: Date): string {
+  return date.toLocaleString('en-US', { month: 'long', year: 'numeric' });
+}
+
+/** `AI, data, full-stack and DevOps`: the one place the `devops` tag gets its proper casing. */
+export function openToSentence(items: readonly string[]): string {
+  const words = items.map((item) => (item === 'devops' ? 'DevOps' : item));
+  if (words.length < 2) return words.join('');
+  return `${words.slice(0, -1).join(', ')} and ${words[words.length - 1]}`;
+}

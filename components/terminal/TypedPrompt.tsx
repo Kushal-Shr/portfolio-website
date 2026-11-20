@@ -9,7 +9,7 @@ export function TypedPrompt({ cmd, path = '~' }: TypedPromptProps) {
   const { shown, pending } = useTypewriter(cmd, { speed: 55 });
 
   return (
-    <p className="flex min-h-12 items-center text-[16px] whitespace-pre">
+    <p data-print="hide" className="flex min-h-12 items-center text-[16px] whitespace-pre">
       {/* axe forbids aria-label on a <p>, so the final text is exposed as screen-reader-only text. */}
       <span className="sr-only">{`guest@portfolio:${path}$ ${cmd}`}</span>
       <span aria-hidden="true" className="text-green">

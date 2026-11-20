@@ -1,9 +1,24 @@
 export const ROUTES = [
-  { key: 'shell', href: '/', label: 'shell', prompt: null, artboard: 'Main' },
-  { key: 'dashboard', href: '/dashboard/', label: 'dashboard', prompt: null, artboard: 'Tui' },
-  { key: 'about', href: '/about/', label: 'about', prompt: 'man kushal', artboard: 'Man' },
+  { key: 'shell', file: '~', href: '/', label: 'shell', prompt: null, artboard: 'Main' },
+  {
+    key: 'dashboard',
+    file: '~/dashboard/',
+    href: '/dashboard/',
+    label: 'dashboard',
+    prompt: null,
+    artboard: 'Tui',
+  },
+  {
+    key: 'about',
+    file: '~/about.md',
+    href: '/about/',
+    label: 'about',
+    prompt: 'man kushal',
+    artboard: 'Man',
+  },
   {
     key: 'projects',
+    file: '~/projects/',
     href: '/projects/',
     label: 'projects',
     prompt: 'ls -l ~/projects',
@@ -11,6 +26,7 @@ export const ROUTES = [
   },
   {
     key: 'experience',
+    file: '~/experience.log',
     href: '/experience/',
     label: 'experience',
     prompt: 'git log --graph ~/experience.log',
@@ -18,6 +34,7 @@ export const ROUTES = [
   },
   {
     key: 'leadership',
+    file: '~/leadership/',
     href: '/leadership/',
     label: 'leadership',
     prompt: 'ps aux --leadership',
@@ -25,6 +42,7 @@ export const ROUTES = [
   },
   {
     key: 'skills',
+    file: '~/skills.txt',
     href: '/skills/',
     label: 'skills',
     prompt: 'apt list --installed',
@@ -32,6 +50,7 @@ export const ROUTES = [
   },
   {
     key: 'resume',
+    file: '~/resume.txt',
     href: '/resume/',
     label: 'resume',
     prompt: 'cat resume.txt',
@@ -39,12 +58,20 @@ export const ROUTES = [
   },
   {
     key: 'journey',
+    file: '~/journey/',
     href: '/journey/',
     label: 'journey',
     prompt: 'tail -f ~/journey/log',
     artboard: 'Journey',
   },
-  { key: 'guide', href: '/guide/', label: 'guide', prompt: 'tldr portfolio-sh', artboard: 'Guide' },
+  {
+    key: 'guide',
+    file: '~/guide',
+    href: '/guide/',
+    label: 'guide',
+    prompt: 'tldr portfolio-sh',
+    artboard: 'Guide',
+  },
 ] as const;
 
 export type RouteKey = (typeof ROUTES)[number]['key'];

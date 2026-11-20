@@ -1,15 +1,142 @@
 import type { Metadata } from 'next';
+import Link from 'next/link';
 import { TerminalPage } from '@/components/terminal/TerminalPage';
+import { experience } from '@/content/experience';
+import { profile } from '@/content/profile';
+import { projects } from '@/content/projects';
+import { skillGroups } from '@/content/skills';
+import { formatMonthYear, formatRange, openToSentence } from '@/lib/format';
 import { ROUTES } from '@/lib/routes';
 
 export const metadata: Metadata = { title: 'about' };
 
-const route = ROUTES.find((r) => r.key === 'about');
+const prompt = ROUTES.find((r) => r.key === 'about')?.prompt ?? undefined;
+const manName = `${profile.shortName.toUpperCase()}(${profile.manPage.section})`;
 
-export default function Page() {
+function Section({
+  title,
+  gap = 'gap-1',
+  children,
+}: {
+  title: string;
+  gap?: string;
+  children: React.ReactNode;
+}) {
   return (
-    <TerminalPage prompt={route?.prompt ?? undefined}>
-      <h1 className="text-fg-dim">about (coming in phase 3)</h1>
+    <section className={`flex flex-col ${gap}`}>
+      <h2 className="text-fg-bright font-bold">{title}</h2>
+      {children}
+    </section>
+  );
+}
+
+export default function AboutPage() {
+  const buildDate = formatMonthYear(new Date());
+
+  return (
+    <TerminalPage prompt={prompt} padX="wide" gap="gap-[26px]" className="leading-[1.7]">
+      <h1 className="sr-only">{profile.name}: about</h1>
+      <div className="text-fg-dim flex justify-between">
+        <span>{manName}</span>
+        <span>{profile.manPage.title}</span>
+        <span>{manName}</span>
+      </div>
+
+      <Section title="NAME">
+        <p className="pl-[7ch]">
+          <span className="font-bold">{profile.shortName}</span> — {profile.oneLiner}
+        </p>
+      </Section>
+
+      <Section title="SYNOPSIS">
+        <p className="pl-[7ch]">
+          <span className="font-bold">{profile.shortName}</span>{' '}
+          {profile.synopsisFlags.map((flag) => (
+            <span key={flag}>
+              [<span className="underline">--{flag}</span>]{' '}
+            </span>
+          ))}
+          <span className="underline">problem</span>
+        </p>
+      </Section>
+
+      <Section title="DESCRIPTION">
+        {profile.about.paragraphs.map((text) => (
+          <p key={text} className="max-w-[72ch] pl-[7ch]">
+            {text}
+          </p>
+        ))}
+      </Section>
+
+      <Section title="EXPERIENCE" gap="gap-2.5">
+        <div className="flex flex-col gap-3 pl-[7ch]">
+          {experience.map((e) => (
+            <div key={e.id}>
+              <p className="flex justify-between">
+                <span>
+                  <span className="font-bold">{e.orgShort ?? e.org}</span>, {e.title}
+                </span>
+                <span className="text-fg-dim">{formatRange(e.start, e.end, 'years')}</span>
+              </p>
+              <p className="pl-[7ch]">{e.summary}</p>
+            </div>
+          ))}
+        </div>
+      </Section>
+
+      <Section title="PROJECTS" gap="gap-2.5">
+        <div className="grid grid-cols-[22ch_minmax(0,1fr)] gap-y-2 pl-[7ch]">
+          {projects.map((p) => (
+            <div key={p.slug} className="contents">
+              {p.links.source ? (
+                <a href={p.links.source} className="font-bold">
+                  {p.slug}
+                </a>
+              ) : (
+                <span className="font-bold">{p.slug}</span>
+              )}
+              <span>{p.shortSummary}</span>
+            </div>
+          ))}
+        </div>
+      </Section>
+
+      <Section title="OPTIONS" gap="gap-2.5">
+        <div className="grid grid-cols-[22ch_minmax(0,1fr)] gap-y-1 pl-[7ch]">
+          {skillGroups
+            .flatMap((g) => g.lists)
+            .map((list) => (
+              <div key={list.key} className="contents">
+                <span className="font-bold">
+                  -{list.flag}, --{list.key}
+                </span>
+                <span>{list.packages.join(', ')}</span>
+              </div>
+            ))}
+        </div>
+      </Section>
+
+      <Section title="EXIT STATUS">
+        <p className="pl-[7ch] whitespace-pre">
+          <span className="font-bold">0</span>
+          {'      '}Open to roles in {openToSentence(profile.openTo)}.
+        </p>
+      </Section>
+
+      <Section title="SEE ALSO">
+        <p className="pl-[7ch]">
+          <a href={`mailto:${profile.email}`}>email(1)</a>,{' '}
+          <a href={profile.links.github.href}>github(1)</a>,{' '}
+          <a href={profile.links.linkedin.href}>linkedin(1)</a>,{' '}
+          <Link href="/resume/">resume(7)</Link>
+        </p>
+      </Section>
+
+      <div className="text-fg-dim mt-auto flex justify-between">
+        <span>{profile.location}</span>
+        <span>{buildDate}</span>
+        <span>{profile.manPage.section}</span>
+      </div>
     </TerminalPage>
   );
 }

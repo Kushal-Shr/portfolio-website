@@ -26,7 +26,7 @@ export const profile: Profile = {
     },
   },
   resume: { href: '/resume.pdf', label: 'resume.pdf' },
-  manPage: { title: 'Portfolio Manual', section: 1, date: 'November 2026' },
+  manPage: { title: 'Portfolio Manual', section: 1 },
   education: {
     school: 'Webster University',
     degree: 'Bachelor of Science in Computer Science',

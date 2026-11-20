@@ -37,6 +37,10 @@ export const experience: readonly Experience[] = [
       'Grew a React.js blog site past 300 daily visitors',
     ],
     summary: 'OAuth 2.0 flows for backend endpoints; a React.js blog past 300 daily visitors.',
+    resumeBullets: [
+      'Built OAuth 2.0 authentication flows to protect backend data endpoints',
+      'Grew a React.js blog past 300 daily visitors',
+    ],
     stack: ['react.js', 'oauth 2.0'],
   },
   {
@@ -52,6 +56,10 @@ export const experience: readonly Experience[] = [
       'Drove a 40% engagement increase by analyzing traffic datasets and tuning the front end',
     ],
     summary: '30% faster load times and a 40% engagement increase.',
+    resumeBullets: [
+      'Cut load times 30% through defect tracking, testing and UI optimization',
+      'Drove a 40% engagement increase from traffic analysis and front-end changes',
+    ],
     stack: ['front-end optimization', 'testing', 'traffic analytics'],
   },
   {
@@ -66,8 +74,9 @@ export const experience: readonly Experience[] = [
       'Raised student grades 35% with tailored instructional plans in Python, data analysis and MySQL',
     ],
     summary: '35% grade improvement with tailored Python, data analysis and MySQL plans.',
+    resumeBullets: [
+      'Raised student grades 35% with tailored plans in Python, data analysis, MySQL',
+    ],
     stack: ['python', 'data analysis', 'mysql'],
   },
 ];
-
-export const initialCommit = 'Kathmandu, 2023';

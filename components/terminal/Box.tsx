@@ -6,8 +6,11 @@ type BoxProps = {
   title: string;
   badge?: ReactNode;
   tone?: Tone;
+  /** `tui` is the dashboard's lighter title: regular weight, 11px up, 12px in. */
+  variant?: 'default' | 'tui';
   as?: 'section' | 'article' | 'aside' | 'div';
   headingLevel?: 2 | 3;
+  id?: string;
   className?: string;
   children?: ReactNode;
 };
@@ -22,8 +25,10 @@ export function Box({
   title,
   badge,
   tone = 'default',
+  variant = 'default',
   as: Tag = 'section',
   headingLevel = 2,
+  id,
   className = 'px-5 pt-6 pb-4',
   children,
 }: BoxProps) {
@@ -31,7 +36,10 @@ export function Box({
   const titleColor = tone === 'yellow' ? 'text-yellow' : 'text-green';
 
   return (
-    <Tag className={`relative border ${BORDER[tone]} ${className}`}>
+    <Tag
+      id={id}
+      className={`relative border ${BORDER[tone]} ${variant === 'tui' ? 'box-tui' : ''} ${className}`}
+    >
       <Heading className={`box-title ${titleColor}`}>
         <span aria-hidden="true">┤ </span>
         {title}

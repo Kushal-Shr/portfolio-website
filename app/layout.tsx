@@ -7,6 +7,10 @@ const jetbrainsMono = JetBrains_Mono({
   weight: ['400', '700'],
   subsets: ['latin'],
   display: 'swap',
+  // The generated Arial-based fallback face would supply the box-drawing glyphs (wrong width);
+  // with it off they fall through to ui-monospace / Menlo, which are monospaced.
+  adjustFontFallback: false,
+  fallback: ['ui-monospace', 'Menlo', 'monospace'],
   variable: '--font-jetbrains-mono',
 });
 
