@@ -3,6 +3,7 @@ import type { LeadershipRole } from './types';
 
 export const leadership: readonly LeadershipRole[] = [
   {
+    slug: 'president',
     pid: '101',
     role: 'President',
     org: 'Computer Science Club',
@@ -19,6 +20,7 @@ export const leadership: readonly LeadershipRole[] = [
     resumeNote: 'former Coding Team Lead',
   },
   {
+    slug: 'coding-team-lead',
     pid: '087',
     role: 'Coding Team Lead',
     org: 'Computer Science Club',
@@ -28,6 +30,7 @@ export const leadership: readonly LeadershipRole[] = [
     resumeNote: '',
   },
   {
+    slug: 'senator',
     pid: '072',
     role: 'Senator',
     org: 'Student Government Association',

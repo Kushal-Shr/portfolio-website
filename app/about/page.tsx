@@ -74,7 +74,9 @@ export default function AboutPage() {
             <div key={e.id}>
               <p className="flex justify-between">
                 <span>
-                  <span className="font-bold">{e.orgShort ?? e.org}</span>, {e.title}
+                  <Link href={`/experience/${e.id}/`} className="link-quiet inline-block min-h-6">
+                    <span className="font-bold">{e.orgShort ?? e.org}</span>, {e.title}
+                  </Link>
                 </span>
                 <span className="text-fg-dim">{formatRange(e.start, e.end, 'years')}</span>
               </p>
@@ -88,13 +90,9 @@ export default function AboutPage() {
         <div className="grid grid-cols-[22ch_minmax(0,1fr)] gap-y-2 pl-[7ch]">
           {projects.map((p) => (
             <div key={p.slug} className="contents">
-              {p.links.source ? (
-                <a href={p.links.source} className="font-bold">
-                  {p.slug}
-                </a>
-              ) : (
-                <span className="font-bold">{p.slug}</span>
-              )}
+              <Link href={`/projects/${p.slug}/`} className="link-quiet font-bold">
+                {p.slug}
+              </Link>
               <span>{p.shortSummary}</span>
             </div>
           ))}

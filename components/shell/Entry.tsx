@@ -8,7 +8,7 @@ export type NeofetchData = {
   rows: readonly { label: string; value: string }[];
 };
 
-type EntryProps = { entry: EntryData; neofetch: NeofetchData };
+type EntryProps = { entry: EntryData; neofetch?: NeofetchData };
 
 /** The echoed prompt line plus its output. Memoized so keystrokes never re-render old output. */
 export const Entry = memo(function Entry({ entry, neofetch }: EntryProps) {
@@ -23,12 +23,18 @@ export const Entry = memo(function Entry({ entry, neofetch }: EntryProps) {
       </div>
       {entry.lines.map((line, i) =>
         line.kind === 'neofetch' ? (
-          <Neofetch
-            key={i}
-            portrait={neofetch.portrait}
-            rows={neofetch.rows}
-            animate={!!entry.animate}
-          />
+          neofetch ? (
+            <Neofetch
+              key={i}
+              portrait={neofetch.portrait}
+              rows={neofetch.rows}
+              animate={!!entry.animate}
+            />
+          ) : (
+            <div key={i} className="text-fg-dim pl-4">
+              [the neofetch card shows on the home page]
+            </div>
+          )
         ) : (
           <OutputLine key={i} line={line} />
         ),

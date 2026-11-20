@@ -32,3 +32,19 @@ export function filterMessage(section: SkillSection, counts: Record<SkillSection
 export function sectionQuery(section: SkillSection): string {
   return section === 'all' ? '' : `?section=${section}`;
 }
+
+const norm = (s: string): string => s.toLowerCase().replace(/[^a-z0-9]+/g, '');
+
+/** Stack spellings that are the same skill under another name (keys are normalized). */
+const ALIASES: Readonly<Record<string, readonly string[]>> = {
+  apacheairflow: ['airflow'],
+  react: ['reactjs'],
+  tailwindcss: ['tailwind'],
+};
+
+/** Does a project or job stack item (`resumeStack`, a tag, `stack`) refer to this skill? */
+export function matchesSkill(skill: string, stackItem: string): boolean {
+  const a = norm(skill);
+  const b = norm(stackItem);
+  return a === b || (ALIASES[a]?.includes(b) ?? false);
+}

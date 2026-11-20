@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
+import { makeReducer } from '@/lib/shell/reducer';
 import {
   finalState,
-  makeReducer,
   MAX_ENTRIES,
   parseSession,
   serializeSession,

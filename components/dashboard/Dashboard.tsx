@@ -1,11 +1,13 @@
 'use client';
 
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useRef, useState, useSyncExternalStore } from 'react';
 import { Bullets } from '@/components/terminal/Bullets';
 import { Box } from '@/components/terminal/Box';
 import { Cursor } from '@/components/terminal/Cursor';
 import { Diagram } from '@/components/terminal/Diagram';
-import type { Link, Project } from '@/content/types';
+import type { Link as ContactLink, Project } from '@/content/types';
 import { useReveal } from '@/lib/hooks/useReveal';
 import { useTypewriter } from '@/lib/hooks/useTypewriter';
 import type { GitLogEntry } from '@/lib/dashboard';
@@ -16,7 +18,7 @@ type DashboardProps = {
   gitLog: readonly GitLogEntry[];
   portrait: readonly string[];
   repoCount: number;
-  contact: { email: string; github: Link; linkedin: Link };
+  contact: { email: string; github: ContactLink; linkedin: ContactLink };
 };
 
 const subscribeHash = (onChange: () => void) => {
@@ -39,6 +41,7 @@ export function Dashboard({
   const selectedSlug = picked ?? (projects.some((p) => p.slug === hash) ? hash : featured?.slug);
   const selected = projects.find((p) => p.slug === selectedSlug) ?? featured;
   const buttons = useRef<(HTMLButtonElement | null)[]>([]);
+  const router = useRouter();
 
   const title = useTypewriter(selected?.slug ?? '', { speed: 45 });
   const reveal = useReveal(portrait.length, 45);
@@ -58,6 +61,13 @@ export function Dashboard({
   };
 
   const onKeyDown = (event: React.KeyboardEvent, index: number) => {
+    if (event.key === 'Enter') {
+      // Enter opens the project's own page; clicking only selects.
+      event.preventDefault();
+      const slug = projects[index]?.slug;
+      if (slug) router.push(`/projects/${slug}/`);
+      return;
+    }
     const target =
       event.key === 'ArrowDown'
         ? index + 1
@@ -143,6 +153,11 @@ export function Dashboard({
         tone="green"
         className="flex min-h-0 flex-col gap-[14px] px-6 pt-[22px] pb-4"
       >
+        <p className="-mb-2 text-right">
+          <Link href={`/projects/${selected.slug}/`} className="text-fg-dim">
+            cd {selected.slug} →
+          </Link>
+        </p>
         <h1 className="text-[20px] font-bold" aria-live="polite" aria-atomic="true">
           <span className="sr-only">{selected.slug}</span>
           <span aria-hidden="true">

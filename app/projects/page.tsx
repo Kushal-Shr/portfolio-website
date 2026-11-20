@@ -18,6 +18,7 @@ const CARD = 'flex flex-col gap-3 px-[22px] pt-6 pb-[18px]';
 
 function Links({ project }: { project: Project }) {
   const entries = [
+    ['readme', `/projects/${project.slug}/`],
     ['source', project.links.source],
     ['devpost', project.links.devpost],
   ] as const;
@@ -53,6 +54,7 @@ function Card({ project }: { project: Project }) {
       as="article"
       id={project.slug}
       title={`${project.slug}/`}
+      titleHref={`/projects/${project.slug}/`}
       tone={project.featured ? 'green' : 'default'}
       badge={
         <p className={project.badgeTone === 'highlight' ? 'text-yellow' : 'text-fg-dim'}>

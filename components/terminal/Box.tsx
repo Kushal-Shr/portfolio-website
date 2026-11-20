@@ -1,9 +1,12 @@
+import Link from 'next/link';
 import type { ReactNode } from 'react';
 
 type Tone = 'default' | 'green' | 'yellow';
 
 type BoxProps = {
   title: string;
+  /** Makes the title a quiet link to a detail page. */
+  titleHref?: string;
   badge?: ReactNode;
   tone?: Tone;
   /** `tui` is the dashboard's lighter title: regular weight, 11px up, 12px in. */
@@ -25,6 +28,7 @@ const BORDER: Record<Tone, string> = {
 
 export function Box({
   title,
+  titleHref,
   badge,
   tone = 'default',
   variant = 'default',
@@ -46,7 +50,13 @@ export function Box({
     >
       <Heading className={`box-title ${titleColor}`}>
         <span aria-hidden="true">┤ </span>
-        {title}
+        {titleHref ? (
+          <Link href={titleHref} className="link-quiet">
+            {title}
+          </Link>
+        ) : (
+          title
+        )}
         <span aria-hidden="true"> ├</span>
       </Heading>
       {badge ? <div className="box-badge">{badge}</div> : null}

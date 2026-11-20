@@ -70,20 +70,19 @@ test.describe('commands', () => {
     await expect(dir).toHaveClass(/font-bold/);
   });
 
-  test('cd then pwd, and the title bar follows', async ({ page }) => {
+  test("cd navigates to the folder's page and the shell follows the URL", async ({ page }) => {
     await run(page, 'cd projects');
-    await run(page, 'pwd');
-    await expect(log(page)).toContainText('/home/guest/projects');
-    await expect(page.getByText('guest@portfolio: ~/projects')).toBeVisible();
+    await expect(page).toHaveURL(/\/projects\/$/);
+    await expect(page.getByLabel('command line', { exact: false })).toBeVisible();
+    await expect(page.locator('.dock').getByText('~/projects')).toBeVisible();
   });
 
   test('cat shows the file and links to the project card', async ({ page }) => {
-    await run(page, 'cd projects');
-    await run(page, 'cat zenith.md');
+    await run(page, 'cat projects/zenith/README.md');
     await expect(log(page)).toContainText('# zenith (Ghost Visualizer)');
     await expect(
-      log(page).getByRole('link', { name: 'open ~/projects/zenith.md as a page' }),
-    ).toHaveAttribute('href', '/projects/#zenith');
+      log(page).getByRole('link', { name: 'open ~/projects/zenith as a page' }),
+    ).toHaveAttribute('href', '/projects/zenith/');
   });
 
   test('sudo hire-me shows a mailto link and never a phone number', async ({ page }) => {
@@ -171,12 +170,11 @@ test.describe('chips and persistence', () => {
 
   test('clicking a chip runs it and returns focus to the input', async ({ page }) => {
     await page.getByRole('button', { name: 'tree', exact: true }).click();
-    await expect(log(page)).toContainText('4 directories');
+    await expect(log(page)).toContainText(/\d+ directories, \d+ files/);
     await expect(input(page)).toBeFocused();
   });
 
   test('the session survives navigating away and back', async ({ page, isMobile }) => {
-    await run(page, 'cd projects');
     await run(page, 'echo still-here');
     if (isMobile) {
       // The nav is off-screen on /about/ until phase 7 fixes its phone layout.
@@ -188,7 +186,7 @@ test.describe('chips and persistence', () => {
       await expect(page).toHaveURL(/\/about\/$/);
       await nav.getByRole('link', { name: /shell/ }).click();
     }
-    await expect(page.getByText('guest@portfolio: ~/projects')).toBeVisible();
+    await expect(page.getByText('guest@portfolio: ~', { exact: true })).toBeVisible();
     await expect(log(page)).toContainText('still-here');
   });
 });
@@ -196,7 +194,7 @@ test.describe('chips and persistence', () => {
 test.describe('?run= deep links', () => {
   test('/?run=tree runs tree and strips the parameter', async ({ page }) => {
     await page.goto('/?run=tree');
-    await expect(log(page)).toContainText('4 directories');
+    await expect(log(page)).toContainText(/\d+ directories, \d+ files/);
     expect(page.url()).not.toContain('run=');
     expect(new URL(page.url()).pathname).toBe('/');
   });
@@ -222,7 +220,7 @@ test.describe('without JavaScript', () => {
 test('home is clean after running several commands', async ({ page }) => {
   const errors = collectConsoleErrors(page);
   await settled(page);
-  for (const cmd of ['help', 'ls', 'cd projects', 'cat sanctuary.md', 'tree', 'contact', 'oops']) {
+  for (const cmd of ['help', 'ls', 'cat projects/sanctuary', 'tree', 'contact', 'oops']) {
     await run(page, cmd);
   }
   await expectNoA11yViolations(page);

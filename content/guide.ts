@@ -55,7 +55,12 @@ export const guide: Guide = {
           hint: '-l for details',
           kind: 'command',
         },
-        { what: 'go into a folder', cmd: 'cd projects', hint: '', kind: 'command' },
+        {
+          what: 'go into a folder (opens its page)',
+          cmd: 'cd projects',
+          hint: '',
+          kind: 'command',
+        },
         {
           what: 'go up one level, or straight home',
           cmd: 'cd ..',
@@ -94,6 +99,13 @@ export const guide: Guide = {
           hint: 'then press Tab',
           kind: 'key',
           complete: true,
+        },
+        {
+          what: 'jump to the command line from any page',
+          cmd: ':',
+          hint: 'or press /',
+          kind: 'key',
+          output: 'the command line above the tab bar takes focus',
         },
         {
           what: 'bring back earlier commands',

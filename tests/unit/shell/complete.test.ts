@@ -31,11 +31,15 @@ describe('complete: paths', () => {
   });
 
   it('completes nested paths', () => {
-    expect(tab('cat projects/ze')).toEqual({ value: 'cat projects/zenith.md', candidates: [] });
+    expect(tab('cd projects/ze')).toEqual({ value: 'cd projects/zenith/', candidates: [] });
+    expect(tab('cat projects/zenith/R')).toEqual({
+      value: 'cat projects/zenith/README.md',
+      candidates: [],
+    });
   });
 
   it('completes relative to cwd and through ../', () => {
-    expect(tab('cat ze', '~/projects')).toEqual({ value: 'cat zenith.md', candidates: [] });
+    expect(tab('cat ze', '~/projects')).toEqual({ value: 'cat zenith/', candidates: [] });
     expect(tab('cat ../pro', '~/leadership')).toEqual({
       value: 'cat ../projects/',
       candidates: [],
@@ -45,9 +49,9 @@ describe('complete: paths', () => {
   it('extends to a common prefix before listing', () => {
     expect(tab('cat projects/s')).toEqual({
       value: 'cat projects/s',
-      candidates: ['surgipath.md', 'sanctuary.md'].sort(),
+      candidates: ['surgipath/', 'sanctuary/'].sort(),
     });
-    expect(tab('cat projects/su')).toEqual({ value: 'cat projects/surgipath.md', candidates: [] });
+    expect(tab('cat projects/su')).toEqual({ value: 'cat projects/surgipath/', candidates: [] });
   });
 
   it('lists all entries for an empty word', () => {

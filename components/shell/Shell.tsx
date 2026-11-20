@@ -1,17 +1,20 @@
 'use client';
 
 import Link from 'next/link';
-import { useEffect, useMemo, useReducer, useRef } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import { Cursor } from '@/components/terminal/Cursor';
 import { useMounted } from '@/lib/hooks/useMounted';
 import { prefersReducedMotion } from '@/lib/hooks/useReducedMotion';
 import { complete } from '@/lib/shell/complete';
-import { finalState, makeReducer, parseSession, serializeSession } from '@/lib/shell/session';
-import { BOOTED_KEY, readStorage, SESSION_KEY, writeStorage } from '@/lib/shell/storage';
+import { makeReducer } from '@/lib/shell/reducer';
+import { shellStore } from '@/lib/shell/store';
+import { tabStep } from '@/lib/shell/tab';
 import type { ShellContext, ShellInfo, VirtualFs } from '@/lib/shell/types';
 import { BANNER } from './banner';
 import { CHIPS, HINT_COMMANDS } from './copy';
 import { Entry, type NeofetchData } from './Entry';
+import { useShellNavigation } from './useShellNavigation';
+import { useShellState } from './useShellState';
 
 type ShellProps = {
   fs: VirtualFs;
@@ -23,35 +26,51 @@ type ShellProps = {
 };
 
 const BOOT_TICK_MS = 38;
+const dispatch = shellStore.dispatch;
 
 export function Shell({ fs, info, intro, lastLogin, neofetch }: ShellProps) {
-  const ctx = useMemo<ShellContext>(() => ({ fs, info, now: () => new Date() }), [fs, info]);
-  const reducer = useMemo(() => makeReducer(ctx), [ctx]);
-  const [state, dispatch] = useReducer(reducer, undefined, finalState);
+  const ctx = useMemo<ShellContext>(
+    () => ({ fs, info, surface: 'home', now: () => new Date() }),
+    [fs, info],
+  );
+  const state = useShellState();
   const mounted = useMounted();
   const inputRef = useRef<HTMLInputElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const tabStuck = useRef(false);
-  const ranBoot = useRef(false);
+  const ranInit = useRef(false);
+
+  useShellNavigation(fs);
 
   const login = useMemo(
     () => (mounted ? new Date().toDateString() : lastLogin),
     [mounted, lastLogin],
   );
 
-  // Decide once, after hydration: ?run= deep link, restored session, plain final state, or boot.
   useEffect(() => {
-    if (ranBoot.current) return;
-    ranBoot.current = true;
+    shellStore.configure(makeReducer(ctx));
+  }, [ctx]);
+
+  // Decide once, after hydration: ?run= deep link, the live session, a saved one, or the boot.
+  useEffect(() => {
+    if (ranInit.current) return;
+    ranInit.current = true;
     const params = new URLSearchParams(window.location.search);
     const runParam = params.get('run')?.trim().slice(0, 100);
-    const saved = parseSession(readStorage(SESSION_KEY));
-    const alreadyBooted = readStorage(BOOTED_KEY) === '1';
+    const saved = shellStore.readSaved();
+    const booted = shellStore.readBooted();
+    const live = shellStore.getState().ready && (booted || saved !== null);
 
     if (runParam) {
-      if (saved) dispatch({ type: 'init', mode: 'restore', session: saved });
-      else dispatch({ type: 'init', mode: 'final' });
-      dispatch({ type: 'run', input: runParam, animate: !prefersReducedMotion() });
+      if (!live) {
+        dispatch(
+          saved
+            ? { type: 'init', mode: 'restore', session: saved }
+            : { type: 'init', mode: 'final' },
+        );
+      }
+      shellStore.setReplaceNext();
+      dispatch({ type: 'run', input: runParam, animate: !prefersReducedMotion(), surface: 'home' });
       params.delete('run');
       const query = params.toString();
       window.history.replaceState(
@@ -59,15 +78,17 @@ export function Shell({ fs, info, intro, lastLogin, neofetch }: ShellProps) {
         '',
         `${window.location.pathname}${query ? `?${query}` : ''}${window.location.hash}`,
       );
-      writeStorage(BOOTED_KEY, '1');
+      shellStore.writeBooted();
+    } else if (live) {
+      // Already running in this tab (we came back from another page): keep it as it is.
     } else if (saved) {
       dispatch({ type: 'init', mode: 'restore', session: saved });
-    } else if (alreadyBooted || prefersReducedMotion()) {
+    } else if (booted || prefersReducedMotion()) {
       dispatch({ type: 'init', mode: 'final' });
-      writeStorage(BOOTED_KEY, '1');
+      shellStore.writeBooted();
     } else {
       dispatch({ type: 'init', mode: 'boot' });
-      writeStorage(BOOTED_KEY, '1');
+      shellStore.writeBooted();
     }
   }, []);
 
@@ -99,7 +120,7 @@ export function Shell({ fs, info, intro, lastLogin, neofetch }: ShellProps) {
       }
       if (pause > 46) {
         clearInterval(id);
-        dispatch({ type: 'run', input: target, animate: true });
+        dispatch({ type: 'run', input: target, animate: true, surface: 'home' });
       }
     }, BOOT_TICK_MS);
     return () => clearInterval(id);
@@ -116,13 +137,6 @@ export function Shell({ fs, info, intro, lastLogin, neofetch }: ShellProps) {
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
   }, [state.booting]);
-
-  // Persist the session so leaving for /projects/ and coming back restores the terminal.
-  const { ready, booting, entries, cwd, prevCwd, history } = state;
-  useEffect(() => {
-    if (!ready || booting) return;
-    writeStorage(SESSION_KEY, serializeSession({ cwd, prevCwd, entries, history }));
-  }, [ready, booting, entries, cwd, prevCwd, history]);
 
   // Keep the newest output in view after each command (column-reverse: scrollTop 0 is the bottom).
   const entryCount = state.entries.length;
@@ -142,7 +156,7 @@ export function Shell({ fs, info, intro, lastLogin, neofetch }: ShellProps) {
   };
 
   const run = (input: string) => {
-    dispatch({ type: 'run', input, animate: !prefersReducedMotion() });
+    dispatch({ type: 'run', input, animate: !prefersReducedMotion(), surface: 'home' });
   };
 
   const onKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
@@ -153,22 +167,16 @@ export function Shell({ fs, info, intro, lastLogin, neofetch }: ShellProps) {
       event.preventDefault();
       run(state.draft);
     } else if (key === 'Tab' && !event.shiftKey) {
-      // Never trap keyboard users: with nothing to complete, Tab keeps its normal meaning.
-      if (!state.draft.trim()) return;
-      const result = complete(state.draft, state, ctx);
-      if (result.value !== state.draft) {
-        event.preventDefault();
-        tabStuck.current = false;
-        dispatch({ type: 'draft', value: result.value });
-      } else if (result.candidates.length > 0) {
-        event.preventDefault();
-        if (tabStuck.current) {
-          tabStuck.current = false;
-          dispatch({ type: 'candidates', items: result.candidates });
-        } else {
-          tabStuck.current = true;
-        }
-      }
+      const { step, stuck } = tabStep(
+        state.draft,
+        complete(state.draft, state, ctx),
+        tabStuck.current,
+      );
+      tabStuck.current = stuck;
+      if (step.kind === 'native') return;
+      event.preventDefault();
+      if (step.kind === 'replace') dispatch({ type: 'draft', value: step.value });
+      else if (step.kind === 'list') dispatch({ type: 'candidates', items: step.items });
     } else if (key === 'ArrowUp' || key === 'ArrowDown') {
       event.preventDefault();
       dispatch({ type: 'recall', direction: key === 'ArrowUp' ? 'up' : 'down' });

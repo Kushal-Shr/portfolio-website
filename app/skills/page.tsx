@@ -6,6 +6,7 @@ import { SkillsFilter } from '@/components/skills/SkillsFilter';
 import { TerminalPage } from '@/components/terminal/TerminalPage';
 import { learning, skillGroups } from '@/content/skills';
 import { skillCounts } from '@/lib/skills';
+import { slugify } from '@/lib/slug';
 import { ROUTES } from '@/lib/routes';
 
 export const metadata: Metadata = { title: 'skills' };
@@ -30,7 +31,11 @@ export default function SkillsPage() {
               .flatMap((list) => list.packages)
               .map((name) => (
                 <p key={name}>
-                  <span className="font-bold">{name}</span>
+                  <span className="font-bold">
+                    <Link href={`/skills/${slugify(name)}/`} className="link-quiet">
+                      {name}
+                    </Link>
+                  </span>
                   <span className="text-fg-dim">/stable</span>{' '}
                   <span className="text-fg-dim">[installed]</span>
                 </p>

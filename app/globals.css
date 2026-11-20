@@ -219,3 +219,95 @@ html.js [data-typing='pending'] {
     text-decoration: none;
   }
 }
+
+@layer components {
+  /* Long-form write-ups (rendered Markdown). */
+  .prose-term {
+    max-width: 72ch;
+  }
+
+  .prose-term > * + * {
+    margin-top: 0.75rem;
+  }
+
+  .prose-term h2,
+  .prose-term h3 {
+    color: var(--color-yellow);
+    font-size: inherit;
+    font-weight: 700;
+    margin-top: 1.5rem;
+  }
+
+  .prose-term h2::before {
+    content: '## ';
+  }
+
+  .prose-term h3::before {
+    content: '### ';
+  }
+
+  .prose-term code {
+    background: var(--color-bg-raised);
+    padding: 0 0.25em;
+  }
+
+  .prose-term pre {
+    background: var(--color-bg-raised);
+    padding: 8px 12px;
+    overflow-x: auto;
+  }
+
+  .prose-term pre code {
+    padding: 0;
+  }
+
+  .prose-term ul {
+    list-style: none;
+    padding-left: 0;
+  }
+
+  .prose-term li {
+    padding-left: 2ch;
+    text-indent: -2ch;
+  }
+
+  .prose-term ul > li::before {
+    content: '- ';
+    color: var(--color-fg-dim);
+  }
+
+  .prose-term ol {
+    padding-left: 3ch;
+  }
+
+  .prose-term strong {
+    color: var(--color-fg-bright);
+  }
+
+  /* A link that keeps the text colour; the dotted underline still marks it as a link. */
+  .link-quiet {
+    color: inherit;
+    text-decoration: underline dotted 1px var(--color-fg-dim);
+    text-underline-offset: 3px;
+  }
+
+  .link-quiet:hover,
+  .link-quiet:focus-visible {
+    color: inherit;
+    text-decoration: underline solid 1px var(--color-green);
+  }
+
+  .dock-group {
+    position: sticky;
+    bottom: 0;
+    z-index: 40;
+  }
+}
+
+html {
+  scroll-padding-bottom: var(--dock-h, 44px);
+}
+
+html:not(.js) .dock {
+  display: none;
+}

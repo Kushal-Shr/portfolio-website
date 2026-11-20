@@ -26,10 +26,10 @@ export const ROUTES = [
   },
   {
     key: 'experience',
-    file: '~/experience.log',
+    file: '~/experience/',
     href: '/experience/',
     label: 'experience',
-    prompt: 'git log --graph ~/experience.log',
+    prompt: 'git log --graph ~/experience',
     artboard: 'Experience',
   },
   {
@@ -42,7 +42,7 @@ export const ROUTES = [
   },
   {
     key: 'skills',
-    file: '~/skills.txt',
+    file: '~/skills/',
     href: '/skills/',
     label: 'skills',
     prompt: 'apt list --installed',
@@ -66,7 +66,7 @@ export const ROUTES = [
   },
   {
     key: 'guide',
-    file: '~/guide',
+    file: '~/guide.md',
     href: '/guide/',
     label: 'guide',
     prompt: 'tldr portfolio-sh',

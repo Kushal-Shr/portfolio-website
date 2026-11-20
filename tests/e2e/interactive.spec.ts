@@ -129,7 +129,7 @@ test.describe('guide', () => {
     await details.locator('summary').click();
     await details.getByRole('link', { name: '▶ run it in the shell' }).click();
     await expect(page).toHaveURL(/\/$/);
-    await expect(page.getByRole('log')).toContainText('4 directories');
+    await expect(page.getByRole('log')).toContainText(/\d+ directories, \d+ files/);
   });
 
   test('shows real outputs from the shell engine', async ({ page }) => {

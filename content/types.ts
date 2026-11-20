@@ -103,6 +103,7 @@ export type ExtraProject = {
 export type ImpactItem = MaybeTodo;
 
 export type LeadershipRole = {
+  slug: string;
   pid: string;
   role: string;
   org: string;

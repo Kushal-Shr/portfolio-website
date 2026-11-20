@@ -1,4 +1,6 @@
 import type { Metadata } from 'next';
+import { AchievementRows } from '@/components/leadership/AchievementRows';
+import { RoleTable } from '@/components/leadership/RoleTable';
 import { Box } from '@/components/terminal/Box';
 import { MaybeTodoText } from '@/components/terminal/TodoText';
 import { TerminalPage } from '@/components/terminal/TerminalPage';
@@ -10,7 +12,6 @@ import { ROUTES } from '@/lib/routes';
 export const metadata: Metadata = { title: 'leadership' };
 
 const prompt = ROUTES.find((r) => r.key === 'leadership')?.prompt ?? undefined;
-const COLUMNS = ['PID', 'ROLE', 'ORG', 'SCOPE', 'STAT', 'STATUS'];
 
 export default function LeadershipPage() {
   const withImpact = leadership.filter((l) => l.impact);
@@ -18,42 +19,7 @@ export default function LeadershipPage() {
   return (
     <TerminalPage prompt={prompt}>
       <h1 className="sr-only">Leadership</h1>
-      <table className="w-full border-collapse">
-        <caption className="text-fg-dim pb-2 text-left">
-          ps aux --leadership · roles I&apos;ve taken on outside my day job
-        </caption>
-        <thead>
-          <tr className="bg-green">
-            {COLUMNS.map((col, i) => (
-              <th
-                key={col}
-                scope="col"
-                className={`text-bg py-1.5 pr-4 text-left font-bold ${i === 0 ? 'pl-2.5' : 'pl-0'}`}
-              >
-                {col}
-              </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {leadership.map((l) => (
-            <tr key={l.pid} className="border-line border-b">
-              <td className="text-fg-dim py-2 pr-4 pl-2.5">{l.pid}</td>
-              <td className="py-2 pr-4 align-top">
-                <span className="font-bold">{l.role}</span>
-              </td>
-              <td className="py-2 pr-4 align-top">{l.org}</td>
-              <td className="py-2 pr-4 align-top">{l.scope}</td>
-              <td className="py-2 pr-4 align-top">{l.stat}</td>
-              <td className="py-2 pr-4 align-top">
-                <span className={l.status.tone === 'running' ? 'text-green' : 'text-fg-dim'}>
-                  {l.status.text}
-                </span>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      <RoleTable roles={leadership} />
 
       <div className="grid grid-cols-2 gap-[28px] pt-3">
         {withImpact.map((l) => (
@@ -84,30 +50,11 @@ export default function LeadershipPage() {
 
         <Box
           title="ls ~/achievements"
+          titleHref="/leadership/achievements/"
           tone="yellow"
           className="col-span-full flex flex-col gap-2.5 px-[22px] pt-6 pb-[18px]"
         >
-          <div className="grid grid-cols-[22ch_34ch_minmax(0,1fr)] gap-y-[6px]">
-            {achievements.map((a) => {
-              const detail =
-                a.inlineVenue && a.location ? `${a.description}, ${a.location}` : a.description;
-              return (
-                <div key={a.id} className="contents">
-                  <span className="font-bold">{a.event}</span>
-                  <span className="text-yellow">{a.award}</span>
-                  <span>
-                    {/[.]$/.test(detail) ? detail : `${detail}.`}
-                    {a.link ? (
-                      <>
-                        {' '}
-                        <a href={a.link}>[devpost]</a>
-                      </>
-                    ) : null}
-                  </span>
-                </div>
-              );
-            })}
-          </div>
+          <AchievementRows achievements={achievements} />
         </Box>
       </div>
     </TerminalPage>

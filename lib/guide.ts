@@ -1,15 +1,9 @@
-import { achievements } from '@/content/achievements';
-import { experience } from '@/content/experience';
-import { leadership } from '@/content/leadership';
-import { profile } from '@/content/profile';
-import { projects } from '@/content/projects';
-import { learning, skillGroups } from '@/content/skills';
 import type { GuideItem } from '@/content/types';
 import { neofetchRows } from '@/lib/neofetch';
 import { complete } from '@/lib/shell/complete';
 import { exec } from '@/lib/shell/exec';
-import { buildVirtualFs } from '@/lib/shell/fs';
 import { text } from '@/lib/shell/lines';
+import { buildSiteFs, shellInfo } from '@/lib/site-data';
 import type { Line, ShellContext, ShellState } from '@/lib/shell/types';
 
 export const DEFAULT_MAX_LINES = 4;
@@ -20,21 +14,9 @@ export type GuideOptions = Pick<GuideItem, 'setup' | 'show' | 'maxLines' | 'comp
 /** The same context the home page builds, so guide examples can't drift from the real shell. */
 export function createGuideContext(now: Date = new Date()): ShellContext {
   return {
-    fs: buildVirtualFs({
-      profile,
-      experience,
-      projects,
-      leadership,
-      achievements,
-      skillGroups,
-      learning,
-    }),
+    fs: buildSiteFs(),
     now: () => now,
-    info: {
-      email: profile.email,
-      github: profile.links.github,
-      linkedin: profile.links.linkedin,
-    },
+    info: shellInfo,
   };
 }
 

@@ -31,12 +31,19 @@ export default function ExperiencePage() {
               </div>
               <div className="flex flex-col gap-1 pb-7">
                 <p>
-                  <span className="text-yellow">commit {e.commit}</span>
+                  <Link
+                    href={`/experience/${e.id}/`}
+                    className="link-quiet text-yellow inline-block min-h-6"
+                  >
+                    commit {e.commit}
+                  </Link>
                   {i === 0 ? <span className="text-blue font-bold"> (HEAD -&gt; main)</span> : null}
                 </p>
                 <h2 className="text-[20px] font-bold">
-                  {e.title}
-                  {e.titleNote ? ` (${e.titleNote})` : ''} @ {e.org}
+                  <Link href={`/experience/${e.id}/`} className="link-quiet">
+                    {e.title}
+                    {e.titleNote ? ` (${e.titleNote})` : ''} @ {e.org}
+                  </Link>
                 </h2>
                 <p className="text-fg-dim">
                   Date: {formatRange(e.start, e.end, 'arrow')} · {where}

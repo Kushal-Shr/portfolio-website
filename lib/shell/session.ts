@@ -1,5 +1,4 @@
-import { exec } from './exec';
-import type { Line, Segment, ShellContext } from './types';
+import type { Line } from './types';
 
 export type Entry = {
   id: number;
@@ -25,16 +24,20 @@ export type SessionState = {
   booting: boolean;
   /** False until the client has decided between boot, restore and the final state. */
   ready: boolean;
+  /** A page the UI should go to next (set by `cd`/`open`); never persisted. */
+  pendingNavigation?: string;
 };
 
 export type Action =
+  | { type: 'sync-cwd'; cwd: string }
+  | { type: 'navigated' }
   | { type: 'init'; mode: 'boot' }
   | { type: 'init'; mode: 'final' }
   | { type: 'init'; mode: 'restore'; session: SavedSession }
   | { type: 'type-intro'; count: number }
   | { type: 'boot-draft'; value: string }
   | { type: 'stop-boot' }
-  | { type: 'run'; input: string; animate?: boolean }
+  | { type: 'run'; input: string; animate?: boolean; surface?: 'home' | 'dock' }
   | { type: 'draft'; value: string }
   | { type: 'recall'; direction: 'up' | 'down' }
   | { type: 'candidates'; items: string[] }
@@ -59,113 +62,11 @@ export function finalState(): SessionState {
   };
 }
 
-const withEntry = (state: SessionState, entry: Omit<Entry, 'id'>): SessionState => ({
+export const withEntry = (state: SessionState, entry: Omit<Entry, 'id'>): SessionState => ({
   ...state,
   entries: [...state.entries, { ...entry, id: state.nextId }].slice(-MAX_ENTRIES),
   nextId: state.nextId + 1,
 });
-
-export function makeReducer(ctx: ShellContext) {
-  return function reduce(state: SessionState, action: Action): SessionState {
-    switch (action.type) {
-      case 'init': {
-        if (action.mode === 'boot') {
-          return {
-            ...state,
-            entries: [],
-            history: [],
-            introTyped: 0,
-            booting: true,
-            ready: true,
-          };
-        }
-        if (action.mode === 'restore') {
-          const s = action.session;
-          const next = { ...state, ...s, ready: true };
-          return { ...next, nextId: Math.max(0, ...s.entries.map((e) => e.id)) + 1 };
-        }
-        return { ...state, ready: true };
-      }
-
-      case 'type-intro':
-        return { ...state, introTyped: action.count };
-
-      case 'boot-draft':
-        return { ...state, draft: action.value };
-
-      case 'stop-boot':
-        return state.booting ? { ...state, booting: false, introTyped: null, draft: '' } : state;
-
-      case 'draft':
-        return { ...state, draft: action.value };
-
-      case 'run': {
-        const input = action.input.trim();
-        const base = { ...state, booting: false, introTyped: null, draft: '', recallIndex: null };
-        const result = exec(
-          input,
-          { cwd: state.cwd, prevCwd: state.prevCwd, history: state.history },
-          ctx,
-        );
-        const history = input ? [...state.history, input].slice(-MAX_HISTORY) : state.history;
-        const moved = result.cwd !== state.cwd;
-        const next: SessionState = {
-          ...base,
-          history,
-          cwd: result.cwd,
-          prevCwd: moved ? state.cwd : state.prevCwd,
-        };
-        if (result.clear) return { ...next, entries: [] };
-        return withEntry(next, {
-          cwd: state.cwd,
-          input,
-          lines: result.lines,
-          ...(action.animate ? { animate: true } : {}),
-        });
-      }
-
-      case 'recall': {
-        const past = state.history;
-        if (past.length === 0) return state;
-        const from = state.recallIndex ?? past.length;
-        const index =
-          action.direction === 'up' ? Math.max(0, from - 1) : Math.min(past.length, from + 1);
-        return {
-          ...state,
-          recallIndex: index,
-          draft: index < past.length ? (past[index] ?? '') : '',
-        };
-      }
-
-      case 'candidates': {
-        const items: Segment[] = action.items.map((name) =>
-          name.endsWith('/') ? { text: name, tone: 'dir', bold: true } : { text: name },
-        );
-        return withEntry(state, {
-          cwd: state.cwd,
-          input: state.draft,
-          lines: [{ kind: 'items', items }],
-          record: false,
-        });
-      }
-
-      case 'ctrl-c':
-        return {
-          ...withEntry(state, {
-            cwd: state.cwd,
-            input: `${state.draft}^C`,
-            lines: [],
-            record: false,
-          }),
-          draft: '',
-          recallIndex: null,
-        };
-
-      case 'clear':
-        return { ...state, entries: [] };
-    }
-  };
-}
 
 export type SavedSession = Pick<SessionState, 'cwd' | 'prevCwd' | 'entries' | 'history'>;
 
@@ -208,5 +109,30 @@ export function parseSession(raw: string | null): SavedSession | null {
     };
   } catch {
     return null;
+  }
+}
+
+/** The actions that need no engine, so the dock can apply them before the engine has loaded. */
+export function lightReduce(state: SessionState, action: Action): SessionState | undefined {
+  switch (action.type) {
+    case 'sync-cwd':
+      return action.cwd === state.cwd ? state : { ...state, cwd: action.cwd, prevCwd: state.cwd };
+    case 'navigated': {
+      if (state.pendingNavigation === undefined) return state;
+      return { ...state, pendingNavigation: undefined };
+    }
+    case 'init': {
+      if (action.mode === 'boot') {
+        return { ...state, entries: [], history: [], introTyped: 0, booting: true, ready: true };
+      }
+      if (action.mode === 'restore') {
+        const s = action.session;
+        const nextId = Math.max(0, ...s.entries.map((e) => e.id)) + 1;
+        return { ...state, ...s, ready: true, nextId };
+      }
+      return { ...state, ready: true };
+    }
+    default:
+      return undefined;
   }
 }

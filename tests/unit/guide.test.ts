@@ -70,11 +70,8 @@ describe('guide examples run through the real shell', () => {
     expect(render('cd ..', { setup: ['cd projects'] })).toEqual(['the prompt changes to ~']);
   });
 
-  it('describes a directory change and keeps the page link', () => {
-    expect(render('cd projects')).toEqual([
-      'the prompt changes to ~/projects',
-      '↗ open ~/projects as a page -> /projects/',
-    ]);
+  it('describes a directory change, since cd itself prints nothing', () => {
+    expect(render('cd projects')).toEqual(['the prompt changes to ~/projects']);
   });
 
   it('shows real history for the clear item', () => {
@@ -101,8 +98,8 @@ describe('guide examples run through the real shell', () => {
     expect(lines.at(-1)).toBe('…');
   });
 
-  it('only keeps static output for the arrow-key item', () => {
-    expect(items.filter((i) => i.output).map((i) => i.cmd)).toEqual(['↑  ↓']);
+  it('only keeps static output for the keys the shell cannot run', () => {
+    expect(items.filter((i) => i.output).map((i) => i.cmd)).toEqual([':', '↑  ↓']);
   });
 });
 

@@ -1,25 +1,11 @@
-import { achievements, experience, leadership, profile, projects, skillGroups } from '@/content';
-import { learning } from '@/content/skills';
+import { buildSiteFs, shellInfo } from '@/lib/site-data';
 import { exec } from '@/lib/shell/exec';
-import { buildVirtualFs } from '@/lib/shell/fs';
 import type { ExecResult, Line, ShellContext, ShellState } from '@/lib/shell/types';
 
 export const ctx: ShellContext = {
-  fs: buildVirtualFs({
-    profile,
-    experience,
-    projects,
-    leadership,
-    achievements,
-    skillGroups,
-    learning,
-  }),
+  fs: buildSiteFs(),
   now: () => new Date(2026, 10, 19, 14, 5),
-  info: {
-    email: profile.email,
-    github: profile.links.github,
-    linkedin: profile.links.linkedin,
-  },
+  info: shellInfo,
 };
 
 export const state = (cwd = '~', extra: Partial<ShellState> = {}): ShellState => ({

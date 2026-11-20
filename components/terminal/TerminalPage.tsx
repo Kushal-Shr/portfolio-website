@@ -1,4 +1,6 @@
 import type { ReactNode } from 'react';
+import { ShellDock } from '@/components/shell/ShellDock';
+import { shellInfo } from '@/lib/site-data';
 import { NavBar } from './NavBar';
 import { TypedPrompt } from './TypedPrompt';
 
@@ -8,6 +10,8 @@ type TerminalPageProps = {
   padX?: 'default' | 'wide';
   /** Top padding: the dashboard uses 20px instead of 24px. */
   padTop?: 'default' | 'compact';
+  /** The docked command line above the nav bar (off on the home page, which is the shell). */
+  dock?: boolean;
   /** Fill the viewport exactly and keep the page from scrolling (the shell scrolls inside). */
   fill?: boolean;
   /** Bottom padding above the nav as a Tailwind class. */
@@ -23,6 +27,7 @@ export function TerminalPage({
   promptPath,
   padX = 'default',
   padTop = 'default',
+  dock = true,
   fill = false,
   padBottom = 'pb-6',
   gap = 'gap-6',
@@ -46,7 +51,10 @@ export function TerminalPage({
           {children}
         </main>
       </div>
-      <NavBar />
+      <div className="dock-group" data-print="hide">
+        {dock ? <ShellDock info={shellInfo} /> : null}
+        <NavBar />
+      </div>
     </div>
   );
 }
