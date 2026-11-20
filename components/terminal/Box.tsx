@@ -14,6 +14,8 @@ type BoxProps = {
   as?: 'section' | 'article' | 'aside' | 'div';
   headingLevel?: 2 | 3;
   id?: string;
+  /** An accessible name for the region when the title alone is too terse. */
+  ariaLabel?: string;
   /** Marks the box for the skills filter (`data-section`). */
   section?: string;
   className?: string;
@@ -35,6 +37,7 @@ export function Box({
   as: Tag = 'section',
   headingLevel = 2,
   id,
+  ariaLabel,
   section,
   className = 'px-5 pt-6 pb-4',
   children,
@@ -45,6 +48,7 @@ export function Box({
   return (
     <Tag
       id={id}
+      aria-label={ariaLabel}
       data-section={section}
       className={`relative border ${BORDER[tone]} ${variant === 'tui' ? 'box-tui' : ''} ${className}`}
     >

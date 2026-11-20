@@ -8,7 +8,7 @@ import { TerminalPage } from '@/components/terminal/TerminalPage';
 import { leadership } from '@/content/leadership';
 import { isTodo } from '@/content/types';
 import { trailFor } from '@/lib/detail';
-import { siteTree } from '@/lib/site-data';
+import { loadSiteTree } from '@/lib/site-load';
 import { loadWriteup } from '@/lib/writeups';
 
 export const dynamicParams = false;
@@ -62,7 +62,7 @@ export default async function RolePage({ params }: Props) {
 
       <WriteUp html={writeup.html} name={`${l.role} · ${l.org}`} />
 
-      <PageTrail trail={trailFor(siteTree, `~/leadership/${l.slug}`)} />
+      <PageTrail trail={trailFor(await loadSiteTree(), `~/leadership/${l.slug}`)} />
     </TerminalPage>
   );
 }

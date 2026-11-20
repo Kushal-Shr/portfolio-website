@@ -5,14 +5,14 @@ import { Box } from '@/components/terminal/Box';
 import { TerminalPage } from '@/components/terminal/TerminalPage';
 import { achievements } from '@/content/achievements';
 import { trailFor } from '@/lib/detail';
-import { siteTree } from '@/lib/site-data';
+import { loadSiteTree } from '@/lib/site-load';
 
 export const metadata: Metadata = {
   title: 'achievements',
   description: 'Competitions Kushal has won.',
 };
 
-export default function AchievementsPage() {
+export default async function AchievementsPage() {
   return (
     <TerminalPage prompt="ls -l achievements" promptPath="~/leadership">
       <h1 className="text-[20px] font-bold">achievements</h1>
@@ -21,7 +21,7 @@ export default function AchievementsPage() {
       </Box>
       <PageTrail
         trail={{
-          ...trailFor(siteTree, '~/leadership/achievements'),
+          ...trailFor(await loadSiteTree(), '~/leadership/achievements'),
           prev: undefined,
           next: undefined,
         }}

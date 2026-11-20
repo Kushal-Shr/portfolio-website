@@ -1,5 +1,6 @@
 design/
 docs/
 out/
+out-journey/
 .next/
 pnpm-lock.yaml

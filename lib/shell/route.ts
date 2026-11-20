@@ -26,6 +26,8 @@ export function cwdFromPathname(pathname: string): string | undefined {
   if (parts.length === 0) return '~';
   const [first] = parts;
   if (parts.length === 1 && ['about', 'resume', 'guide'].includes(first ?? '')) return '~';
+  // `/journey/archive/` is a file page (`~/journey/archive.log`), so its cwd is the folder.
+  if (first === 'journey' && parts[1] === 'archive' && parts.length === 2) return '~/journey';
   if (SECTIONS.includes(first ?? '')) return `~/${parts.join('/')}`;
   return undefined;
 }

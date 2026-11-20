@@ -4,17 +4,23 @@ import { complete } from '@/lib/shell/complete';
 import { exec } from '@/lib/shell/exec';
 import { text } from '@/lib/shell/lines';
 import { buildSiteFs, shellInfo } from '@/lib/site-data';
-import type { Line, ShellContext, ShellState } from '@/lib/shell/types';
+import type { Line, ShellContext, ShellState, VirtualFs } from '@/lib/shell/types';
 
 export const DEFAULT_MAX_LINES = 4;
 
 export type GuideExample = { lines: Line[]; truncated: boolean };
 export type GuideOptions = Pick<GuideItem, 'setup' | 'show' | 'maxLines' | 'complete'>;
 
-/** The same context the home page builds, so guide examples can't drift from the real shell. */
-export function createGuideContext(now: Date = new Date()): ShellContext {
+/**
+ * The same context the home page builds, so guide examples can't drift from the real shell. The
+ * guide page passes the full filesystem (journey included); tests use the content-only one.
+ */
+export function createGuideContext(
+  now: Date = new Date(),
+  fs: VirtualFs = buildSiteFs(),
+): ShellContext {
   return {
-    fs: buildSiteFs(),
+    fs,
     now: () => now,
     info: shellInfo,
   };

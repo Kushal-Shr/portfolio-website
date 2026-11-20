@@ -34,10 +34,25 @@ function pageLink(ctx: ShellContext, path: string): Line[] {
   return route ? [link('↗ ', `open ${pagePath(ctx.fs, path)} as a page`, route)] : [];
 }
 
-function childPaths(fs: VirtualFs, path: string): string[] {
+/**
+ * A folder's children as `ls` and `tree` show them: a capped folder (the journey) keeps only its
+ * first `cap.dirs` subfolders and reports the rest as `… N <hint>`.
+ */
+function listing(fs: VirtualFs, path: string): { names: string[]; more?: string } {
   const node = fs[path];
-  return node?.type === 'dir' ? node.children.map((c) => joinPath(path, c)) : [];
+  if (node?.type !== 'dir') return { names: [] };
+  if (!node.cap) return { names: node.children };
+  const dirs = node.children.filter((c) => isDir(fs, joinPath(path, c)));
+  const hidden = dirs.length - node.cap.dirs;
+  if (hidden <= 0) return { names: node.children };
+  const shown = new Set(dirs.slice(0, node.cap.dirs));
+  return {
+    names: node.children.filter((c) => shown.has(c) || !isDir(fs, joinPath(path, c))),
+    more: `… ${hidden} ${node.cap.hint}`,
+  };
 }
+
+const JOURNEY_DATE = /^\d{4}-\d{2}-\d{2}$/;
 
 /** `tree` lines for `root`, down to `depth` levels, plus the directory and file counts. */
 function treeLines(fs: VirtualFs, root: string, depth: number): Line[] {
@@ -46,9 +61,10 @@ function treeLines(fs: VirtualFs, root: string, depth: number): Line[] {
   let files = 0;
   const walk = (path: string, prefix: string, level: number) => {
     if (level > depth) return;
-    const kids = childPaths(fs, path);
+    const { names, more } = listing(fs, path);
+    const kids = names.map((c) => joinPath(path, c));
     kids.forEach((kid, i) => {
-      const last = i === kids.length - 1;
+      const last = i === kids.length - 1 && !more;
       const d = isDir(fs, kid);
       if (d) dirs += 1;
       else files += 1;
@@ -62,6 +78,7 @@ function treeLines(fs: VirtualFs, root: string, depth: number): Line[] {
       );
       if (d) walk(kid, `${prefix}${last ? '    ' : '│   '}`, level + 1);
     });
+    if (more) lines.push(text(`${prefix}└── ${more}`, 'dim'));
   };
   walk(root, '', 1);
   lines.push(text(`${dirs} directories, ${files} files`, 'dim'));
@@ -101,10 +118,12 @@ export function exec(input: string, state: ShellState, ctx: ShellContext): ExecR
       if (!path || node?.type !== 'dir') {
         return ok([text(`ls: cannot access '${target}': No such file or directory`, 'err')]);
       }
+      const { names, more } = listing(fs, path);
+      const tail = more ? [text(more, 'dim')] : [];
       if (flags.includes('l') || cmd === 'll') {
         return ok([
           text(`total ${node.children.length}`, 'dim'),
-          ...node.children.map((name): Line => {
+          ...names.map((name): Line => {
             const child = joinPath(path, name);
             const d = isDir(fs, child);
             const childNode = fs[child];
@@ -115,9 +134,10 @@ export function exec(input: string, state: ShellState, ctx: ShellContext): ExecR
             if (route) segments.push(seg(`    ${route}`, 'dim'));
             return { kind: 'text', segments };
           }),
+          ...tail,
         ]);
       }
-      return ok([{ kind: 'items', items: node.children.map((n) => entryName(fs, path, n)) }]);
+      return ok([{ kind: 'items', items: names.map((n) => entryName(fs, path, n)) }, ...tail]);
     }
 
     case 'cd': {
@@ -218,7 +238,8 @@ export function exec(input: string, state: ShellState, ctx: ShellContext): ExecR
 
     case 'tail': {
       const journey = fs['~/journey'];
-      const slugs = journey?.type === 'dir' ? [...journey.children].sort() : [];
+      const slugs =
+        journey?.type === 'dir' ? journey.children.filter((c) => JOURNEY_DATE.test(c)).sort() : [];
       const latest = slugs[slugs.length - 1];
       const entry = latest ? fs[`~/journey/${latest}/README.md`] : undefined;
       if (latest && entry?.type === 'file') {

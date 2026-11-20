@@ -231,7 +231,10 @@ html.js [data-typing='pending'] {
   }
 
   .prose-term h2,
-  .prose-term h3 {
+  .prose-term h3,
+  .prose-term h4,
+  .prose-term h5,
+  .prose-term h6 {
     color: var(--color-yellow);
     font-size: inherit;
     font-weight: 700;
@@ -244,6 +247,20 @@ html.js [data-typing='pending'] {
 
   .prose-term h3::before {
     content: '### ';
+  }
+
+  /* Journey notes start at h3 (they sit under the entry's own heading). */
+  .prose-term h4::before {
+    content: '#### ';
+  }
+
+  .prose-term h5::before,
+  .prose-term h6::before {
+    content: '##### ';
+  }
+
+  .prose-term a {
+    overflow-wrap: anywhere;
   }
 
   .prose-term code {

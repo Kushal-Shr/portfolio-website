@@ -14,7 +14,10 @@
     "test:watch": "vitest",
     "test:e2e": "playwright test",
     "check": "pnpm lint && pnpm typecheck && pnpm test && pnpm build",
-    "content:todos": "tsx scripts/content-todos.ts"
+    "content:todos": "tsx scripts/content-todos.ts",
+    "journey:new": "tsx scripts/new-entry.ts",
+    "journey:check": "tsx scripts/journey-check.ts",
+    "build:journey-fixtures": "JOURNEY_DIR=tests/fixtures/journey next build && rm -rf out-journey && mv out out-journey"
   },
   "dependencies": {
     "gray-matter": "^4.0.3",

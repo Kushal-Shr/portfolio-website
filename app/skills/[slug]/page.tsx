@@ -8,7 +8,7 @@ import { TerminalPage } from '@/components/terminal/TerminalPage';
 import { skillArt } from '@/content/art';
 import { skillGroups } from '@/content/skills';
 import { trailFor, usageOf } from '@/lib/detail';
-import { siteTree } from '@/lib/site-data';
+import { loadSiteTree } from '@/lib/site-load';
 import { skillEntries } from '@/lib/site-tree';
 import { loadWriteup } from '@/lib/writeups';
 
@@ -85,7 +85,7 @@ export default async function SkillPage({ params }: Props) {
 
       <WriteUp html={notes.html} name={skill.name} optional />
 
-      <PageTrail trail={trailFor(siteTree, `~/skills/${skill.slug}`)} />
+      <PageTrail trail={trailFor(await loadSiteTree(), `~/skills/${skill.slug}`)} />
     </TerminalPage>
   );
 }

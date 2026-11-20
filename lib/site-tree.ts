@@ -1,4 +1,5 @@
 import type { Achievement, Experience, LeadershipRole, Project, SkillGroup } from '@/content/types';
+import { JOURNEY_PAGE_SIZE, type JourneyMeta } from './journey/types';
 import type { RouteKey } from './routes';
 import { slugify } from './slug';
 
@@ -13,10 +14,14 @@ export type SiteNode = {
   section: RouteKey;
   /** Skill pages: the box the skill belongs to (`languages`, `ai-data`, `cloud`). */
   group?: SkillGroup['key'];
+  /** A directory that `ls` and `tree` show only part of (the journey: newest 30 entries). */
+  cap?: { dirs: number; hint: string };
   children?: SiteNode[];
 };
 
-export type JourneyNode = { slug: string; title: string };
+export type JourneyNode = Pick<JourneyMeta, 'slug' | 'date' | 'day'>;
+
+export const JOURNEY_ARCHIVE_PATH = '~/journey/archive.log';
 
 export type SiteContent = {
   projects: readonly Project[];
@@ -105,9 +110,10 @@ export function buildSiteTree(
   const skillDirs = skillEntries(skillGroups).map((s) =>
     item('~/skills', '/skills/', s.slug, s.name, 'skills', { group: s.group }),
   );
-  const journeyDirs = journeyEntries.map((j) =>
-    item('~/journey', '/journey/', j.slug, j.title, 'journey'),
-  );
+  // Newest first, like the page; the archive file lists every one of them.
+  const journeyDirs = [...journeyEntries]
+    .sort((a, b) => b.date.localeCompare(a.date))
+    .map((j) => item('~/journey', '/journey/', j.slug, `day ${j.day} · ${j.date}`, 'journey'));
 
   return dir('~', '/', 'home', 'shell', [
     dir('~/dashboard', '/dashboard/', 'dashboard', 'dashboard', [
@@ -131,7 +137,14 @@ export function buildSiteTree(
       ...skillDirs,
     ]),
     file('~/resume.txt', 'resume', 'resume', '/resume/'),
-    dir('~/journey', '/journey/', 'journey', 'journey', journeyDirs),
+    dir(
+      '~/journey',
+      '/journey/',
+      'journey',
+      'journey',
+      [...journeyDirs, file(JOURNEY_ARCHIVE_PATH, 'archive', 'journey', '/journey/archive/')],
+      { cap: { dirs: JOURNEY_PAGE_SIZE, hint: 'older: open archive' } },
+    ),
     file('~/guide.md', 'guide', 'guide', '/guide/'),
   ]);
 }

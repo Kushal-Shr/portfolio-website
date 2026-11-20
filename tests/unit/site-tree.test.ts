@@ -15,9 +15,10 @@ import {
   pageSiblings,
   skillEntries,
 } from '@/lib/site-tree';
-import { cwdForRoute } from '@/lib/shell/route';
+import { trailFor } from '@/lib/detail';
+import { cwdForRoute, cwdFromPathname } from '@/lib/shell/route';
 import { matchesSkill } from '@/lib/skills';
-import { ctx } from './shell/helpers';
+import { ctx, fixtureMeta, journeyCtx } from './shell/helpers';
 
 const nodes = flatten(siteTree);
 const pages = nodes.filter((n) => n.href);
@@ -133,11 +134,43 @@ describe('site tree', () => {
         cwdForHref(siteTree, n.href as string),
       );
     expect(cwdForRoute(ctx.fs, '/nope/')).toBeUndefined();
+    const tree = buildSiteTree(shellContent, fixtureMeta);
+    for (const n of flatten(tree).filter((x) => x.href))
+      expect(cwdForRoute(journeyCtx.fs, n.href as string), n.href).toBe(
+        cwdForHref(tree, n.href as string),
+      );
   });
 
-  it('plans journey entries in, for phase 7', () => {
-    const tree = buildSiteTree(shellContent, [{ slug: '2026-11-19', title: 'a day' }]);
-    expect(findByHref(tree, '/journey/2026-11-19/')?.section).toBe('journey');
+  it('puts journey entries in, newest first, with the archive after them', () => {
+    const tree = buildSiteTree(shellContent, fixtureMeta);
+    expect(findByHref(tree, '/journey/2026-11-19/')).toMatchObject({
+      section: 'journey',
+      path: '~/journey/2026-11-19',
+      kind: 'dir',
+      title: `day ${fixtureMeta[0]?.day} · 2026-11-19`,
+    });
+    expect(findByPath(tree, '~/journey/2026-11-19/README.md')?.kind).toBe('file');
+    const kids = findByPath(tree, '~/journey')?.children?.map((c) => c.path) ?? [];
+    expect(kids).toHaveLength(fixtureMeta.length + 1);
+    expect(kids[0]).toBe('~/journey/2026-11-19');
+    expect(kids.at(-1)).toBe('~/journey/archive.log');
+    expect(findByHref(tree, '/journey/archive/')?.path).toBe('~/journey/archive.log');
+    expect(cwdForHref(tree, '/journey/archive/')).toBe('~/journey');
+    expect(cwdFromPathname('/journey/archive/')).toBe('~/journey');
+    expect(cwdForHref(tree, '/journey/2026-11-19/')).toBe('~/journey/2026-11-19');
+  });
+
+  it('pages journey entries in date order, without the archive', () => {
+    const tree = buildSiteTree(shellContent, fixtureMeta);
+    expect(trailFor(tree, '~/journey/2026-11-18')).toMatchObject({
+      up: { href: '/journey/' },
+      prev: { href: '/journey/2026-11-17/' },
+      next: { href: '/journey/2026-11-19/' },
+    });
+    expect(trailFor(tree, '~/journey/2026-11-19').next).toBeUndefined();
+    expect(trailFor(tree, '~/journey/2026-10-05').prev).toBeUndefined();
+    // Skipped days are skipped by the trail too.
+    expect(trailFor(tree, '~/journey/2026-11-10').prev?.href).toBe('/journey/2026-11-07/');
   });
 
   it('pages siblings in content order', () => {

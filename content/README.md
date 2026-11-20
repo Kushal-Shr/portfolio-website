@@ -10,7 +10,7 @@ Every fact on the site lives here, once. Pages, the shell, the resume and the da
 | `experience/<id>.md`    | The long write-up on each job's page                                                      |
 | `leadership/<slug>.md`  | The long write-up on each leadership role's page                                          |
 | `achievements/<id>.md`  | The long write-up on each competition win's page                                          |
-| `journey/YYYY-MM-DD.md` | Daily journey entries (phase 7)                                                           |
+| `journey/YYYY-MM-DD.md` | Daily journey entries, written by Kushal (format and workflow: `journey/README.md`)       |
 
 ## Write-ups
 

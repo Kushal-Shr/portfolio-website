@@ -13,7 +13,7 @@ import { projectArt } from '@/content/art';
 import { achievements } from '@/content/achievements';
 import { projects } from '@/content/projects';
 import { skillFor, trailFor } from '@/lib/detail';
-import { siteTree } from '@/lib/site-data';
+import { loadSiteTree } from '@/lib/site-load';
 import { loadWriteup } from '@/lib/writeups';
 
 export const dynamicParams = false;
@@ -121,7 +121,7 @@ export default async function ProjectPage({ params }: Props) {
         </section>
       ) : null}
 
-      <PageTrail trail={trailFor(siteTree, `~/projects/${p.slug}`)} />
+      <PageTrail trail={trailFor(await loadSiteTree(), `~/projects/${p.slug}`)} />
     </TerminalPage>
   );
 }

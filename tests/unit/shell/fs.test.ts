@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { shellContent } from '@/lib/site-data';
 import { buildVirtualFs } from '@/lib/shell/fs';
 import { projects } from '@/content/projects';
-import { ctx, plain } from './helpers';
+import { ctx, journeyCtx, plain } from './helpers';
 import type { Line } from '@/lib/shell/types';
 
 describe('buildVirtualFs', () => {
@@ -42,19 +42,38 @@ describe('buildVirtualFs', () => {
     expect(ctx.fs['~/skills.txt']).toBeUndefined();
   });
 
-  it('starts with an empty journey and accepts entries', () => {
-    expect(ctx.fs['~/journey']).toMatchObject({ type: 'dir', children: [] });
+  it('starts with an empty journey (just the archive) and accepts entries', () => {
+    expect(ctx.fs['~/journey']).toMatchObject({ type: 'dir', children: ['archive.log'] });
     const fs = buildVirtualFs(shellContent, [
       {
         slug: '2026-11-19',
-        title: '2026-11-19',
-        lines: [{ kind: 'text', segments: [{ text: 'hi' }] }],
+        date: '2026-11-19',
+        day: 1,
+        learned: 'L',
+        built: 'B',
+        next: 'N',
+        tags: [],
       },
     ]);
-    expect(fs['~/journey']).toMatchObject({ children: ['2026-11-19'] });
+    expect(fs['~/journey']).toMatchObject({ children: ['2026-11-19', 'archive.log'] });
     expect(fs['~/journey/2026-11-19']).toMatchObject({ route: '/journey/2026-11-19/' });
+    expect(fs['~/journey/archive.log']).toMatchObject({ route: '/journey/archive/', own: true });
     const readme = fs['~/journey/2026-11-19/README.md'] as unknown as { lines: Line[] };
-    expect(plain(readme.lines[0]!)).toBe('hi');
+    expect(readme.lines.map(plain)).toEqual([
+      '── 2026-11-19 ──',
+      'learned  L',
+      'built    B',
+      'next     N',
+    ]);
+  });
+
+  it('lists fixture entries newest first and caps the listing', () => {
+    const journey = journeyCtx.fs['~/journey'];
+    if (journey?.type !== 'dir') throw new Error('no journey dir');
+    expect(journey.children[0]).toBe('2026-11-19');
+    expect(journey.children.at(-2)).toBe('2026-10-05');
+    expect(journey.children.at(-1)).toBe('archive.log');
+    expect(journey.cap).toEqual({ dirs: 30, hint: 'older: open archive' });
   });
 
   it('derives skill pages from content and reports usage', () => {

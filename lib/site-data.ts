@@ -21,6 +21,7 @@ export const shellContent: ShellContent = {
   guide,
 };
 
+/** The tree without journey entries (they're read from disk: see `loadSiteTree`). */
 export const siteTree = buildSiteTree(shellContent);
 
 export const shellInfo: ShellInfo = {

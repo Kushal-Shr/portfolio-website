@@ -40,6 +40,12 @@ export function trailFor(tree: SiteNode, path: string): Trail {
   let siblings = pageSiblings(tree, node);
   // Skill pages page through their own box only.
   if (node.group) siblings = siblings.filter((s) => s.group === node.group);
+  // Journey entries page through each other in date order (‹ older, newer ›), not the archive.
+  if (node.section === 'journey') {
+    siblings = siblings
+      .filter((s) => s.kind === 'dir')
+      .sort((a, b) => a.path.localeCompare(b.path));
+  }
   const i = siblings.indexOf(node);
   const link = (n: SiteNode | undefined): TrailLink | undefined =>
     n?.href ? { href: n.href, label: n.title } : undefined;

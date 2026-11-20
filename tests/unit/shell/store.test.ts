@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import { makeReducer } from '@/lib/shell/reducer';
 import { createShellStore, SESSION_KEY, BOOTED_KEY, type StorageIo } from '@/lib/shell/store';
-import { ctx } from './helpers';
+import { ctx, journeyCtx } from './helpers';
 
 function memoryIo(
   initial: Record<string, string> = {},
@@ -101,6 +101,18 @@ describe('shell store', () => {
     store.dispatch({ type: 'sync-cwd', cwd: '~/projects/zenith' });
     store.dispatch({ type: 'run', input: 'cd ..' });
     expect(store.getState().pendingNavigation).toBe('/projects/');
+  });
+
+  it('navigates to a journey permalink with cd, and back up with cd ..', () => {
+    const store = createShellStore(memoryIo());
+    store.configure(makeReducer(journeyCtx));
+    store.hydrate();
+    store.dispatch({ type: 'run', input: 'cd journey/2026-11-19' });
+    expect(store.getState().pendingNavigation).toBe('/journey/2026-11-19/');
+    expect(store.getState().cwd).toBe('~/journey/2026-11-19');
+    store.dispatch({ type: 'navigated' });
+    store.dispatch({ type: 'run', input: 'cd ..' });
+    expect(store.getState().pendingNavigation).toBe('/journey/');
   });
 
   it('records the shell-navigation and replace flags once', () => {

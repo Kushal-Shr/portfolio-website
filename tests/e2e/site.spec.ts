@@ -1,7 +1,7 @@
 import { expect, test, type Page } from '@playwright/test';
 import { flatten } from '../../lib/site-tree';
 import { siteTree } from '../../lib/site-data';
-import { collectConsoleErrors, expectNoA11yViolations } from './utils';
+import { builtRoutes, collectConsoleErrors, crawl, expectNoA11yViolations } from './utils';
 
 const dockInput = (page: Page) => page.locator('#dock-cmd');
 const panel = (page: Page) => page.locator('.dock [role="log"]');
@@ -14,18 +14,18 @@ async function dock(page: Page, command: string) {
 }
 
 test.describe('site crawl', () => {
-  test('every page in the tree returns 200 with exactly one <h1>', async ({ page }, info) => {
+  test('every page in the tree returns 200 with exactly one <h1>', async ({
+    page,
+    request,
+  }, info) => {
     test.skip(info.project.name !== 'desktop', 'one crawl is enough');
     test.setTimeout(120_000);
-    const hrefs = flatten(siteTree)
-      .map((n) => n.href)
-      .filter((h): h is string => !!h);
+    // The built fs.json is the tree as this build saw it, so real journey entries are crawled too.
+    const hrefs = await builtRoutes(request);
+    const tree = flatten(siteTree).flatMap((n) => (n.href ? [n.href] : []));
+    expect(hrefs).toEqual(expect.arrayContaining(tree));
     expect(hrefs.length).toBeGreaterThan(50);
-    for (const href of hrefs) {
-      const response = await page.goto(href);
-      expect(response?.status(), href).toBe(200);
-      await expect(page.locator('h1'), href).toHaveCount(1);
-    }
+    await crawl(page, hrefs);
   });
 });
 

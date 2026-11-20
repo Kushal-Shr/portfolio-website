@@ -6,7 +6,7 @@ import { TerminalPage } from '@/components/terminal/TerminalPage';
 import { achievements } from '@/content/achievements';
 import { projects } from '@/content/projects';
 import { trailFor } from '@/lib/detail';
-import { siteTree } from '@/lib/site-data';
+import { loadSiteTree } from '@/lib/site-load';
 import { loadWriteup } from '@/lib/writeups';
 
 export const dynamicParams = false;
@@ -55,7 +55,7 @@ export default async function AchievementPage({ params }: Props) {
 
       <WriteUp html={writeup.html} name={a.event} />
 
-      <PageTrail trail={trailFor(siteTree, `~/leadership/achievements/${a.id}`)} />
+      <PageTrail trail={trailFor(await loadSiteTree(), `~/leadership/achievements/${a.id}`)} />
     </TerminalPage>
   );
 }

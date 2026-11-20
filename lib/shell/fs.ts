@@ -11,11 +11,19 @@ import type {
 } from '@/content/types';
 import { isTodo } from '@/content/types';
 import { formatRange } from '@/lib/format';
+import { archiveLine, groupByMonth } from '@/lib/journey/format';
+import type { JourneyMeta } from '@/lib/journey/types';
 import { renderResume } from '@/lib/resume';
-import { buildSiteTree, flatten, skillEntries, type SiteNode } from '@/lib/site-tree';
+import {
+  buildSiteTree,
+  flatten,
+  JOURNEY_ARCHIVE_PATH,
+  skillEntries,
+  type SiteNode,
+} from '@/lib/site-tree';
 import { matchesSkill } from '@/lib/skills';
 import { link, seg, text } from './lines';
-import type { FsNode, JourneyEntry, Line, VirtualFs } from './types';
+import type { FsNode, Line, VirtualFs } from './types';
 
 export type ShellContent = {
   profile: Profile;
@@ -41,20 +49,39 @@ function doc(lines: string[]): Line[] {
 const plainInline = (parts: readonly Inline[]): string =>
   parts.map((p) => (typeof p === 'string' ? p : p.text)).join('');
 
+/** A journey entry as the design's file: `── date ──`, then one row per field. */
+export function journeyLines(j: JourneyMeta): Line[] {
+  const lines: Line[] = [text(`── ${j.date} ──`, 'warn'), text(`learned  ${j.learned}`)];
+  lines.push(text(`built    ${j.built}`));
+  if (j.builtLink) lines.push(link('         ↗ ', j.builtLink, j.builtLink, true));
+  if (j.stuckOn) lines.push(text(`stuck on ${j.stuckOn}`));
+  lines.push(text(`next     ${j.next}`));
+  return lines;
+}
+
+function archiveLines(entries: readonly JourneyMeta[]): Line[] {
+  if (entries.length === 0) return [dim('archive.log: no entries yet')];
+  return groupByMonth(entries).flatMap((month) => [
+    heading(`# ${month.label}`),
+    ...month.entries.map((e): Line => {
+      const { day, learned } = archiveLine(e);
+      return { kind: 'text', segments: [seg(e.date, 'dir'), seg(day, 'dim'), seg(learned)] };
+    }),
+  ]);
+}
+
 /**
  * Builds the virtual filesystem from the site tree and `content/`. Nothing here is typed by
  * hand: every fact comes from content, so the shell can never drift from the pages.
  */
 export function buildVirtualFs(
   content: ShellContent,
-  journeyEntries: readonly JourneyEntry[] = [],
+  journeyEntries: readonly JourneyMeta[] = [],
 ): VirtualFs {
   const { profile, experience, projects, leadership, achievements, skillGroups, learning, guide } =
     content;
-  const tree = buildSiteTree(
-    content,
-    journeyEntries.map((j) => ({ slug: j.slug, title: j.title })),
-  );
+  const tree = buildSiteTree(content, journeyEntries);
+  const newestFirst = [...journeyEntries].sort((a, b) => b.date.localeCompare(a.date));
   const nodes = flatten(tree);
   const parentHref = new Map<string, string | undefined>();
   for (const n of nodes) for (const c of n.children ?? []) parentHref.set(c.path, n.href);
@@ -124,6 +151,8 @@ export function buildVirtualFs(
           ...lists.map((l) => text(`${l.key.padEnd(13)}${l.packages.join(', ')}`)),
           text(`${'learning'.padEnd(13)}${learning.map((l) => l.shortName).join(', ')}`),
         ];
+      case JOURNEY_ARCHIVE_PATH:
+        return archiveLines(newestFirst);
       case '~/leadership/achievements/README.md':
         return [
           heading('# achievements'),
@@ -196,7 +225,8 @@ export function buildVirtualFs(
       ];
     }
     if (section === 'journey' && slug && last === 'README.md') {
-      return journeyEntries.find((j) => j.slug === slug)?.lines ?? [];
+      const j = journeyEntries.find((e) => e.slug === slug);
+      return j ? journeyLines(j) : [];
     }
     return [];
   };
@@ -209,6 +239,7 @@ export function buildVirtualFs(
         children: (node.children ?? []).map((c) => c.path.slice(c.path.lastIndexOf('/') + 1)),
       };
       if (node.href) dirNode.route = node.href;
+      if (node.cap) dirNode.cap = node.cap;
       fs[node.path] = dirNode;
       continue;
     }

@@ -13,7 +13,13 @@ export type Line =
  * are themselves pages (`about.md`).
  */
 export type FsNode =
-  | { type: 'dir'; children: string[]; route?: string }
+  | {
+      type: 'dir';
+      children: string[];
+      route?: string;
+      /** `ls`/`tree` show only the first `dirs` subfolders, then `… N <hint>`. */
+      cap?: { dirs: number; hint: string };
+    }
   | { type: 'file'; lines: Line[]; route?: string; own?: true };
 
 /** Keys are absolute virtual paths: `~`, `~/projects`, `~/projects/zenith.md`. */
@@ -37,5 +43,3 @@ export type ShellContext = {
 
 /** `navigate` is an href the UI should go to; the engine only ever returns it. */
 export type ExecResult = { lines: Line[]; cwd: string; clear?: boolean; navigate?: string };
-
-export type JourneyEntry = { slug: string; title: string; lines: Line[] };

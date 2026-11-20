@@ -7,7 +7,7 @@ import { experience } from '@/content/experience';
 import { profile } from '@/content/profile';
 import { skillFor, trailFor } from '@/lib/detail';
 import { formatRange } from '@/lib/format';
-import { siteTree } from '@/lib/site-data';
+import { loadSiteTree } from '@/lib/site-load';
 import { loadWriteup } from '@/lib/writeups';
 
 export const dynamicParams = false;
@@ -77,7 +77,7 @@ export default async function ExperienceDetailPage({ params }: Props) {
 
       <WriteUp html={writeup.html} name={`${e.title} @ ${e.orgShort ?? e.org}`} />
 
-      <PageTrail trail={trailFor(siteTree, `~/experience/${e.id}`)} />
+      <PageTrail trail={trailFor(await loadSiteTree(), `~/experience/${e.id}`)} />
     </TerminalPage>
   );
 }

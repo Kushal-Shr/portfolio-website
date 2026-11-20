@@ -1,5 +1,7 @@
 import type { Metadata, Viewport } from 'next';
 import { JetBrains_Mono } from 'next/font/google';
+import { RSS_PATH } from '@/lib/journey/format';
+import { RSS_TITLE } from '@/lib/journey/rss';
 import { siteUrl } from '@/lib/site';
 import './globals.css';
 
@@ -18,6 +20,9 @@ export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: { default: 'Kushal Shrestha · portfolio-sh', template: '%s · Kushal Shrestha' },
   description: 'Terminal-themed portfolio of Kushal Shrestha.',
+  alternates: {
+    types: { 'application/rss+xml': [{ url: RSS_PATH, title: RSS_TITLE }] },
+  },
 };
 
 export const viewport: Viewport = {

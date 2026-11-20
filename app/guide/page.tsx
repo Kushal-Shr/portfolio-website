@@ -9,6 +9,7 @@ import { guide } from '@/content/guide';
 import type { GuideItem } from '@/content/types';
 import { createGuideContext, renderGuideExample } from '@/lib/guide';
 import { ROUTES } from '@/lib/routes';
+import { loadSiteFs } from '@/lib/site-load';
 
 export const metadata: Metadata = { title: 'guide' };
 
@@ -49,9 +50,9 @@ function Example({ item, ctx }: { item: GuideItem; ctx: ReturnType<typeof create
   );
 }
 
-export default function GuidePage() {
+export default async function GuidePage() {
   // The examples run through the real shell engine at build time.
-  const ctx = createGuideContext();
+  const ctx = createGuideContext(new Date(), await loadSiteFs());
 
   return (
     <TerminalPage prompt={prompt}>

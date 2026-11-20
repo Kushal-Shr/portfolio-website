@@ -3,12 +3,13 @@ import { TerminalPage } from '@/components/terminal/TerminalPage';
 import { PORTRAIT } from '@/content/portrait';
 import { profile } from '@/content/profile';
 import { neofetchRows } from '@/lib/neofetch';
-import { buildSiteFs, shellInfo } from '@/lib/site-data';
+import { shellInfo } from '@/lib/site-data';
+import { loadSiteFs } from '@/lib/site-load';
 
-export default function Home() {
+export default async function Home() {
   // Built here, on the server, so no content modules ship in the client bundle.
   const now = new Date();
-  const fs = buildSiteFs();
+  const fs = await loadSiteFs();
 
   return (
     <TerminalPage fill dock={false} gap="gap-4" padBottom="pb-4">
