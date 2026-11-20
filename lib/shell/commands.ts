@@ -1,0 +1,34 @@
+/** Commands offered by Tab completion (the design's list, plus `contact`). */
+export const COMMANDS = [
+  'help',
+  'guide',
+  'tldr',
+  'ls',
+  'cd',
+  'pwd',
+  'cat',
+  'tree',
+  'open',
+  'tail',
+  'neofetch',
+  'whoami',
+  'history',
+  'date',
+  'echo',
+  'man',
+  'clear',
+  'sudo',
+  'contact',
+] as const;
+
+/** Everything `exec` understands, used for "did you mean" suggestions. */
+export const ALL_COMMANDS: readonly string[] = [
+  ...COMMANDS,
+  'll',
+  'less',
+  'more',
+  'xdg-open',
+  'fastfetch',
+  'exit',
+  'logout',
+];
