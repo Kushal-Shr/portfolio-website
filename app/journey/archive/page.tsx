@@ -22,8 +22,8 @@ export default async function JourneyArchivePage() {
     <TerminalPage prompt="cat archive.log" promptPath="~/journey">
       <h1 className="font-normal">
         <span className="text-[20px] font-bold">~/journey/archive.log</span>
-        <span className="text-fg-dim">
-          <span className="whitespace-pre">{'  ·  '}</span>
+        <span className="text-fg-dim max-sm:block">
+          <span className="whitespace-pre max-sm:hidden">{'  ·  '}</span>
           {entries.length} {entries.length === 1 ? 'entry' : 'entries'}, newest first
         </span>
       </h1>
@@ -39,7 +39,7 @@ export default async function JourneyArchivePage() {
               {month.entries.map((e) => {
                 const { day, learned } = archiveLine(e);
                 return (
-                  <li key={e.date} className="whitespace-pre-wrap">
+                  <li key={e.date} className="[overflow-wrap:anywhere] whitespace-pre-wrap">
                     <Link href={permalink(e.date)}>{e.date}</Link>
                     <span className="text-fg-dim">{day}</span>
                     {learned}

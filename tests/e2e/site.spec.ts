@@ -6,7 +6,11 @@ import { builtRoutes, collectConsoleErrors, crawl, expectNoA11yViolations } from
 const dockInput = (page: Page) => page.locator('#dock-cmd');
 const panel = (page: Page) => page.locator('.dock [role="log"]');
 
+/** The nav clock only gets its `datetime` after React has mounted, so the key handlers exist. */
+const hydrated = (page: Page) => page.locator('nav time[datetime]').waitFor({ state: 'attached' });
+
 async function dock(page: Page, command: string) {
+  await hydrated(page);
   await page.keyboard.press(':');
   await expect(dockInput(page)).toBeFocused();
   await page.keyboard.type(command);
@@ -110,6 +114,7 @@ test.describe('the dock', () => {
     await dock(page, 'echo remembered');
     await expect(panel(page)).toContainText('remembered');
     await page.reload();
+    await hydrated(page);
     await page.keyboard.press(':');
     await page.keyboard.press('ArrowUp');
     await expect(dockInput(page)).toHaveValue('echo remembered');

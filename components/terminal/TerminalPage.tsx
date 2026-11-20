@@ -34,7 +34,8 @@ export function TerminalPage({
   className = '',
   children,
 }: TerminalPageProps) {
-  const padding = padX === 'wide' ? 'px-[160px]' : 'px-6';
+  // 24px beside the content (16px on phones); the man page's 160px margins ease down through 48.
+  const padding = padX === 'wide' ? 'px-4 sm:px-12 lg:px-[160px]' : 'px-4 sm:px-6';
   const top = padTop === 'compact' ? 'pt-5' : 'pt-6';
 
   return (
@@ -53,7 +54,7 @@ export function TerminalPage({
       </div>
       <div className="dock-group" data-print="hide">
         {dock ? <ShellDock info={shellInfo} /> : null}
-        <NavBar />
+        <NavBar dock={dock} />
       </div>
     </div>
   );

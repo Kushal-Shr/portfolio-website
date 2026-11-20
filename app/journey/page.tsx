@@ -30,9 +30,9 @@ export default async function JourneyPage() {
         title={
           <h1 className="font-normal">
             <span className="text-[20px] font-bold">~/journey</span>
-            <span className="text-fg-dim">
-              <span className="whitespace-pre">{'  ·  '}</span>what I learned and built, every
-              single day
+            <span className="text-fg-dim max-sm:block">
+              <span className="whitespace-pre max-sm:hidden">{'  ·  '}</span>what I learned and
+              built, every single day
             </span>
           </h1>
         }

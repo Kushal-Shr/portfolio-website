@@ -43,7 +43,9 @@ describe('journey loader', () => {
     const newest = fixtureEntries[0];
     expect(newest?.bodyHtml).toContain('<h3>Notes heading</h3>');
     expect(newest?.bodyHtml).toContain('<code>inline code</code>');
-    expect(newest?.bodyHtml).toContain('<pre><code class="language-ts">');
+    // Code blocks scroll sideways inside themselves, so keyboard users must be able to focus them.
+    expect(newest?.bodyHtml).toContain('<pre tabindex="0" role="region"');
+    expect(newest?.bodyHtml).toContain('<code class="language-ts">');
     expect(fixtureEntries[1]?.bodyHtml).toBeNull();
   });
 

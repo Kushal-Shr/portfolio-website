@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { PageTrail } from '@/components/detail/PageTrail';
 import { WriteUp } from '@/components/detail/WriteUp';
+import { HangingList } from '@/components/terminal/HangingList';
 import { TerminalPage } from '@/components/terminal/TerminalPage';
 import { experience } from '@/content/experience';
 import { profile } from '@/content/profile';
@@ -46,12 +47,12 @@ export default async function ExperienceDetailPage({ params }: Props) {
           Date: {formatRange(e.start, e.end, 'arrow')}
           {where ? ` · ${where}` : ''}
         </p>
-        <div className="flex flex-col gap-1 pt-2 pl-[4ch]">
+        <div className="flex flex-col gap-1 pt-2 pl-[2ch] sm:pl-[4ch]">
           <h1 className="text-[20px] font-bold">
             {e.title}
             {e.titleNote ? ` (${e.titleNote})` : ''} @ {e.org}
           </h1>
-          <pre>{e.bullets.map((b) => `- ${b}`).join('\n')}</pre>
+          <HangingList items={e.bullets} />
           <p className="text-fg-dim">
             stack:{' '}
             <span className="text-fg">

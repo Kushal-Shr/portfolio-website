@@ -34,5 +34,10 @@ export async function renderMarkdown(
     .use(shiftHeadings(headingOffset))
     .use(remarkHtml, { sanitize: true })
     .process(source);
-  return String(file);
+  // `pre` blocks scroll sideways inside themselves (see `.prose-term pre`), so keyboard users need
+  // to be able to focus them. Raw HTML is sanitized away above, so this only touches our own tags.
+  return String(file).replace(
+    /<pre>/g,
+    '<pre tabindex="0" role="region" aria-label="code, scrolls sideways" data-scroll-x>',
+  );
 }

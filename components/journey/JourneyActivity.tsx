@@ -4,7 +4,14 @@ import type { ReactNode } from 'react';
 import { Box } from '@/components/terminal/Box';
 import { formatDay, parseDay } from '@/lib/journey/dates';
 import { RSS_PATH } from '@/lib/journey/format';
-import { HEATMAP_WEEKS, journeyStats, type HeatCell } from '@/lib/journey/stats';
+import {
+  HEATMAP_WEEKS,
+  HEATMAP_WEEKS_PHONE,
+  heatmap,
+  journeyStats,
+  type HeatCell,
+} from '@/lib/journey/stats';
+import { PHONE_QUERY, useMatchMedia } from '@/lib/hooks/useMatchMedia';
 import { useToday } from '@/lib/hooks/useToday';
 
 type JourneyActivityProps = {
@@ -36,7 +43,12 @@ function Cell({ cell }: { cell: HeatCell }) {
  */
 export function JourneyActivity({ dates, buildDay, title }: JourneyActivityProps) {
   const today = useToday(buildDay);
-  const { day, streak, longest, grid } = journeyStats(dates, parseDay(today));
+  const phone = useMatchMedia(PHONE_QUERY);
+  const weeks = phone ? HEATMAP_WEEKS_PHONE : HEATMAP_WEEKS;
+  const { day, streak, longest } = journeyStats(dates, parseDay(today));
+  // A phone only has room for half a year's columns, so the grid (and the counts read out for
+  // it) cover 13 weeks there instead of being cut off by CSS.
+  const grid = heatmap(dates, parseDay(today), weeks);
 
   return (
     <>
@@ -56,13 +68,13 @@ export function JourneyActivity({ dates, buildDay, title }: JourneyActivityProps
       </div>
 
       <Box
-        title={`last ${HEATMAP_WEEKS} weeks`}
-        ariaLabel={`Activity over the last ${HEATMAP_WEEKS} weeks`}
+        title={`last ${weeks} weeks`}
+        ariaLabel={`Activity over the last ${weeks} weeks`}
         className="px-5 pt-6 pb-3.5"
       >
         <p className="sr-only">
-          {plural(grid.logged, 'entry', 'entries')} in the last {HEATMAP_WEEKS} weeks. Current
-          streak {plural(streak, 'day')}. Longest streak {plural(longest, 'day')}.
+          {plural(grid.logged, 'entry', 'entries')} in the last {weeks} weeks. Current streak{' '}
+          {plural(streak, 'day')}. Longest streak {plural(longest, 'day')}.
         </p>
         {/* Weeks are columns, so the DOM runs oldest to newest; rows are Sun..Sat. */}
         <div aria-hidden="true" className="flex text-[14px] leading-[1.25] tracking-[3px]">
@@ -72,7 +84,7 @@ export function JourneyActivity({ dates, buildDay, title }: JourneyActivityProps
             ))}
           </div>
           {/* Too narrow for 26 weeks (phones): clip the oldest weeks, never today's. */}
-          <div className="flex min-w-0 flex-1 overflow-hidden max-sm:justify-end">
+          <div className="flex min-w-0 flex-1 overflow-hidden">
             {grid.weeks.map((week) => (
               <div key={week[0]?.date} className="flex flex-none flex-col">
                 {week.map((cell) => (

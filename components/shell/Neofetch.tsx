@@ -1,3 +1,4 @@
+import { Portrait } from '@/components/terminal/Portrait';
 import { useReveal } from '@/lib/hooks/useReveal';
 
 type NeofetchProps = {
@@ -20,21 +21,14 @@ export function Neofetch({ portrait, rows, animate }: NeofetchProps) {
   const shown = reveal.pending ? portrait : portrait.slice(0, reveal.count);
 
   return (
-    <div className="flex items-start gap-8 py-1">
-      <div
-        role="img"
-        aria-label="ASCII portrait of Kushal Shrestha"
-        className="bg-portrait-bg text-bg box-border h-[422px] w-[362px] flex-none overflow-hidden px-2 py-1"
-      >
-        <pre
-          aria-hidden="true"
-          data-typing={reveal.pending ? 'pending' : undefined}
-          className="text-[8px] leading-[9px]"
-        >
-          {shown.join('\n')}
-        </pre>
-      </div>
-      <div className="flex flex-col">
+    <div className="flex items-start gap-4 py-1 max-sm:flex-col sm:gap-8">
+      <Portrait
+        lines={shown}
+        all={portrait}
+        pending={reveal.pending}
+        className="box-border flex-none px-2 py-1 max-sm:w-full sm:h-[422px] sm:w-[362px]"
+      />
+      <div className="flex min-w-0 flex-col">
         <p>
           <span className="text-green font-bold">guest</span>@
           <span className="text-green font-bold">portfolio</span>

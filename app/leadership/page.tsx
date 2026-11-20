@@ -2,11 +2,10 @@ import type { Metadata } from 'next';
 import { AchievementRows } from '@/components/leadership/AchievementRows';
 import { RoleTable } from '@/components/leadership/RoleTable';
 import { Box } from '@/components/terminal/Box';
-import { MaybeTodoText } from '@/components/terminal/TodoText';
+import { HangingList } from '@/components/terminal/HangingList';
 import { TerminalPage } from '@/components/terminal/TerminalPage';
 import { achievements } from '@/content/achievements';
 import { leadership } from '@/content/leadership';
-import { isTodo } from '@/content/types';
 import { ROUTES } from '@/lib/routes';
 
 export const metadata: Metadata = { title: 'leadership' };
@@ -21,30 +20,19 @@ export default function LeadershipPage() {
       <h1 className="sr-only">Leadership</h1>
       <RoleTable roles={leadership} />
 
-      <div className="grid grid-cols-2 gap-[28px] pt-3">
+      <div className="grid grid-cols-1 gap-[28px] pt-3 min-[900px]:grid-cols-2">
         {withImpact.map((l) => (
           <Box
             key={l.pid}
             as="article"
             title={`cat /proc/${l.pid}/impact`}
-            className="flex flex-col gap-2.5 px-[22px] pt-6 pb-[18px]"
+            className="flex min-w-0 flex-col gap-2.5 px-[22px] pt-6 pb-[18px]"
           >
             <p className="font-bold">
               {l.role} · {l.org}
             </p>
             <p>{l.summary}</p>
-            <pre className="text-fg-dim">
-              {(l.impact ?? []).map((item, i) => (
-                <span key={i}>
-                  {i > 0 ? '\n' : ''}-{' '}
-                  {isTodo(item) ? (
-                    <MaybeTodoText value={item} />
-                  ) : (
-                    <span className="text-fg">{item}</span>
-                  )}
-                </span>
-              ))}
-            </pre>
+            <HangingList items={l.impact ?? []} tone="dim" />
           </Box>
         ))}
 

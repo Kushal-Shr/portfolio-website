@@ -11,6 +11,8 @@ import {
 /** All functions take `today`: there is no hidden clock, so the client can recompute them. */
 
 export const HEATMAP_WEEKS = 26;
+/** Phones have room for half the columns. */
+export const HEATMAP_WEEKS_PHONE = 13;
 
 const numbers = (dates: readonly string[]): number[] =>
   dates.map((d) => dayNumber(parseDay(d))).sort((a, b) => a - b);

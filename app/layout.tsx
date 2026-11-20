@@ -28,6 +28,8 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   themeColor: '#0c0f0d',
   colorScheme: 'dark',
+  // Draw under the notch and home bar: the nav pads itself with the safe-area insets.
+  viewportFit: 'cover',
 };
 
 // Marks that JS is available so CSS can hide text that is about to be typed (see globals.css).

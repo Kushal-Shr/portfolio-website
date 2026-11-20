@@ -42,7 +42,12 @@ function Card({ project }: { project: Project }) {
       <p className="text-yellow">{project.tags.map((t) => `[${t}]`).join(' ')}</p>
       <p>{project.summary}</p>
       {project.featured ? null : (
-        <Diagram text={diagram} alt={project.diagramAlt} className="text-[13px] leading-[1.35]" />
+        <Diagram
+          text={diagram}
+          alt={project.diagramAlt}
+          label={`${project.slug} architecture diagram`}
+          className="text-[13px] leading-[1.35]"
+        />
       )}
       <Bullets items={project.bullets} />
       <Links project={project} />
@@ -61,12 +66,17 @@ function Card({ project }: { project: Project }) {
           [{project.badge}]
         </p>
       }
-      className={`${CARD} ${project.featured ? 'col-span-full' : ''} scroll-mt-6`}
+      className={`${CARD} ${project.featured ? 'col-span-full' : ''} min-w-0 scroll-mt-6`}
     >
       {project.featured ? (
-        <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-8">
+        <div className="grid grid-cols-1 items-start gap-8 min-[900px]:grid-cols-[minmax(0,1fr)_auto]">
           {text}
-          <Diagram text={diagram} alt={project.diagramAlt} className="text-[13px] leading-[1.35]" />
+          <Diagram
+            text={diagram}
+            alt={project.diagramAlt}
+            label={`${project.slug} architecture diagram`}
+            className="text-[13px] leading-[1.35]"
+          />
         </div>
       ) : (
         text
@@ -82,7 +92,7 @@ export default function ProjectsPage() {
   return (
     <TerminalPage prompt={prompt}>
       <h1 className="sr-only">Projects</h1>
-      <div className="grid grid-cols-2 gap-x-[28px] gap-y-[32px] pt-2">
+      <div className="grid grid-cols-1 gap-x-[28px] gap-y-[32px] pt-2 min-[900px]:grid-cols-2">
         {[...featured, ...rest].map((p) => (
           <Card key={p.slug} project={p} />
         ))}

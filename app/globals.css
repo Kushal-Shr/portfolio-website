@@ -115,6 +115,19 @@
     right: 14px;
   }
 
+  /*
+   * On phones a title and a badge on the same border would collide, so the badge drops inside the
+   * box as its first line.
+   */
+  @media (max-width: 639px) {
+    .box-badge {
+      position: static;
+      padding: 0;
+      margin-bottom: 8px;
+      background: transparent;
+    }
+  }
+
   .box-tui .box-title {
     top: -11px;
     left: 12px;
@@ -205,6 +218,12 @@ html.js [data-typing='pending'] {
     display: block !important;
   }
 
+  [data-scroll-x] {
+    overflow: visible !important;
+    mask-image: none !important;
+    -webkit-mask-image: none !important;
+  }
+
   .resume-text {
     width: auto !important;
     font-size: 9pt !important;
@@ -224,6 +243,7 @@ html.js [data-typing='pending'] {
   /* Long-form write-ups (rendered Markdown). */
   .prose-term {
     max-width: 72ch;
+    overflow-wrap: anywhere;
   }
 
   .prose-term > * + * {
@@ -327,4 +347,121 @@ html {
 
 html:not(.js) .dock {
   display: none;
+}
+
+@layer components {
+  /*
+   * Boxes that scroll sideways (ASCII diagrams, tables, the resume, the nav on phones). Where more
+   * content is hidden the edge fades, set by `useScrollFade` through `data-fade`.
+   */
+  [data-scroll-x] {
+    overflow-x: auto;
+    max-width: 100%;
+  }
+
+  /* A mask clips the outline too, so the focus ring on these boxes sits inside. */
+  [data-scroll-x]:focus-visible {
+    outline-offset: -2px;
+  }
+
+  [data-fade='end'] {
+    -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 28px), transparent);
+    mask-image: linear-gradient(to right, #000 calc(100% - 28px), transparent);
+  }
+
+  [data-fade='start'] {
+    -webkit-mask-image: linear-gradient(to left, #000 calc(100% - 28px), transparent);
+    mask-image: linear-gradient(to left, #000 calc(100% - 28px), transparent);
+  }
+
+  [data-fade='both'] {
+    -webkit-mask-image: linear-gradient(
+      to right,
+      transparent,
+      #000 28px,
+      #000 calc(100% - 28px),
+      transparent
+    );
+    mask-image: linear-gradient(
+      to right,
+      transparent,
+      #000 28px,
+      #000 calc(100% - 28px),
+      transparent
+    );
+  }
+
+  /* One-row scrollers (the nav and chip rows on phones) keep their scrollbar out of sight. */
+  .scrollbar-none {
+    scrollbar-width: none;
+  }
+
+  .scrollbar-none::-webkit-scrollbar {
+    display: none;
+  }
+
+  /*
+   * The portrait is 8px type at full size. In a narrower box it shrinks so all columns fit: the
+   * width of a JetBrains Mono glyph is 0.6em, and `cqw` is the box's own width.
+   */
+  .portrait-fit {
+    container-type: inline-size;
+  }
+
+  .portrait-fit > pre {
+    font-size: min(8px, calc(100cqw / (var(--cols) * 0.6)));
+    line-height: 1.125;
+    min-height: calc(var(--rows) * 1.125em);
+  }
+}
+
+/* The phone dock is collapsed behind the nav's `>_` button until it is expanded. */
+@media (max-width: 639px) {
+  .dock:not([data-expanded]) {
+    display: none;
+  }
+}
+
+@layer components {
+  /*
+   * The nav is full-bleed: pad it with the safe areas so the notch and home bar never cover a tab,
+   * and tabs never sit under a rounded landscape corner.
+   */
+  .nav-bar {
+    padding-bottom: env(safe-area-inset-bottom);
+    padding-left: max(10px, env(safe-area-inset-left));
+    padding-right: max(10px, env(safe-area-inset-right));
+  }
+
+  /* The default green ring is invisible on the green bar: ring tabs in the page colour instead. */
+  .nav-bar :focus-visible {
+    outline: 2px dashed var(--color-bg);
+    outline-offset: -4px;
+  }
+
+  .nav-bar [aria-current='page']:focus-visible,
+  .nav-bar [aria-expanded='true']:focus-visible {
+    outline-color: var(--color-green);
+  }
+}
+
+/*
+ * Windows High Contrast replaces every background with the system's, so the green bar and the
+ * inverted current tab would vanish: draw them with outlines and borders in system colours.
+ */
+@media (forced-colors: active) {
+  .nav-bar {
+    border-top: 1px solid CanvasText;
+  }
+
+  .nav-bar [aria-current='page'],
+  .nav-bar [aria-expanded='true'] {
+    outline: 2px solid Highlight;
+    outline-offset: -3px;
+    text-decoration: underline;
+  }
+
+  .nav-bar :focus-visible {
+    outline-color: Highlight;
+  }
 }

@@ -23,13 +23,13 @@ export function Clock() {
 
   if (!now) {
     return (
-      <time aria-hidden="true" className="invisible ml-auto pl-2.5">
+      <time aria-hidden="true" className="invisible ml-auto pl-2.5 max-sm:hidden">
         {PLACEHOLDER}
       </time>
     );
   }
   return (
-    <time dateTime={now.toISOString()} className="ml-auto pl-2.5">
+    <time dateTime={now.toISOString()} className="ml-auto pl-2.5 max-sm:hidden">
       {formatClock(now)}
     </time>
   );

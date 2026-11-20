@@ -3,10 +3,9 @@ import { PageTrail } from '@/components/detail/PageTrail';
 import { WriteUp } from '@/components/detail/WriteUp';
 import { RoleTable } from '@/components/leadership/RoleTable';
 import { Box } from '@/components/terminal/Box';
-import { MaybeTodoText } from '@/components/terminal/TodoText';
+import { HangingList } from '@/components/terminal/HangingList';
 import { TerminalPage } from '@/components/terminal/TerminalPage';
 import { leadership } from '@/content/leadership';
-import { isTodo } from '@/content/types';
 import { trailFor } from '@/lib/detail';
 import { loadSiteTree } from '@/lib/site-load';
 import { loadWriteup } from '@/lib/writeups';
@@ -45,18 +44,7 @@ export default async function RolePage({ params }: Props) {
 
       {l.impact ? (
         <Box title="impact" className="px-5 pt-6 pb-4">
-          <pre className="text-fg-dim">
-            {l.impact.map((item, i) => (
-              <span key={i}>
-                {i > 0 ? '\n' : ''}-{' '}
-                {isTodo(item) ? (
-                  <MaybeTodoText value={item} />
-                ) : (
-                  <span className="text-fg">{item}</span>
-                )}
-              </span>
-            ))}
-          </pre>
+          <HangingList items={l.impact} tone="dim" />
         </Box>
       ) : null}
 

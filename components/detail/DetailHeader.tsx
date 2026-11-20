@@ -9,8 +9,8 @@ type DetailHeaderProps = {
 export function DetailHeader({ title, description, badge }: DetailHeaderProps) {
   return (
     <header className="flex flex-col gap-1">
-      <div className="flex items-baseline justify-between gap-4">
-        <h1 className="text-[20px] font-bold">{title}</h1>
+      <div className="flex flex-wrap items-baseline justify-between gap-x-4">
+        <h1 className="min-w-0 text-[20px] font-bold">{title}</h1>
         {badge ? <p className="flex-none">{badge}</p> : null}
       </div>
       {description ? <p className="text-fg-dim">{description}</p> : null}

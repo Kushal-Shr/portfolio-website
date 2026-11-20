@@ -19,7 +19,7 @@ export default function SkillsPage() {
       <h1 className="sr-only">Skills</h1>
       <SkillsFilter counts={skillCounts(skillGroups)} />
 
-      <div className="grid grid-cols-3 items-start gap-7 pt-2">
+      <div className="grid grid-cols-1 items-start gap-7 pt-2 sm:grid-cols-2 lg:grid-cols-3">
         {skillGroups.map((group) => (
           <Box
             key={group.key}

@@ -57,11 +57,11 @@ export function JourneyEntry({ entry: e, headingLevel = 2 }: JourneyEntryProps) 
           {` ${RULE}`}
         </span>
       </Heading>
-      <dl className="m-0 grid grid-cols-[12ch_minmax(0,1fr)] gap-y-0.5 pl-[2ch]">
+      <dl className="m-0 grid grid-cols-[9ch_minmax(0,1fr)] gap-y-0.5 pl-[2ch] sm:grid-cols-[12ch_minmax(0,1fr)]">
         {rows.map((row) => (
           <div key={row.label} className="contents">
             <dt className={row.tone}>{row.label}</dt>
-            <dd className="m-0">{row.value}</dd>
+            <dd className="m-0 min-w-0 [overflow-wrap:anywhere]">{row.value}</dd>
           </div>
         ))}
       </dl>

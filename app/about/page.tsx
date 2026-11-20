@@ -38,18 +38,18 @@ export default function AboutPage() {
       <h1 className="sr-only">{profile.name}: about</h1>
       <div className="text-fg-dim flex justify-between">
         <span>{manName}</span>
-        <span>{profile.manPage.title}</span>
+        <span className="max-sm:hidden">{profile.manPage.title}</span>
         <span>{manName}</span>
       </div>
 
       <Section title="NAME">
-        <p className="pl-[7ch]">
+        <p className="pl-[2ch] sm:pl-[7ch]">
           <span className="font-bold">{profile.shortName}</span> — {profile.oneLiner}
         </p>
       </Section>
 
       <Section title="SYNOPSIS">
-        <p className="pl-[7ch]">
+        <p className="pl-[2ch] sm:pl-[7ch]">
           <span className="font-bold">{profile.shortName}</span>{' '}
           {profile.synopsisFlags.map((flag) => (
             <span key={flag}>
@@ -62,17 +62,17 @@ export default function AboutPage() {
 
       <Section title="DESCRIPTION">
         {profile.about.paragraphs.map((text) => (
-          <p key={text} className="max-w-[72ch] pl-[7ch]">
+          <p key={text} className="max-w-[72ch] pl-[2ch] sm:pl-[7ch]">
             {text}
           </p>
         ))}
       </Section>
 
       <Section title="EXPERIENCE" gap="gap-2.5">
-        <div className="flex flex-col gap-3 pl-[7ch]">
+        <div className="flex flex-col gap-3 pl-[2ch] sm:pl-[7ch]">
           {experience.map((e) => (
             <div key={e.id}>
-              <p className="flex justify-between">
+              <p className="flex justify-between gap-x-4 max-sm:flex-col">
                 <span>
                   <Link href={`/experience/${e.id}/`} className="link-quiet inline-block min-h-6">
                     <span className="font-bold">{e.orgShort ?? e.org}</span>, {e.title}
@@ -80,27 +80,27 @@ export default function AboutPage() {
                 </span>
                 <span className="text-fg-dim">{formatRange(e.start, e.end, 'years')}</span>
               </p>
-              <p className="pl-[7ch]">{e.summary}</p>
+              <p className="pl-[2ch] sm:pl-[7ch]">{e.summary}</p>
             </div>
           ))}
         </div>
       </Section>
 
       <Section title="PROJECTS" gap="gap-2.5">
-        <div className="grid grid-cols-[22ch_minmax(0,1fr)] gap-y-2 pl-[7ch]">
+        <div className="grid grid-cols-1 gap-y-2 pl-[2ch] sm:grid-cols-[22ch_minmax(0,1fr)] sm:pl-[7ch]">
           {projects.map((p) => (
             <div key={p.slug} className="contents">
               <Link href={`/projects/${p.slug}/`} className="link-quiet font-bold">
                 {p.slug}
               </Link>
-              <span>{p.shortSummary}</span>
+              <span className="max-sm:mb-1 max-sm:pl-[2ch]">{p.shortSummary}</span>
             </div>
           ))}
         </div>
       </Section>
 
       <Section title="OPTIONS" gap="gap-2.5">
-        <div className="grid grid-cols-[22ch_minmax(0,1fr)] gap-y-1 pl-[7ch]">
+        <div className="grid grid-cols-1 gap-y-1 pl-[2ch] sm:grid-cols-[22ch_minmax(0,1fr)] sm:pl-[7ch]">
           {skillGroups
             .flatMap((g) => g.lists)
             .map((list) => (
@@ -108,21 +108,21 @@ export default function AboutPage() {
                 <span className="font-bold">
                   -{list.flag}, --{list.key}
                 </span>
-                <span>{list.packages.join(', ')}</span>
+                <span className="max-sm:mb-1 max-sm:pl-[2ch]">{list.packages.join(', ')}</span>
               </div>
             ))}
         </div>
       </Section>
 
       <Section title="EXIT STATUS">
-        <p className="pl-[7ch] whitespace-pre">
+        <p className="pl-[2ch] whitespace-pre-wrap sm:pl-[7ch]">
           <span className="font-bold">0</span>
           {'      '}Open to roles in {openToSentence(profile.openTo)}.
         </p>
       </Section>
 
       <Section title="SEE ALSO">
-        <p className="pl-[7ch]">
+        <p className="pl-[2ch] sm:pl-[7ch]">
           <a href={`mailto:${profile.email}`}>email(1)</a>,{' '}
           <a href={profile.links.github.href}>github(1)</a>,{' '}
           <a href={profile.links.linkedin.href}>linkedin(1)</a>,{' '}
@@ -132,7 +132,7 @@ export default function AboutPage() {
 
       <div className="text-fg-dim mt-auto flex justify-between">
         <span>{profile.location}</span>
-        <span>{buildDate}</span>
+        <span data-testid="build-date">{buildDate}</span>
         <span>{profile.manPage.section}</span>
       </div>
     </TerminalPage>

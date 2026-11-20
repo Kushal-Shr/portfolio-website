@@ -24,8 +24,8 @@ test.describe('journey with the real content', () => {
     await expect(page.getByTestId('journey-stats')).toHaveText(
       'day 0 · streak 0 days · journey.rss',
     );
-    const heatmap = page.getByRole('region', { name: 'Activity over the last 26 weeks' });
-    await expect(heatmap).toContainText('0 entries in the last 26 weeks.');
+    const heatmap = page.getByRole('region', { name: /Activity over the last (26|13) weeks/ });
+    await expect(heatmap).toContainText(/0 entries in the last (26|13) weeks\./);
     await expect(heatmap.locator('[data-logged]')).toHaveCount(0);
     await expect(page.getByTestId('journey-empty')).toHaveText(
       /tail: ~\/journey\/log: no entries yet — the first one lands soon/,

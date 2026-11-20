@@ -13,8 +13,10 @@ const viewOn = async (page: Page, isoDay: string) => {
   await page.clock.setFixedTime(new Date(`${isoDay}T12:00:00-06:00`));
 };
 
+// The grid shows 26 weeks, or 13 on a phone (the fixtures all fall inside the newest 13).
+const weeksFor = (page: Page) => ((page.viewportSize()?.width ?? 1280) < 640 ? 13 : 26);
 const heatmap = (page: Page) =>
-  page.getByRole('region', { name: 'Activity over the last 26 weeks' });
+  page.getByRole('region', { name: `Activity over the last ${weeksFor(page)} weeks` });
 
 test.describe('the populated journey', () => {
   test('/journey shows the heatmap, the stats and the newest 30 entries', async ({ page }) => {
@@ -26,7 +28,7 @@ test.describe('the populated journey', () => {
     );
     await expect(heatmap(page).locator('[data-logged]')).toHaveCount(38);
     await expect(heatmap(page)).toContainText(
-      '38 entries in the last 26 weeks. Current streak 10 days. Longest streak 10 days.',
+      `38 entries in the last ${weeksFor(page)} weeks. Current streak 10 days. Longest streak 10 days.`,
     );
     const articles = page.locator('main article');
     await expect(articles).toHaveCount(30);
@@ -55,9 +57,7 @@ test.describe('the populated journey', () => {
     );
   });
 
-  test('an entry heading opens its permalink, and the trail pages through', async ({
-    page,
-  }, info) => {
+  test('an entry heading opens its permalink, and the trail pages through', async ({ page }) => {
     const errors = collectConsoleErrors(page);
     await page.goto('/journey/');
     await page.getByRole('link', { name: 'day 46 · Thu Nov 19 2026' }).click();
@@ -79,10 +79,7 @@ test.describe('the populated journey', () => {
       '/journey/2026-11-18/',
     );
     await expect(trail.getByRole('link', { name: 'cd ..' })).toHaveAttribute('href', '/journey/');
-    // On phones the shared prompt line still overflows (TypedPrompt wrapping is phase 8), which
-    // zooms the page out and puts the trail under the sticky bar; click through on desktop.
     expect(errors).toEqual([]);
-    if (info.project.name !== 'journey-fixtures') return;
     await trail.getByRole('link', { name: /prev/ }).click();
     await expect(page).toHaveURL(/\/journey\/2026-11-18\/$/);
     await trail.getByRole('link', { name: /next/ }).click();

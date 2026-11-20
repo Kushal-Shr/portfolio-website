@@ -27,10 +27,49 @@ export function collectConsoleErrors(page: Page): string[] {
 }
 
 export async function expectNoHorizontalScroll(page: Page): Promise<void> {
+  // `clientWidth` is the layout viewport. Under mobile emulation a page that is too wide is zoomed
+  // out, which grows `innerWidth` with it, so comparing against `innerWidth` hides the overflow.
   const overflow = await page.evaluate(
-    () => document.documentElement.scrollWidth - window.innerWidth,
+    () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
   );
   expect(overflow).toBeLessThanOrEqual(0);
+}
+
+/**
+ * Elements that stick out past the right edge of the layout viewport. Anything inside a
+ * `[data-scroll-x]` container, or inside any other scrolling or clipping box, is allowed to: it
+ * is scrolled or clipped there, not on the page.
+ */
+export async function overflowingElements(page: Page): Promise<string[]> {
+  return page.evaluate(() => {
+    const width = document.documentElement.clientWidth;
+    const contained = (el: Element): boolean => {
+      for (let p = el.parentElement; p; p = p.parentElement) {
+        if (p.hasAttribute('data-scroll-x')) return true;
+        const x = getComputedStyle(p).overflowX;
+        if (x === 'auto' || x === 'scroll' || x === 'hidden' || x === 'clip') return true;
+      }
+      return false;
+    };
+    const hits = [...document.body.querySelectorAll('*')].filter((el) => {
+      const box = el.getBoundingClientRect();
+      const style = getComputedStyle(el);
+      return (
+        box.width > 0 &&
+        box.right > width + 1 &&
+        style.position !== 'fixed' &&
+        style.visibility !== 'hidden' &&
+        !contained(el)
+      );
+    });
+    return hits.slice(0, 6).map((el) => {
+      const cls = String(el.getAttribute('class') ?? '')
+        .split(' ')
+        .slice(0, 3)
+        .join('.');
+      return `${el.tagName.toLowerCase()}.${cls} (right ${Math.round(el.getBoundingClientRect().right)} > ${width})`;
+    });
+  });
 }
 
 type FsJson = Record<string, { type: 'dir' | 'file'; route?: string; children?: string[] }>;

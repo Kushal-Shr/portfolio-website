@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import { HangingList } from '@/components/terminal/HangingList';
 import { TerminalPage } from '@/components/terminal/TerminalPage';
 import { experience } from '@/content/experience';
 import { formatRange } from '@/lib/format';
@@ -29,7 +30,7 @@ export default function ExperiencePage() {
                 <span className="text-yellow font-bold">*</span>
                 {last ? null : <div className="border-line-strong ml-1 w-0 flex-1 border-l" />}
               </div>
-              <div className="flex flex-col gap-1 pb-7">
+              <div className="flex min-w-0 flex-col gap-1 pb-7">
                 <p>
                   <Link
                     href={`/experience/${e.id}/`}
@@ -39,7 +40,7 @@ export default function ExperiencePage() {
                   </Link>
                   {i === 0 ? <span className="text-blue font-bold"> (HEAD -&gt; main)</span> : null}
                 </p>
-                <h2 className="text-[20px] font-bold">
+                <h2 className="text-[17px] font-bold sm:text-[20px]">
                   <Link href={`/experience/${e.id}/`} className="link-quiet">
                     {e.title}
                     {e.titleNote ? ` (${e.titleNote})` : ''} @ {e.org}
@@ -48,8 +49,8 @@ export default function ExperiencePage() {
                 <p className="text-fg-dim">
                   Date: {formatRange(e.start, e.end, 'arrow')} · {where}
                 </p>
-                <pre className="pl-[4ch]">{e.bullets.map((b) => `- ${b}`).join('\n')}</pre>
-                <p className="text-fg-dim pl-[4ch]">
+                <HangingList items={e.bullets} className="pl-[2ch] sm:pl-[4ch]" />
+                <p className="text-fg-dim pl-[2ch] sm:pl-[4ch]">
                   stack: <span className="text-fg">{e.stack.join(' · ')}</span>
                 </p>
               </div>

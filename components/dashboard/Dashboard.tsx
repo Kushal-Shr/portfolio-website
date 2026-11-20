@@ -7,7 +7,10 @@ import { Bullets } from '@/components/terminal/Bullets';
 import { Box } from '@/components/terminal/Box';
 import { Cursor } from '@/components/terminal/Cursor';
 import { Diagram } from '@/components/terminal/Diagram';
+import { Portrait } from '@/components/terminal/Portrait';
 import type { Link as ContactLink, Project } from '@/content/types';
+import { PHONE_QUERY } from '@/lib/hooks/useMatchMedia';
+import { prefersReducedMotion } from '@/lib/hooks/useReducedMotion';
 import { useReveal } from '@/lib/hooks/useReveal';
 import { useTypewriter } from '@/lib/hooks/useTypewriter';
 import type { GitLogEntry } from '@/lib/dashboard';
@@ -58,6 +61,13 @@ export function Dashboard({
       `${window.location.pathname}${window.location.search}#${next.slug}`,
     );
     if (focus) buttons.current[projects.indexOf(next)]?.focus();
+    // On a phone the README sits below the list, so a tap brings it into view.
+    else if (window.matchMedia(PHONE_QUERY).matches) {
+      document.getElementById('readme')?.scrollIntoView({
+        block: 'start',
+        behavior: prefersReducedMotion() ? 'auto' : 'smooth',
+      });
+    }
   };
 
   const onKeyDown = (event: React.KeyboardEvent, index: number) => {
@@ -89,9 +99,13 @@ export function Dashboard({
     : `rendering ${Math.round((100 * reveal.count) / portrait.length)}%`;
 
   return (
-    <div className="grid min-h-0 flex-1 grid-cols-[280px_minmax(0,1fr)_380px] gap-[22px]">
-      <div className="flex flex-col gap-[22px]">
-        <Box title="projects" variant="tui" className="px-3 pt-[18px] pb-3">
+    // Phone: one column, in reading order (the list right above the README it controls). Tablet:
+    // the left column's boxes become a row above the README and its right column. Desktop: the
+    // three columns of the design. The wrappers are `display: contents` below desktop so their
+    // boxes can be ordered in the one grid.
+    <div className="grid min-h-0 flex-1 grid-cols-1 gap-[22px] sm:grid-cols-[minmax(0,1fr)_300px] lg:grid-cols-[280px_minmax(0,1fr)_380px]">
+      <div className="contents sm:col-span-full sm:grid sm:grid-cols-3 sm:gap-[22px] lg:col-span-1 lg:flex lg:flex-col">
+        <Box title="projects" variant="tui" className="order-1 px-3 pt-[18px] pb-3 sm:order-none">
           <div className="flex flex-col">
             {projects.map((p, i) => {
               const active = p.slug === selected.slug;
@@ -106,7 +120,9 @@ export function Dashboard({
                   tabIndex={active ? 0 : -1}
                   onClick={() => select(i, false)}
                   onKeyDown={(e) => onKeyDown(e, i)}
-                  className={`cursor-pointer px-2 py-0.5 text-left font-[inherit] whitespace-pre ${
+                  // Touch targets are 44px; the dense 26px rows are for a mouse on a wide screen.
+                  data-dense=""
+                  className={`cursor-pointer px-2 py-0.5 text-left font-[inherit] whitespace-pre max-lg:flex max-lg:min-h-11 max-lg:items-center pointer-coarse:flex pointer-coarse:min-h-11 pointer-coarse:items-center ${
                     active ? 'bg-green text-bg font-bold' : 'text-fg'
                   }`}
                 >
@@ -115,17 +131,20 @@ export function Dashboard({
                 </button>
               );
             })}
-            <a href={contact.github.href} className="text-fg-dim px-2 py-0.5 whitespace-pre">
+            <a
+              href={contact.github.href}
+              className="text-fg-dim px-2 py-0.5 whitespace-pre max-lg:flex max-lg:min-h-11 max-lg:items-center pointer-coarse:flex pointer-coarse:min-h-11 pointer-coarse:items-center"
+            >
               {'  '}github ({repoCount} repos)
             </a>
           </div>
         </Box>
 
-        <Box title="pages" variant="tui" className="px-3 pt-[18px] pb-3">
+        <Box title="pages" variant="tui" className="order-5 px-3 pt-[18px] pb-3 sm:order-none">
           <ul className="m-0 list-none p-0">
             {pages.map((page) => (
               <li key={page.href}>
-                <a href={page.href} className="block py-0.5">
+                <a href={page.href} className="block py-0.5 max-lg:py-2.5">
                   {page.file}
                 </a>
               </li>
@@ -133,8 +152,12 @@ export function Dashboard({
           </ul>
         </Box>
 
-        <Box title="git log --oneline" variant="tui" className="flex-1 px-3 pt-[18px] pb-3">
-          <pre>
+        <Box
+          title="git log --oneline"
+          variant="tui"
+          className="order-6 flex-1 px-3 pt-[18px] pb-3 sm:order-none"
+        >
+          <pre className="max-lg:whitespace-pre-wrap">
             {gitLog.map((entry, i) => (
               <span key={entry.name}>
                 {i > 0 ? '\n' : ''}
@@ -148,10 +171,11 @@ export function Dashboard({
       </div>
 
       <Box
+        id="readme"
         title={`README.md — ${selected.slug}`}
         variant="tui"
         tone="green"
-        className="flex min-h-0 flex-col gap-[14px] px-6 pt-[22px] pb-4"
+        className="order-2 flex min-h-0 min-w-0 scroll-mt-4 flex-col gap-[14px] px-6 pt-[22px] pb-4 sm:order-none"
       >
         <p className="-mb-2 text-right">
           <Link href={`/projects/${selected.slug}/`} className="text-fg-dim">
@@ -178,27 +202,28 @@ export function Dashboard({
         </p>
       </Box>
 
-      <div className="flex flex-col gap-[22px]">
-        <Box title="whoami" variant="tui" className="flex flex-col gap-2.5 px-3 pt-[18px] pb-3">
-          <div
-            role="img"
-            aria-label="ASCII portrait of Kushal Shrestha"
-            className="bg-portrait-bg text-bg flex h-[422px] justify-center overflow-hidden py-1"
-          >
-            <pre
-              aria-hidden="true"
-              data-typing={reveal.pending ? 'pending' : undefined}
-              className="text-[8px] leading-[9px]"
-            >
-              {shownPortrait.join('\n')}
-            </pre>
-          </div>
+      <div className="contents sm:flex sm:flex-col sm:gap-[22px]">
+        <Box
+          title="whoami"
+          variant="tui"
+          className="order-3 flex flex-col gap-2.5 px-3 pt-[18px] pb-3 sm:order-none"
+        >
+          <Portrait
+            lines={shownPortrait}
+            all={portrait}
+            pending={reveal.pending}
+            className="flex justify-center py-1 lg:h-[422px]"
+          />
           <p className="text-fg-dim text-[12px]">
             $ jp2a me.jpg --width=72 <span className="text-green">{status}</span>
           </p>
         </Box>
 
-        <Box title="contact" variant="tui" className="flex-1 px-3 pt-[18px] pb-3">
+        <Box
+          title="contact"
+          variant="tui"
+          className="order-4 flex-1 px-3 pt-[18px] pb-3 sm:order-none"
+        >
           <div className="grid grid-cols-[72px_1fr] gap-y-0.5">
             <span className="text-fg-dim">mail</span>
             <a href={`mailto:${contact.email}`} className="[overflow-wrap:anywhere]">

@@ -3,8 +3,10 @@
 import Link from 'next/link';
 import { useEffect, useMemo, useRef } from 'react';
 import { Cursor } from '@/components/terminal/Cursor';
+import { useKeepInputVisible } from '@/lib/hooks/useKeepInputVisible';
 import { useMounted } from '@/lib/hooks/useMounted';
 import { prefersReducedMotion } from '@/lib/hooks/useReducedMotion';
+import { useScrollFade } from '@/lib/hooks/useScrollFade';
 import { complete } from '@/lib/shell/complete';
 import { makeReducer } from '@/lib/shell/reducer';
 import { shellStore } from '@/lib/shell/store';
@@ -37,10 +39,13 @@ export function Shell({ fs, info, intro, lastLogin, neofetch }: ShellProps) {
   const mounted = useMounted();
   const inputRef = useRef<HTMLInputElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const chipsRef = useRef<HTMLDivElement>(null);
   const tabStuck = useRef(false);
   const ranInit = useRef(false);
 
   useShellNavigation(fs);
+  useKeepInputVisible(inputRef);
+  useScrollFade(chipsRef);
 
   const login = useMemo(
     () => (mounted ? new Date().toDateString() : lastLogin),
@@ -210,12 +215,12 @@ export function Shell({ fs, info, intro, lastLogin, neofetch }: ShellProps) {
     >
       <div className="border-line text-fg-dim flex justify-between border-b px-4 py-2 text-[13px]">
         <span>guest@portfolio: {state.cwd}</span>
-        <span>portfolio-sh — 120×40</span>
+        <span className="max-sm:hidden">portfolio-sh — 120×40</span>
       </div>
 
       <div
         ref={scrollRef}
-        className="flex min-h-0 flex-1 flex-col-reverse overflow-y-auto px-6 py-5"
+        className="flex min-h-0 flex-1 flex-col-reverse overflow-y-auto px-4 py-5 sm:px-6"
         onClick={(e) => {
           if (window.getSelection()?.toString()) return;
           if ((e.target as HTMLElement).closest('a, button, input')) return;
@@ -269,7 +274,7 @@ export function Shell({ fs, info, intro, lastLogin, neofetch }: ShellProps) {
           </noscript>
 
           {showPrompt ? (
-            <div className="flex items-center">
+            <div className="flex items-center max-sm:text-[16px]">
               <label htmlFor="cmd" className="whitespace-pre">
                 <span className="text-green">guest@portfolio</span>
                 <span className="text-fg-dim">:</span>
@@ -291,15 +296,21 @@ export function Shell({ fs, info, intro, lastLogin, neofetch }: ShellProps) {
                 spellCheck={false}
                 enterKeyHint="go"
                 aria-describedby="shell-hint"
-                className="text-fg caret-green placeholder:text-fg-dim min-h-7 flex-1 border-0 bg-transparent p-0 font-[inherit] outline-none"
+                data-dense=""
+                className="text-fg caret-green placeholder:text-fg-dim min-h-7 flex-1 border-0 bg-transparent p-0 font-[inherit] outline-none max-lg:min-h-11 pointer-coarse:min-h-11"
               />
             </div>
           ) : null}
         </div>
       </div>
 
-      <div className="border-line flex flex-wrap items-center gap-2 border-t px-4 py-2">
-        <span className="text-fg-dim text-[13px]">run:</span>
+      {/* A phone's main way in: one row that scrolls sideways, with the first few chips in view. */}
+      <div
+        ref={chipsRef}
+        data-scroll-x=""
+        className="border-line flex scrollbar-none items-center gap-2 border-t px-4 py-2 max-sm:flex-nowrap max-sm:overflow-x-auto sm:flex-wrap"
+      >
+        <span className="text-fg-dim flex-none text-[13px] max-[359px]:hidden">run:</span>
         {CHIPS.map((chip) => (
           <button
             key={chip}
@@ -308,7 +319,7 @@ export function Shell({ fs, info, intro, lastLogin, neofetch }: ShellProps) {
               run(chip);
               inputRef.current?.focus({ preventScroll: true });
             }}
-            className="border-line bg-bg-raised text-fg min-h-11 cursor-pointer border px-3.5 font-[inherit] text-[13px]"
+            className="border-line bg-bg-raised text-fg min-h-11 min-w-11 flex-none cursor-pointer border px-3.5 font-[inherit] text-[13px]"
           >
             {chip}
           </button>

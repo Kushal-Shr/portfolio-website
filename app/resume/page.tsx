@@ -3,6 +3,7 @@ import { join } from 'node:path';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { PrintButton } from '@/components/terminal/PrintButton';
+import { ScrollX } from '@/components/terminal/ScrollX';
 import { TerminalPage } from '@/components/terminal/TerminalPage';
 import { achievements } from '@/content/achievements';
 import { experience } from '@/content/experience';
@@ -27,6 +28,8 @@ function Span({ segment }: { segment: Segment }) {
     .join(' ');
   return (
     <span
+      // Rule rows (`=====`) are decoration: a screen reader would spell them out.
+      aria-hidden={segment.tone === 'rule' ? true : undefined}
       className={className || undefined}
       style={segment.size ? { fontSize: segment.size } : undefined}
     >
@@ -67,16 +70,23 @@ export default function ResumePage() {
           cd ~
         </Link>
       </div>
-      <pre className="resume-text w-[78ch] self-center leading-[1.55]">
-        {lines.map((line, i) => (
-          <span key={i}>
-            {i > 0 ? '\n' : ''}
-            {line.map((segment, j) => (
-              <Span key={j} segment={segment} />
-            ))}
-          </span>
-        ))}
-      </pre>
+      {hasPdf ? (
+        <p data-print="hide" className="text-fg-dim sm:hidden">
+          tip: wget {profile.resume.label} for a phone-friendly copy
+        </p>
+      ) : null}
+      <ScrollX label="resume" className="self-center">
+        <pre className="resume-text w-[78ch] leading-[1.55] max-sm:text-[12px]">
+          {lines.map((line, i) => (
+            <span key={i}>
+              {i > 0 ? '\n' : ''}
+              {line.map((segment, j) => (
+                <Span key={j} segment={segment} />
+              ))}
+            </span>
+          ))}
+        </pre>
+      </ScrollX>
     </TerminalPage>
   );
 }

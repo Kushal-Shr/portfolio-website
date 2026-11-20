@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { addDays, parseDay, toIsoDay } from '@/lib/journey/dates';
 import {
+  HEATMAP_WEEKS_PHONE,
   currentStreak,
   dayOf,
   headerDay,
@@ -97,6 +98,17 @@ describe('heatmap', () => {
       .map((c) => c.date);
     expect(logged).toEqual(['2026-11-16', '2026-11-19']);
     expect(grid.logged).toBe(2);
+  });
+
+  it('shows the newest 13 weeks on a phone, with the counts to match', () => {
+    const dates = ['2026-11-19', '2026-11-16', '2026-06-01', '2026-08-01'];
+    const half = heatmap(dates, today, HEATMAP_WEEKS_PHONE);
+    const full = heatmap(dates, today);
+    expect(half.weeks).toHaveLength(13);
+    expect(half.weeks).toEqual(full.weeks.slice(-13));
+    // The two older entries fall outside 13 weeks, so the summary read out says 2, not 4.
+    expect(half.logged).toBe(2);
+    expect(full.logged).toBe(4);
   });
 
   it('works when today is a Saturday or a Sunday', () => {

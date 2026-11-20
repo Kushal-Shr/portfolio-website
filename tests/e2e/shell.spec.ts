@@ -73,8 +73,18 @@ test.describe('commands', () => {
   test("cd navigates to the folder's page and the shell follows the URL", async ({ page }) => {
     await run(page, 'cd projects');
     await expect(page).toHaveURL(/\/projects\/$/);
+    if ((page.viewportSize()?.width ?? 1280) < 640) {
+      // Phones fold the dock behind the nav bar's `>_` button until it is opened.
+      await expect(page.locator('.dock')).toBeHidden();
+      await page.getByRole('button', { name: 'command line' }).tap();
+    }
     await expect(page.getByLabel('command line', { exact: false })).toBeVisible();
-    await expect(page.locator('.dock').getByText('~/projects')).toBeVisible();
+    if ((page.viewportSize()?.width ?? 1280) < 640) {
+      // A phone draws a shortened cwd from `data-short` (`…/zenith`; a short one stays whole).
+      await expect(page.locator('.dock [data-short]')).toHaveAttribute('data-short', '~/projects');
+    } else {
+      await expect(page.locator('.dock').getByText('~/projects')).toBeVisible();
+    }
   });
 
   test('cat shows the file and links to the project card', async ({ page }) => {

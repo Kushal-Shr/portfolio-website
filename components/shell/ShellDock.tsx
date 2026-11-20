@@ -1,19 +1,36 @@
 'use client';
 
+import { usePathname } from 'next/navigation';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Cursor } from '@/components/terminal/Cursor';
+import { useKeepInputVisible } from '@/lib/hooks/useKeepInputVisible';
+import { useScrollFade } from '@/lib/hooks/useScrollFade';
+import { PHONE_QUERY } from '@/lib/hooks/useMatchMedia';
+import { dockUi } from '@/lib/shell/dock-ui';
 import { shellStore } from '@/lib/shell/store';
 import { tabStep } from '@/lib/shell/tab';
 import { text } from '@/lib/shell/lines';
 import type { ShellContext, ShellInfo } from '@/lib/shell/types';
 import { loadDock, type DockData } from './dockData';
 import { Entry } from './Entry';
+import { useDockExpanded } from './useDockExpanded';
 import { useShellNavigation } from './useShellNavigation';
 import { useShellState } from './useShellState';
 
 const PANEL_ENTRIES = 20;
 const LOAD_MESSAGE_DELAY_MS = 200;
 const LOAD_ERROR = "portfolio-sh: couldn't load the filesystem — the nav bar below still works";
+
+/** Quick commands for phones, where typing is the hard part. */
+const PHONE_CHIPS = ['ls', 'cd ..', 'help', 'open resume'] as const;
+
+const isPhone = (): boolean => window.matchMedia(PHONE_QUERY).matches;
+
+/** `~/leadership/achievements/hackfest-2025` → `…/hackfest-2025`: all a phone has room for. */
+const shortCwd = (cwd: string): string => {
+  const parts = cwd.split('/');
+  return parts.length > 2 ? `…/${parts.at(-1)}` : cwd;
+};
 
 const isEditable = (el: EventTarget | null): boolean => {
   if (!(el instanceof HTMLElement)) return false;
@@ -29,13 +46,23 @@ export function ShellDock({ info }: { info: ShellInfo }) {
   const [open, setOpen] = useState(false);
   const [focused, setFocused] = useState(false);
   const [loadingMessage, setLoadingMessage] = useState(false);
+  const expanded = useDockExpanded();
+  const pathname = usePathname();
   const rootRef = useRef<HTMLDivElement>(null);
+  const chipsRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const logRef = useRef<HTMLDivElement>(null);
   const returnFocus = useRef<HTMLElement | null>(null);
   const tabStuck = useRef(false);
 
   useShellNavigation(data?.fs);
+  useKeepInputVisible(inputRef);
+  useScrollFade(chipsRef);
+
+  // A phone's dock folds away again after any navigation (a chip, `cd`, or a tap on the nav bar).
+  useEffect(() => {
+    dockUi.set(false);
+  }, [pathname]);
 
   /** Starts (or joins) the lazy load; resolves with the data, or `undefined` after printing the error. */
   const ensure = useCallback(async (): Promise<DockData | undefined> => {
@@ -89,7 +116,16 @@ export function ShellDock({ info }: { info: ShellInfo }) {
       returnFocus.current =
         document.activeElement instanceof HTMLElement ? document.activeElement : null;
       void ensure();
-      inputRef.current?.focus({ preventScroll: true });
+      const input = inputRef.current;
+      // Visible already (tablet, desktop, or an unfolded phone dock): focus now, so the next
+      // keystroke lands in it.
+      if (input && input.offsetParent !== null) {
+        input.focus({ preventScroll: true });
+        return;
+      }
+      // A folded phone dock can't take focus: unfold it, then focus once it is on screen.
+      dockUi.set(true);
+      requestAnimationFrame(() => inputRef.current?.focus({ preventScroll: true }));
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
@@ -112,6 +148,10 @@ export function ShellDock({ info }: { info: ShellInfo }) {
     shellStore.dispatch({ type: 'run', input, surface: 'dock' });
     const last = shellStore.getState().entries.at(-1);
     if (last && last.lines.length > 0) setOpen(true);
+  };
+
+  const runChip = (chip: string) => {
+    void run(chip);
   };
 
   const onKeyDown = async (event: React.KeyboardEvent<HTMLInputElement>) => {
@@ -174,28 +214,38 @@ export function ShellDock({ info }: { info: ShellInfo }) {
         inputRef.current?.blur();
         returnFocus.current?.focus();
         returnFocus.current = null;
+        if (isPhone() && dockUi.get()) {
+          dockUi.set(false);
+          document.getElementById('dock-toggle')?.focus();
+        }
       }
     }
   };
 
   return (
-    <div ref={rootRef} className="dock border-line bg-bg border-t">
-      <div className="mx-auto w-full max-w-[1280px] px-6">
+    <div
+      ref={rootRef}
+      id="dock"
+      data-expanded={expanded ? '' : undefined}
+      className="dock border-line bg-bg border-t"
+    >
+      <div className="mx-auto w-full max-w-[1280px] px-4 sm:px-6">
         <div hidden={!open} className="border-line-strong bg-bg relative mt-3 mb-1 border">
           <span className="box-title text-green">
             <span aria-hidden="true">┤ </span>
             portfolio-sh
             <span aria-hidden="true"> ├</span>
           </span>
+          {/* The button is 44px tall for touch; only the label has the border cut-out behind it. */}
           <button
             type="button"
             onClick={() => {
               setOpen(false);
               inputRef.current?.focus({ preventScroll: true });
             }}
-            className="box-badge text-fg-dim cursor-pointer font-[inherit]"
+            className="text-fg-dim absolute -top-[22px] right-3.5 inline-flex min-h-11 cursor-pointer items-center font-[inherit]"
           >
-            [esc] close
+            <span className="bg-bg px-1.5">[esc] close</span>
           </button>
           <div
             ref={logRef}
@@ -204,7 +254,7 @@ export function ShellDock({ info }: { info: ShellInfo }) {
             aria-label="portfolio-sh output"
             aria-live="polite"
             aria-relevant="additions"
-            className="flex max-h-[min(40vh,360px)] flex-col gap-3 overflow-y-auto px-4 pt-5 pb-3"
+            className="flex max-h-[min(40vh,360px)] flex-col gap-3 overflow-y-auto px-4 pt-5 pb-3 max-sm:max-h-[50dvh]"
           >
             {entries.map((entry) => (
               <Entry key={entry.id} entry={entry} />
@@ -212,23 +262,46 @@ export function ShellDock({ info }: { info: ShellInfo }) {
           </div>
         </div>
 
-        <div className="flex min-h-11 items-center text-[15px]">
+        <div
+          ref={chipsRef}
+          role="group"
+          aria-label="quick commands"
+          className="-mx-4 flex scrollbar-none gap-2 overflow-x-auto px-4 pt-2 sm:hidden"
+        >
+          {PHONE_CHIPS.map((chip) => (
+            <button
+              key={chip}
+              type="button"
+              onClick={() => runChip(chip)}
+              className="border-line bg-bg-raised text-fg min-h-11 min-w-11 flex-none cursor-pointer border px-3.5 font-[inherit] text-[13px]"
+            >
+              {chip}
+            </button>
+          ))}
+        </div>
+
+        <div className="flex min-h-11 items-center text-[15px] max-sm:text-[16px]">
           <label htmlFor="dock-cmd" className="whitespace-pre">
             <span className="sr-only">command line </span>
             <span aria-hidden="true">
-              <span className="text-green">guest@portfolio</span>
-              <span className="text-fg-dim">:</span>
-              <span className="text-blue">{state.cwd}</span>
+              <span className="text-green max-sm:hidden">guest@portfolio</span>
+              <span className="text-fg-dim max-sm:hidden">:</span>
+              <span className="text-blue max-sm:hidden">{state.cwd}</span>
+              {/* Phone-only short form, drawn from an attribute so the text exists once. */}
+              <span
+                data-short={shortCwd(state.cwd)}
+                className="text-blue before:content-[attr(data-short)] sm:hidden"
+              />
               <span className="text-fg-dim">$ </span>
             </span>
           </label>
-          <div className="relative flex min-h-7 flex-1 items-center">
+          <div className="relative flex min-h-11 min-w-0 flex-1 items-center">
             <span aria-hidden="true" className="invisible whitespace-pre">
               {draft}
             </span>
             {focused ? <Cursor /> : null}
             {!draft && !focused ? (
-              <span aria-hidden="true" className="text-fg-dim absolute left-0">
+              <span aria-hidden="true" className="text-fg-dim absolute inset-x-0 truncate">
                 <span className="max-sm:hidden">
                   type a command — try: ls · help · press : to focus
                 </span>

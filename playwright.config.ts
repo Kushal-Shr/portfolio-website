@@ -2,15 +2,33 @@ import { defineConfig, devices } from '@playwright/test';
 
 const baseURL = 'http://localhost:4173';
 // A second build of the site with the fake fixture entries (`tests/fixtures/journey`), so the
-// populated journey is tested as well as the real, possibly empty, one.
+// populated journey is tested as well as the real, possibly empty one.
 const JOURNEY_FIXTURES_URL = 'http://localhost:4174';
+
 const FIXTURE_SPECS = /journey-fixtures\.spec\.ts/;
+const VISUAL_SPEC = /visual\.spec\.ts/;
+const VISUAL_FIXTURE_SPEC = /visual-fixtures\.spec\.ts/;
+// Specs that also run on the extra device projects (WebKit, 320px, tablet, 1024, 1920).
+const RESPONSIVE_SPECS = [/responsive\.spec\.ts/, /a11y\.spec\.ts/, /mobile\.spec\.ts/];
+const NOT_REGULAR = [FIXTURE_SPECS, VISUAL_SPEC, VISUAL_FIXTURE_SPEC];
+
+const desktop = { ...devices['Desktop Chrome'], viewport: { width: 1280, height: 800 } };
+const phone = (width: number, height: number) => ({
+  ...devices['Pixel 7'],
+  viewport: { width, height },
+});
 
 export default defineConfig({
   testDir: 'tests/e2e',
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
   reporter: process.env.CI ? 'github' : 'list',
+  // One baseline per screenshot, whatever the OS or project: the `visual` projects are the only
+  // ones that take them. Regenerate on purpose with `--update-snapshots`.
+  snapshotPathTemplate: '{testDir}/__screenshots__/{testFileName}/{arg}{ext}',
+  expect: {
+    toHaveScreenshot: { animations: 'disabled', caret: 'hide', maxDiffPixels: 0, threshold: 0 },
+  },
   use: {
     baseURL,
     trace: 'on-first-retry',
@@ -32,35 +50,61 @@ export default defineConfig({
     },
   ],
   projects: [
-    {
-      name: 'desktop',
-      testIgnore: FIXTURE_SPECS,
-      use: { ...devices['Desktop Chrome'], viewport: { width: 1280, height: 800 } },
-    },
-    { name: 'mobile', testIgnore: FIXTURE_SPECS, use: { ...devices['Pixel 7'] } },
+    { name: 'desktop', testIgnore: NOT_REGULAR, use: desktop },
+    { name: 'mobile', testIgnore: NOT_REGULAR, use: devices['Pixel 7'] },
     {
       name: 'desktop-reduced-motion',
-      testIgnore: FIXTURE_SPECS,
-      use: {
-        ...devices['Desktop Chrome'],
-        viewport: { width: 1280, height: 800 },
-        reducedMotion: 'reduce',
-      },
+      testIgnore: NOT_REGULAR,
+      use: { ...desktop, reducedMotion: 'reduce' },
+    },
+    // iOS Safari's engine, on an iPhone 13 (390px): the only WebKit coverage there is.
+    {
+      name: 'mobile-webkit',
+      testMatch: RESPONSIVE_SPECS,
+      use: devices['iPhone 13'],
+    },
+    // The narrowest screen WCAG 1.4.10 cares about (a 1280px window at 400% zoom).
+    { name: 'narrow-320', testMatch: RESPONSIVE_SPECS, use: phone(320, 640) },
+    {
+      name: 'tablet-768',
+      testMatch: RESPONSIVE_SPECS,
+      use: { ...devices['iPad Mini'], defaultBrowserType: 'chromium' },
+    },
+    {
+      name: 'desktop-1024',
+      testMatch: RESPONSIVE_SPECS,
+      use: { ...devices['Desktop Chrome'], viewport: { width: 1024, height: 768 } },
+    },
+    {
+      name: 'wide-1920',
+      testMatch: RESPONSIVE_SPECS,
+      use: { ...devices['Desktop Chrome'], viewport: { width: 1920, height: 1080 } },
     },
     {
       name: 'journey-fixtures',
       testMatch: FIXTURE_SPECS,
-      use: {
-        ...devices['Desktop Chrome'],
-        viewport: { width: 1280, height: 800 },
-        baseURL: JOURNEY_FIXTURES_URL,
-        timezoneId: 'America/Chicago',
-      },
+      use: { ...desktop, baseURL: JOURNEY_FIXTURES_URL, timezoneId: 'America/Chicago' },
     },
     {
       name: 'journey-fixtures-mobile',
       testMatch: FIXTURE_SPECS,
       use: { ...devices['Pixel 7'], baseURL: JOURNEY_FIXTURES_URL, timezoneId: 'America/Chicago' },
+    },
+    // Visual baselines: reduced motion so every page is in its final state.
+    {
+      name: 'visual',
+      testMatch: VISUAL_SPEC,
+      use: { ...desktop, reducedMotion: 'reduce', timezoneId: 'America/Chicago' },
+    },
+    {
+      name: 'visual-fixtures',
+      testMatch: VISUAL_FIXTURE_SPEC,
+      use: {
+        ...desktop,
+        reducedMotion: 'reduce',
+        baseURL: JOURNEY_FIXTURES_URL,
+        timezoneId: 'America/Chicago',
+      },
     },
   ],
 });
