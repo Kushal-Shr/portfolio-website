@@ -1,1 +1,168 @@
 @import 'tailwindcss';
+
+@theme {
+  --color-bg: #0c0f0d;
+  --color-bg-raised: #121713;
+  --color-fg: #d4dccf;
+  --color-fg-dim: #8a9785;
+  --color-fg-bright: #ffffff;
+  --color-line: #2a332b;
+  --color-line-strong: #3a463b;
+  --color-green: #7ee787;
+  --color-blue: #79c0ff;
+  --color-blue-hover: #a5d6ff;
+  --color-yellow: #e3b341;
+  --color-red: #ff7b72;
+  --color-purple: #d2a8ff;
+  --color-portrait-bg: #d4dccf;
+}
+
+/* Root font-size is 15px, so rem-based spacing would drift off the design's px values. */
+@theme {
+  --spacing: 4px;
+}
+
+@theme inline {
+  --font-mono: var(--font-jetbrains-mono), ui-monospace, Menlo, monospace;
+}
+
+@layer base {
+  html {
+    background: var(--color-bg);
+    color: var(--color-fg);
+    color-scheme: dark;
+    font-family: var(--font-mono);
+    font-size: 15px;
+    line-height: 1.6;
+    -webkit-text-size-adjust: 100%;
+    text-rendering: optimizeLegibility;
+    scrollbar-color: var(--color-line-strong) var(--color-bg);
+    scrollbar-width: thin;
+  }
+
+  body {
+    margin: 0;
+    min-height: 100dvh;
+  }
+
+  p,
+  pre,
+  h1,
+  h2,
+  h3,
+  figure {
+    margin: 0;
+  }
+
+  pre {
+    font: inherit;
+  }
+
+  h1,
+  h2,
+  h3 {
+    font-size: inherit;
+  }
+
+  a {
+    color: var(--color-blue);
+    text-underline-offset: 3px;
+  }
+
+  a:hover {
+    color: var(--color-blue-hover);
+  }
+
+  :focus-visible {
+    outline: 1px dashed var(--color-green);
+    outline-offset: 2px;
+  }
+
+  ::selection {
+    background: var(--color-green);
+    color: var(--color-bg);
+  }
+}
+
+@layer components {
+  @keyframes blink {
+    50% {
+      opacity: 0;
+    }
+  }
+
+  .cursor-blink {
+    animation: blink 1s steps(1) infinite;
+  }
+
+  /* The "┤ title ├" cut-out: the bg-coloured padding hides the box border behind the title. */
+  .box-title,
+  .box-badge {
+    position: absolute;
+    top: -12px;
+    padding: 0 6px;
+    background: var(--color-bg);
+  }
+
+  .box-title {
+    left: 14px;
+    font-weight: 700;
+  }
+
+  .box-badge {
+    right: 14px;
+  }
+
+  .skip-link {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 50;
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 0 10px;
+    background: var(--color-green);
+    color: var(--color-bg);
+    font-weight: 700;
+    text-decoration: none;
+    transform: translateY(-100%);
+  }
+
+  .skip-link:hover {
+    color: var(--color-bg);
+  }
+
+  .skip-link:focus {
+    transform: none;
+  }
+}
+
+/*
+ * Typewriter flash prevention. The server HTML holds the final text; with JS available it is
+ * hidden until the component mounts and starts typing. The reveal animation is a safety net so
+ * the text still appears if hydration never happens.
+ */
+@keyframes reveal {
+  to {
+    visibility: visible;
+  }
+}
+
+html.js [data-typing='pending'] {
+  visibility: hidden;
+  animation: reveal 0s 2.5s forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+
+  [data-typing] {
+    visibility: visible !important;
+  }
+}
