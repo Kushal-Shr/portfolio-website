@@ -10,6 +10,8 @@ import { skillFor, trailFor } from '@/lib/detail';
 import { formatRange } from '@/lib/format';
 import { loadSiteTree } from '@/lib/site-load';
 import { loadWriteup } from '@/lib/writeups';
+import { jobMeta } from '@/lib/seo/copy';
+import { pageMetadata } from '@/lib/seo/metadata';
 
 export const dynamicParams = false;
 
@@ -27,7 +29,7 @@ const find = async (params: Props['params']) => {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { job } = await find(params);
-  return { title: `${job.title} @ ${job.orgShort ?? job.org}`, description: job.summary };
+  return pageMetadata({ path: `/experience/${job.id}/`, ...jobMeta(job) });
 }
 
 export default async function ExperienceDetailPage({ params }: Props) {

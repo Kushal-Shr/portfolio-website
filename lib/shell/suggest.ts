@@ -25,3 +25,24 @@ export function suggest(word: string, commands: readonly string[]): string | und
   }
   return best?.name;
 }
+
+const normalize = (pathname: string): string =>
+  `/${(pathname.split(/[?#]/)[0] ?? '').split('/').filter(Boolean).join('/')}/`.replace('//', '/');
+
+/**
+ * The page a mistyped URL most likely meant: the closest `href` by edit distance, or `undefined`
+ * when nothing is a plausible typo. The distance is taken over the whole path, so
+ * `/projects/zenit/` lands on `/projects/zenith/` and `/skills/pyhton/` on `/skills/python/`.
+ */
+export function suggestPage(pathname: string, hrefs: readonly string[]): string | undefined {
+  const wanted = normalize(pathname).toLowerCase();
+  // A few edits are a typo; more than a fifth of the path is a different page.
+  const limit = Math.max(2, Math.floor(wanted.length / 5));
+  let best: { href: string; d: number } | undefined;
+  for (const href of hrefs) {
+    if (href === '/') continue;
+    const d = distance(wanted, href.toLowerCase());
+    if (d <= limit && (!best || d < best.d)) best = { href, d };
+  }
+  return best?.href;
+}

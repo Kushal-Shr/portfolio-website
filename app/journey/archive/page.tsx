@@ -7,11 +7,14 @@ import { archiveLine, groupByMonth, permalink } from '@/lib/journey/format';
 import { loadJourneyMeta } from '@/lib/journey/load';
 import { JOURNEY_ARCHIVE_PATH } from '@/lib/site-tree';
 import { loadSiteTree } from '@/lib/site-load';
+import { routeDescriptions } from '@/lib/seo/copy';
+import { pageMetadata } from '@/lib/seo/metadata';
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: 'journey archive',
-  description: 'Every entry in the daily journey log, one line each.',
-};
+  description: routeDescriptions.archive,
+  path: '/journey/archive/',
+});
 
 export default async function JourneyArchivePage() {
   const entries = await loadJourneyMeta();

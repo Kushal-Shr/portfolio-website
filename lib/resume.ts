@@ -16,6 +16,8 @@ export type Segment = {
   bold?: boolean;
   /** Font size in px for the name line. */
   size?: number;
+  /** Marks the build date, which changes on every build (visual tests mask it). */
+  buildDate?: boolean;
 };
 export type ResumeLine = Segment[];
 
@@ -26,6 +28,8 @@ export type ResumeContent = {
   leadership: readonly LeadershipRole[];
   achievements: readonly Achievement[];
   skillGroups: readonly SkillGroup[];
+  /** `YYYY-MM-DD`. When given, the closing line shows it instead of the design's note. */
+  built?: string;
 };
 
 const blank: ResumeLine = [{ text: '' }];
@@ -121,9 +125,16 @@ export function renderResume(c: ResumeContent): ResumeLine[] {
     for (const text of wrapped) lines.push([{ text }]);
   }
 
-  lines.push(rule('='), [
-    { text: `-- EOF --  (${RESUME_WIDTH} columns, prints cleanly on one page)`, tone: 'dim' },
-  ]);
+  lines.push(
+    rule('='),
+    c.built
+      ? [
+          { text: '-- EOF --  (built ', tone: 'dim' },
+          { text: c.built, tone: 'dim', buildDate: true },
+          { text: ')', tone: 'dim' },
+        ]
+      : [{ text: `-- EOF --  (${RESUME_WIDTH} columns, prints cleanly on one page)`, tone: 'dim' }],
+  );
   return lines;
 }
 

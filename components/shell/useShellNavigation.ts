@@ -11,7 +11,7 @@ import { useShellState } from './useShellState';
  * Wires the shared session to the router: a navigation the engine returned is performed here,
  * and the working directory follows the URL (nav clicks, links, back/forward included).
  */
-export function useShellNavigation(fs: VirtualFs | undefined): void {
+export function useShellNavigation(fs: VirtualFs | undefined, syncCwd = true): void {
   const router = useRouter();
   const pathname = usePathname();
   const { pendingNavigation } = useShellState();
@@ -29,8 +29,9 @@ export function useShellNavigation(fs: VirtualFs | undefined): void {
   }, [pendingNavigation, pathname, router]);
 
   useEffect(() => {
+    if (!syncCwd) return;
     // The filesystem is authoritative; before it has loaded the URL's own shape is enough.
     const cwd = fs ? cwdForRoute(fs, pathname) : cwdFromPathname(pathname);
     if (cwd) shellStore.dispatch({ type: 'sync-cwd', cwd });
-  }, [fs, pathname]);
+  }, [fs, pathname, syncCwd]);
 }

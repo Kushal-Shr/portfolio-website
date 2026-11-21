@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useEffect, useMemo, useRef } from 'react';
-import { Cursor } from '@/components/terminal/Cursor';
+import { TypedChars } from '@/components/terminal/TypedChars';
 import { useKeepInputVisible } from '@/lib/hooks/useKeepInputVisible';
 import { useMounted } from '@/lib/hooks/useMounted';
 import { prefersReducedMotion } from '@/lib/hooks/useReducedMotion';
@@ -233,10 +233,14 @@ export function Shell({ fs, info, intro, lastLogin, neofetch }: ShellProps) {
           </pre>
           <p className="text-fg-dim">Last login: {login} on ttys001</p>
           <h1 aria-label={intro} className="m-0 text-[15px] font-bold whitespace-pre-wrap">
-            <span aria-hidden="true">{shownIntro}</span>
-            {typingIntro && (state.introTyped ?? 0) < intro.length ? (
-              <Cursor className="font-normal" />
-            ) : null}
+            <span aria-hidden="true">
+              <TypedChars
+                text={intro}
+                count={shownIntro.length}
+                cursor={typingIntro && (state.introTyped ?? 0) < intro.length}
+                cursorClassName="font-normal"
+              />
+            </span>
           </h1>
 
           <div

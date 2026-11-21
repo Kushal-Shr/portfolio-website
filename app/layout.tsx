@@ -1,8 +1,11 @@
 import type { Metadata, Viewport } from 'next';
 import { JetBrains_Mono } from 'next/font/google';
+import { profile } from '@/content/profile';
 import { RSS_PATH } from '@/lib/journey/format';
 import { RSS_TITLE } from '@/lib/journey/rss';
-import { siteUrl } from '@/lib/site';
+import { defaultTitle, siteDescription } from '@/lib/seo/copy';
+import { ogImageMeta } from '@/lib/seo/og-image';
+import { siteName, siteUrl } from '@/lib/site';
 import './globals.css';
 
 const jetbrainsMono = JetBrains_Mono({
@@ -18,11 +21,39 @@ const jetbrainsMono = JetBrains_Mono({
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
-  title: { default: 'Kushal Shrestha · portfolio-sh', template: '%s · Kushal Shrestha' },
-  description: 'Terminal-themed portfolio of Kushal Shrestha.',
+  title: { default: defaultTitle, template: `%s · ${siteName}` },
+  description: siteDescription,
+  authors: [{ name: profile.name, url: siteUrl }],
+  creator: profile.name,
+  keywords: [
+    profile.name,
+    'portfolio',
+    'data engineering',
+    'machine learning',
+    'full-stack',
+    profile.education.school,
+  ],
   alternates: {
+    canonical: '/',
     types: { 'application/rss+xml': [{ url: RSS_PATH, title: RSS_TITLE }] },
   },
+  openGraph: {
+    type: 'website',
+    siteName,
+    locale: 'en_US',
+    url: '/',
+    title: defaultTitle,
+    description: siteDescription,
+    images: [ogImageMeta('/', defaultTitle)],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: defaultTitle,
+    description: siteDescription,
+    images: [{ url: ogImageMeta('/', defaultTitle).url }],
+  },
+  robots: { index: true, follow: true },
+  formatDetection: { telephone: false },
 };
 
 export const viewport: Viewport = {

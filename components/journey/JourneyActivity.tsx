@@ -46,9 +46,11 @@ export function JourneyActivity({ dates, buildDay, title }: JourneyActivityProps
   const phone = useMatchMedia(PHONE_QUERY);
   const weeks = phone ? HEATMAP_WEEKS_PHONE : HEATMAP_WEEKS;
   const { day, streak, longest } = journeyStats(dates, parseDay(today));
-  // A phone only has room for half a year's columns, so the grid (and the counts read out for
-  // it) cover 13 weeks there instead of being cut off by CSS.
-  const grid = heatmap(dates, parseDay(today), weeks);
+  // The grid always holds all 26 weeks and CSS hides the oldest ones on a phone, so it never
+  // changes shape after hydration. The words (title, name, counts) follow the weeks in view.
+  const grid = heatmap(dates, parseDay(today), HEATMAP_WEEKS);
+  const logged = grid.weeks.slice(-weeks).reduce((n, w) => n + w.filter((c) => c.logged).length, 0);
+  const hiddenOnPhone = HEATMAP_WEEKS - HEATMAP_WEEKS_PHONE;
 
   return (
     <>
@@ -73,7 +75,7 @@ export function JourneyActivity({ dates, buildDay, title }: JourneyActivityProps
         className="px-5 pt-6 pb-3.5"
       >
         <p className="sr-only">
-          {plural(grid.logged, 'entry', 'entries')} in the last {weeks} weeks. Current streak{' '}
+          {plural(logged, 'entry', 'entries')} in the last {weeks} weeks. Current streak{' '}
           {plural(streak, 'day')}. Longest streak {plural(longest, 'day')}.
         </p>
         {/* Weeks are columns, so the DOM runs oldest to newest; rows are Sun..Sat. */}
@@ -83,10 +85,13 @@ export function JourneyActivity({ dates, buildDay, title }: JourneyActivityProps
               <span key={i}>{label || '\u00a0'}</span>
             ))}
           </div>
-          {/* Too narrow for 26 weeks (phones): clip the oldest weeks, never today's. */}
+          {/* Too narrow for 26 weeks (phones): the oldest weeks are hidden, never today's. */}
           <div className="flex min-w-0 flex-1 overflow-hidden">
-            {grid.weeks.map((week) => (
-              <div key={week[0]?.date} className="flex flex-none flex-col">
+            {grid.weeks.map((week, i) => (
+              <div
+                key={week[0]?.date}
+                className={`flex flex-none flex-col ${i < hiddenOnPhone ? 'max-sm:hidden' : ''}`}
+              >
                 {week.map((cell) => (
                   <Cell key={cell.date} cell={cell} />
                 ))}

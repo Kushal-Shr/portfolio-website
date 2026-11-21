@@ -38,7 +38,7 @@ const isEditable = (el: EventTarget | null): boolean => {
 };
 
 /** The docked command line: one line above the nav bar, with an output panel above it. */
-export function ShellDock({ info }: { info: ShellInfo }) {
+export function ShellDock({ info, syncCwd = true }: { info: ShellInfo; syncCwd?: boolean }) {
   const state = useShellState();
   const [data, setData] = useState<DockData | undefined>();
   const [draft, setDraft] = useState('');
@@ -55,7 +55,7 @@ export function ShellDock({ info }: { info: ShellInfo }) {
   const returnFocus = useRef<HTMLElement | null>(null);
   const tabStuck = useRef(false);
 
-  useShellNavigation(data?.fs);
+  useShellNavigation(data?.fs, syncCwd);
   useKeepInputVisible(inputRef);
   useScrollFade(chipsRef);
 

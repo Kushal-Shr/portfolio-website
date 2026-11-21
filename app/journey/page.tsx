@@ -9,11 +9,14 @@ import { ARCHIVE_HREF } from '@/lib/journey/format';
 import { loadJourney } from '@/lib/journey/load';
 import { JOURNEY_PAGE_SIZE } from '@/lib/journey/types';
 import { ROUTES } from '@/lib/routes';
+import { routeDescriptions } from '@/lib/seo/copy';
+import { pageMetadata } from '@/lib/seo/metadata';
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: 'journey',
-  description: 'What Kushal learned and built, every single day.',
-};
+  description: routeDescriptions.journey,
+  path: '/journey/',
+});
 
 const route = ROUTES.find((r) => r.key === 'journey');
 

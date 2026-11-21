@@ -15,6 +15,8 @@ import { projects } from '@/content/projects';
 import { skillFor, trailFor } from '@/lib/detail';
 import { loadSiteTree } from '@/lib/site-load';
 import { loadWriteup } from '@/lib/writeups';
+import { projectMeta } from '@/lib/seo/copy';
+import { pageMetadata } from '@/lib/seo/metadata';
 
 export const dynamicParams = false;
 
@@ -31,7 +33,11 @@ const find = async (params: Props['params']) => {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const p = await find(params);
-  return { title: p.name, description: p.shortSummary };
+  return pageMetadata({
+    title: p.name,
+    path: `/projects/${p.slug}/`,
+    ...projectMeta(p),
+  });
 }
 
 export default async function ProjectPage({ params }: Props) {

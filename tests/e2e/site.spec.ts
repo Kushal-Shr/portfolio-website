@@ -177,6 +177,8 @@ test.describe('the dock', () => {
   });
 
   test('the sticky bar never covers a focused link', async ({ page }) => {
+    // Smooth scrolling (on by default) is still moving when the position is read.
+    await page.emulateMedia({ reducedMotion: 'reduce' });
     await page.goto('/projects/zenith/');
     const last = page.getByRole('navigation', { name: 'projects pages' }).getByRole('link').last();
     await last.focus();

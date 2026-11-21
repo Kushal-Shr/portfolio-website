@@ -11,8 +11,14 @@ import type { GuideItem } from '@/content/types';
 import { createGuideContext, renderGuideExample } from '@/lib/guide';
 import { ROUTES } from '@/lib/routes';
 import { loadSiteFs } from '@/lib/site-load';
+import { routeDescriptions } from '@/lib/seo/copy';
+import { pageMetadata } from '@/lib/seo/metadata';
 
-export const metadata: Metadata = { title: 'guide' };
+export const metadata: Metadata = pageMetadata({
+  title: 'guide',
+  description: routeDescriptions.guide,
+  path: '/guide/',
+});
 
 const prompt = ROUTES.find((r) => r.key === 'guide')?.prompt ?? undefined;
 

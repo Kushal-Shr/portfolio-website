@@ -9,6 +9,8 @@ import { leadership } from '@/content/leadership';
 import { trailFor } from '@/lib/detail';
 import { loadSiteTree } from '@/lib/site-load';
 import { loadWriteup } from '@/lib/writeups';
+import { roleMeta } from '@/lib/seo/copy';
+import { pageMetadata } from '@/lib/seo/metadata';
 
 export const dynamicParams = false;
 
@@ -25,7 +27,7 @@ const find = async (params: Props['params']) => {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const l = await find(params);
-  return { title: `${l.role} · ${l.org}`, description: l.summary ?? `${l.role}, ${l.org}` };
+  return pageMetadata({ path: `/leadership/${l.slug}/`, ...roleMeta(l) });
 }
 
 export default async function RolePage({ params }: Props) {

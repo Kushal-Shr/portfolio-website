@@ -11,6 +11,8 @@ import { trailFor, usageOf } from '@/lib/detail';
 import { loadSiteTree } from '@/lib/site-load';
 import { skillEntries } from '@/lib/site-tree';
 import { loadWriteup } from '@/lib/writeups';
+import { skillMeta } from '@/lib/seo/copy';
+import { pageMetadata } from '@/lib/seo/metadata';
 
 export const dynamicParams = false;
 
@@ -29,10 +31,7 @@ const find = async (params: Props['params']) => {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const s = await find(params);
-  return {
-    title: s.name,
-    description: `${s.name}: where it shows up in Kushal's projects and jobs.`,
-  };
+  return pageMetadata({ title: s.name, path: `/skills/${s.slug}/`, ...skillMeta(s) });
 }
 
 const joinLinks = (items: { href: string; label: string }[]) =>

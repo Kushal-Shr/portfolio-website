@@ -75,6 +75,13 @@
     color: var(--color-blue-hover);
   }
 
+  /* Smooth anchor jumps, but only for people who haven't asked for less motion. */
+  @media (prefers-reduced-motion: no-preference) {
+    html {
+      scroll-behavior: smooth;
+    }
+  }
+
   :focus-visible {
     outline: 1px dashed var(--color-green);
     outline-offset: 2px;
@@ -95,6 +102,15 @@
 
   .cursor-blink {
     animation: blink 1s steps(1) infinite;
+  }
+
+  /*
+   * Links that leave the site end in an arrow. The second declaration gives the glyph an empty
+   * alternative so screen readers skip it; browsers without that syntax keep the first.
+   */
+  a[href^='http']::after {
+    content: ' ↗';
+    content: ' ↗' / '';
   }
 
   /* The "┤ title ├" cut-out: the bg-coloured padding hides the box border behind the title. */
@@ -236,6 +252,19 @@ html.js [data-typing='pending'] {
 
   a {
     text-decoration: none;
+  }
+
+  /* On paper a link is only useful if you can read where it goes. */
+  a[href^='http']::after {
+    content: ' (' attr(href) ')';
+    font-size: 0.9em;
+    overflow-wrap: anywhere;
+  }
+
+  /* The title cut-out must be opaque again, or the box border would run through it. */
+  .box-title,
+  .box-badge {
+    background: #fff !important;
   }
 }
 

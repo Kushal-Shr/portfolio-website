@@ -10,7 +10,10 @@ describe('complete: commands', () => {
   });
 
   it('lists candidates when nothing more can be added', () => {
-    expect(tab('c')).toEqual({ value: 'c', candidates: ['cat', 'cd', 'clear', 'contact'] });
+    expect(tab('c')).toEqual({
+      value: 'c',
+      candidates: ['cat', 'cd', 'clear', 'contact', 'cowsay'],
+    });
   });
 
   it('extends to the longest common prefix', () => {

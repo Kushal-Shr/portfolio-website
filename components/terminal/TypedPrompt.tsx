@@ -1,7 +1,7 @@
 'use client';
 
 import { useTypewriter } from '@/lib/hooks/useTypewriter';
-import { Cursor } from './Cursor';
+import { TypedChars } from './TypedChars';
 
 type TypedPromptProps = { cmd: string; path?: string };
 
@@ -26,14 +26,17 @@ export function TypedPrompt({ cmd, path = '~' }: TypedPromptProps) {
         <span aria-hidden="true" className="text-fg-dim">
           {'$ '}
         </span>
-        <span
-          aria-hidden="true"
-          data-testid="prompt-command"
-          data-typing={pending ? 'pending' : undefined}
-        >
-          {shown}
+        <span aria-hidden="true">
+          <TypedChars
+            text={cmd}
+            count={shown.length}
+            cursor
+            typedProps={{
+              'data-testid': 'prompt-command',
+              'data-typing': pending ? 'pending' : undefined,
+            }}
+          />
         </span>
-        <Cursor />
       </span>
     </p>
   );

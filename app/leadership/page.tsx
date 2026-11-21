@@ -7,8 +7,14 @@ import { TerminalPage } from '@/components/terminal/TerminalPage';
 import { achievements } from '@/content/achievements';
 import { leadership } from '@/content/leadership';
 import { ROUTES } from '@/lib/routes';
+import { routeDescriptions } from '@/lib/seo/copy';
+import { pageMetadata } from '@/lib/seo/metadata';
 
-export const metadata: Metadata = { title: 'leadership' };
+export const metadata: Metadata = pageMetadata({
+  title: 'leadership',
+  description: routeDescriptions.leadership,
+  path: '/leadership/',
+});
 
 const prompt = ROUTES.find((r) => r.key === 'leadership')?.prompt ?? undefined;
 

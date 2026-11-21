@@ -5,6 +5,9 @@ import { TerminalPage } from '@/components/terminal/TerminalPage';
 import { trailFor } from '@/lib/detail';
 import { loadJourney } from '@/lib/journey/load';
 import { loadSiteTree } from '@/lib/site-load';
+import { permalink } from '@/lib/journey/format';
+import { clip } from '@/lib/seo/copy';
+import { pageMetadata } from '@/lib/seo/metadata';
 
 export const dynamicParams = false;
 
@@ -29,7 +32,13 @@ const find = async (params: Props['params']) => {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const e = await find(params);
   if (!e) return { title: 'journey', robots: { index: false } };
-  return { title: `day ${e.day} · ${e.date}`, description: e.learned };
+  return pageMetadata({
+    title: `day ${e.day} · ${e.date}`,
+    description: clip(e.learned),
+    path: permalink(e.date),
+    keywords: e.tags,
+    article: { publishedTime: e.date, tags: e.tags },
+  });
 }
 
 export default async function JourneyEntryPage({ params }: Props) {

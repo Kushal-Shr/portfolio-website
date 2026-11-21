@@ -1,4 +1,5 @@
 import { ALL_COMMANDS } from './commands';
+import { easterEgg } from './eggs';
 import { link, seg, text } from './lines';
 import { basename, isDir, isFile, joinPath, resolve } from './resolve';
 import { suggest } from './suggest';
@@ -314,12 +315,14 @@ export function exec(input: string, state: ShellState, ctx: ShellContext): ExecR
 
     case 'contact':
       return ok([
-        link('mail  ', ctx.info.email, `mailto:${ctx.info.email}`, true),
+        link('mail  ', ctx.info.email, `mailto:${ctx.info.email}`, true, ctx.info.email),
         link('gh    ', ctx.info.github.label, ctx.info.github.href, true),
         link('in    ', ctx.info.linkedin.label, ctx.info.linkedin.href, true),
       ]);
 
     default: {
+      const egg = easterEgg(cmd, rest, ctx);
+      if (egg) return ok(egg);
       const lines = [text(`portfolio-sh: command not found: ${cmd} — try help`, 'err')];
       const guess = suggest(cmd, ALL_COMMANDS);
       if (guess) lines.push(text(`did you mean: ${guess}?`, 'dim'));

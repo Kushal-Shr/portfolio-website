@@ -1,3 +1,4 @@
+import { repoStars } from './github';
 import { todo } from './types';
 import type { ExtraProject, Project } from './types';
 
@@ -119,7 +120,7 @@ export const projects: readonly Project[] = [
   {
     slug: 'airdesk',
     name: 'AirDesk',
-    badge: '★1 · python',
+    badge: `★${repoStars.AirDesk} · python`,
     badgeTone: 'dim',
     featured: false,
     tags: ['python', 'computer-vision'],

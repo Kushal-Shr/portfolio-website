@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { CopyButton } from '@/components/terminal/CopyButton';
 import type { Line, Segment, Tone } from '@/lib/shell/types';
 
 export const TONE: Record<Tone, string> = {
@@ -41,6 +42,12 @@ export function OutputLine({ line }: OutputLineProps) {
     <div className="pl-4 whitespace-pre">
       {line.prefix ? <span className="text-fg-dim">{line.prefix}</span> : null}
       {external ? <a href={line.href}>{line.text}</a> : <Link href={line.href}>{line.text}</Link>}
+      {line.copy ? (
+        <>
+          {' '}
+          <CopyButton value={line.copy} what="email" />
+        </>
+      ) : null}
     </div>
   );
 }

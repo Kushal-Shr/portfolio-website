@@ -9,7 +9,9 @@ blob-report/
 reports/
 
 design/
-docs/
+# Build prompts stay local; the README's screenshot is committed.
+docs/*
+!docs/screenshot.png
 
 .env
 .env*.local

@@ -18,6 +18,8 @@ type TerminalPageProps = {
   padBottom?: string;
   /** Gap between direct children of `<main>`, as a Tailwind class. */
   gap?: string;
+  /** The 404 page: no current tab, and the dock keeps its working directory. */
+  notFound?: boolean;
   className?: string;
   children?: ReactNode;
 };
@@ -31,6 +33,7 @@ export function TerminalPage({
   fill = false,
   padBottom = 'pb-6',
   gap = 'gap-6',
+  notFound = false,
   className = '',
   children,
 }: TerminalPageProps) {
@@ -53,8 +56,8 @@ export function TerminalPage({
         </main>
       </div>
       <div className="dock-group" data-print="hide">
-        {dock ? <ShellDock info={shellInfo} /> : null}
-        <NavBar dock={dock} />
+        {dock ? <ShellDock info={shellInfo} syncCwd={!notFound} /> : null}
+        <NavBar dock={dock} noActive={notFound} />
       </div>
     </div>
   );

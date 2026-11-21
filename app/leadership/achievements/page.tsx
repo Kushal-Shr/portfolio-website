@@ -6,11 +6,14 @@ import { TerminalPage } from '@/components/terminal/TerminalPage';
 import { achievements } from '@/content/achievements';
 import { trailFor } from '@/lib/detail';
 import { loadSiteTree } from '@/lib/site-load';
+import { routeDescriptions } from '@/lib/seo/copy';
+import { pageMetadata } from '@/lib/seo/metadata';
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: 'achievements',
-  description: 'Competitions Kushal has won.',
-};
+  description: routeDescriptions.achievements,
+  path: '/leadership/achievements/',
+});
 
 export default async function AchievementsPage() {
   return (

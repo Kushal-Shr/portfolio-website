@@ -15,10 +15,16 @@ const ITEM =
 type NavBarProps = {
   /** The page has a docked command line, so phones get the `>_` button that expands it. */
   dock?: boolean;
+  /**
+   * No tab is current. The 404 page is served for any URL, so the path the server rendered for
+   * differs from the visitor's, and a highlighted tab would not hydrate.
+   */
+  noActive?: boolean;
 };
 
-export function NavBar({ dock = false }: NavBarProps) {
-  const active = activeRouteKey(usePathname());
+export function NavBar({ dock = false, noActive = false }: NavBarProps) {
+  const pathname = usePathname();
+  const active = noActive ? undefined : activeRouteKey(pathname);
   const expanded = useDockExpanded();
   const ref = useRef<HTMLElement>(null);
   useScrollFade(ref);

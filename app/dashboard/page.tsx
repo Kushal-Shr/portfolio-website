@@ -8,8 +8,14 @@ import { profile } from '@/content/profile';
 import { projects } from '@/content/projects';
 import { gitLogEntries } from '@/lib/dashboard';
 import { ROUTES } from '@/lib/routes';
+import { routeDescriptions } from '@/lib/seo/copy';
+import { pageMetadata } from '@/lib/seo/metadata';
 
-export const metadata: Metadata = { title: 'dashboard' };
+export const metadata: Metadata = pageMetadata({
+  title: 'dashboard',
+  description: routeDescriptions.dashboard,
+  path: '/dashboard/',
+});
 
 const PAGE_KEYS = ['about', 'experience', 'leadership', 'skills', 'resume', 'journey'];
 

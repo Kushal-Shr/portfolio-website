@@ -19,6 +19,12 @@ export const COMMANDS = [
   'clear',
   'sudo',
   'contact',
+  // Unlisted in `help`: Tab finds them.
+  'git',
+  'ping',
+  'cowsay',
+  'vim',
+  'rm',
 ] as const;
 
 /** Everything `exec` understands, used for "did you mean" suggestions. */
@@ -31,4 +37,9 @@ export const ALL_COMMANDS: readonly string[] = [
   'fastfetch',
   'exit',
   'logout',
+  'vi',
+  'nano',
+  'emacs',
+  'matrix',
+  'hack',
 ];

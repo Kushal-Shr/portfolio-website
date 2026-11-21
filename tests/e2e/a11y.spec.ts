@@ -105,6 +105,8 @@ test.describe('keyboard', () => {
   test('nothing is hidden behind the sticky dock when tabbing to the end of a long page', async ({
     page,
   }) => {
+    // Smooth scrolling (on by default) is still moving when the position is read.
+    await page.emulateMedia({ reducedMotion: 'reduce' });
     await page.goto('/guide/');
     const hidden: string[] = [];
     for (let i = 0; i < 70; i++) {

@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useRef, useState, useSyncExternalStore } from 'react';
 import { Bullets } from '@/components/terminal/Bullets';
 import { Box } from '@/components/terminal/Box';
+import { CopyButton } from '@/components/terminal/CopyButton';
 import { Cursor } from '@/components/terminal/Cursor';
 import { Diagram } from '@/components/terminal/Diagram';
 import { Portrait } from '@/components/terminal/Portrait';
@@ -226,9 +227,14 @@ export function Dashboard({
         >
           <div className="grid grid-cols-[72px_1fr] gap-y-0.5">
             <span className="text-fg-dim">mail</span>
-            <a href={`mailto:${contact.email}`} className="[overflow-wrap:anywhere]">
-              {contact.email}
-            </a>
+            <span className="flex flex-wrap items-baseline gap-x-2">
+              <a href={`mailto:${contact.email}`} className="[overflow-wrap:anywhere]">
+                {contact.email}
+              </a>
+              <span>
+                <CopyButton value={contact.email} what="email" />
+              </span>
+            </span>
             <span className="text-fg-dim">gh</span>
             <a href={contact.github.href}>{contact.github.handle}</a>
             <span className="text-fg-dim">in</span>

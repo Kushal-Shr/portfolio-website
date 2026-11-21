@@ -5,8 +5,14 @@ import { TerminalPage } from '@/components/terminal/TerminalPage';
 import { experience } from '@/content/experience';
 import { formatRange } from '@/lib/format';
 import { ROUTES } from '@/lib/routes';
+import { routeDescriptions } from '@/lib/seo/copy';
+import { pageMetadata } from '@/lib/seo/metadata';
 
-export const metadata: Metadata = { title: 'experience' };
+export const metadata: Metadata = pageMetadata({
+  title: 'experience',
+  description: routeDescriptions.experience,
+  path: '/experience/',
+});
 
 const prompt = ROUTES.find((r) => r.key === 'experience')?.prompt ?? undefined;
 

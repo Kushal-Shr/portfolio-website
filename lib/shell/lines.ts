@@ -12,9 +12,16 @@ export const text = (value: string, tone?: Tone, bold?: boolean): Line => ({
   segments: [seg(value, tone, bold)],
 });
 
-export const link = (prefix: string, label: string, href: string, external?: boolean): Line => {
+export const link = (
+  prefix: string,
+  label: string,
+  href: string,
+  external?: boolean,
+  copy?: string,
+): Line => {
   const line: Line = { kind: 'link', text: label, href };
   if (prefix) line.prefix = prefix;
   if (external) line.external = true;
+  if (copy) line.copy = copy;
   return line;
 };

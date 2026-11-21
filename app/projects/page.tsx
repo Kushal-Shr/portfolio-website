@@ -10,8 +10,14 @@ import { extraProjects, projects } from '@/content/projects';
 import { profile } from '@/content/profile';
 import type { Project } from '@/content/types';
 import { ROUTES } from '@/lib/routes';
+import { routeDescriptions } from '@/lib/seo/copy';
+import { pageMetadata } from '@/lib/seo/metadata';
 
-export const metadata: Metadata = { title: 'projects' };
+export const metadata: Metadata = pageMetadata({
+  title: 'projects',
+  description: routeDescriptions.projects,
+  path: '/projects/',
+});
 
 const prompt = ROUTES.find((r) => r.key === 'projects')?.prompt ?? undefined;
 const CARD = 'flex flex-col gap-3 px-[22px] pt-6 pb-[18px]';

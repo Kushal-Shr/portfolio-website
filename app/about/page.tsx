@@ -1,5 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import { CopyButton } from '@/components/terminal/CopyButton';
+import { JsonLd } from '@/components/seo/JsonLd';
 import { TerminalPage } from '@/components/terminal/TerminalPage';
 import { experience } from '@/content/experience';
 import { profile } from '@/content/profile';
@@ -7,8 +9,15 @@ import { projects } from '@/content/projects';
 import { skillGroups } from '@/content/skills';
 import { formatMonthYear, formatRange, openToSentence } from '@/lib/format';
 import { ROUTES } from '@/lib/routes';
+import { routeDescriptions } from '@/lib/seo/copy';
+import { personJsonLd } from '@/lib/seo/jsonld';
+import { pageMetadata } from '@/lib/seo/metadata';
 
-export const metadata: Metadata = { title: 'about' };
+export const metadata: Metadata = pageMetadata({
+  title: 'about',
+  description: routeDescriptions.about,
+  path: '/about/',
+});
 
 const prompt = ROUTES.find((r) => r.key === 'about')?.prompt ?? undefined;
 const manName = `${profile.shortName.toUpperCase()}(${profile.manPage.section})`;
@@ -35,6 +44,7 @@ export default function AboutPage() {
 
   return (
     <TerminalPage prompt={prompt} padX="wide" gap="gap-[26px]" className="leading-[1.7]">
+      <JsonLd data={personJsonLd()} />
       <h1 className="sr-only">{profile.name}: about</h1>
       <div className="text-fg-dim flex justify-between">
         <span>{manName}</span>
@@ -123,7 +133,8 @@ export default function AboutPage() {
 
       <Section title="SEE ALSO">
         <p className="pl-[2ch] sm:pl-[7ch]">
-          <a href={`mailto:${profile.email}`}>email(1)</a>,{' '}
+          <a href={`mailto:${profile.email}`}>email(1)</a>{' '}
+          <CopyButton value={profile.email} what="email" />,{' '}
           <a href={profile.links.github.href}>github(1)</a>,{' '}
           <a href={profile.links.linkedin.href}>linkedin(1)</a>,{' '}
           <Link href="/resume/">resume(7)</Link>

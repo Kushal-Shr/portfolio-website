@@ -13,8 +13,14 @@ import { projects } from '@/content/projects';
 import { skillGroups } from '@/content/skills';
 import { renderResume, type Segment } from '@/lib/resume';
 import { ROUTES } from '@/lib/routes';
+import { routeDescriptions } from '@/lib/seo/copy';
+import { pageMetadata } from '@/lib/seo/metadata';
 
-export const metadata: Metadata = { title: 'resume' };
+export const metadata: Metadata = pageMetadata({
+  title: 'resume',
+  description: routeDescriptions.resume,
+  path: '/resume/',
+});
 
 const prompt = ROUTES.find((r) => r.key === 'resume')?.prompt ?? undefined;
 const BUTTON = 'inline-flex min-h-11 items-center px-[18px] no-underline';
@@ -32,6 +38,7 @@ function Span({ segment }: { segment: Segment }) {
       aria-hidden={segment.tone === 'rule' ? true : undefined}
       className={className || undefined}
       style={segment.size ? { fontSize: segment.size } : undefined}
+      data-testid={segment.buildDate ? 'build-date' : undefined}
     >
       {segment.text}
     </span>
@@ -48,6 +55,7 @@ export default function ResumePage() {
     leadership,
     achievements,
     skillGroups,
+    built: new Date().toISOString().slice(0, 10),
   });
 
   return (

@@ -3,7 +3,15 @@ export type Segment = { text: string; tone?: Tone; bold?: boolean };
 
 export type Line =
   | { kind: 'text'; segments: Segment[] }
-  | { kind: 'link'; prefix?: string; text: string; href: string; external?: boolean }
+  | {
+      kind: 'link';
+      prefix?: string;
+      text: string;
+      href: string;
+      external?: boolean;
+      /** Adds a `[copy]` button that puts this text on the clipboard (the email). */
+      copy?: string;
+    }
   | { kind: 'items'; items: Segment[] }
   | { kind: 'neofetch' };
 

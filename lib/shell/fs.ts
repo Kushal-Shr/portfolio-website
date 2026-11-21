@@ -13,6 +13,7 @@ import { isTodo } from '@/content/types';
 import { formatRange } from '@/lib/format';
 import { archiveLine, groupByMonth } from '@/lib/journey/format';
 import type { JourneyMeta } from '@/lib/journey/types';
+import { milestones } from '@/lib/milestones';
 import { renderResume } from '@/lib/resume';
 import {
   buildSiteTree,
@@ -24,6 +25,9 @@ import {
 import { matchesSkill } from '@/lib/skills';
 import { link, seg, text } from './lines';
 import type { FsNode, Line, VirtualFs } from './types';
+
+/** The hidden file behind `git log` (see the easter eggs). */
+export const GIT_LOG_PATH = '~/.git/log';
 
 export type ShellContent = {
   profile: Profile;
@@ -253,5 +257,14 @@ export function buildVirtualFs(
     }
     fs[node.path] = fileNode;
   }
+  // `git log` reads this file. It is in no folder's listing, so `ls` and `tree` never show it, and
+  // the commit list stays out of every page's payload (the dock loads it with `fs.json`).
+  fs[GIT_LOG_PATH] = {
+    type: 'file',
+    lines: milestones(content.experience, content.achievements).map((m): Line => ({
+      kind: 'text',
+      segments: [seg(m.hash, 'warn'), seg(` ${m.text}`)],
+    })),
+  };
   return fs;
 }

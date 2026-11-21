@@ -8,8 +8,14 @@ import { learning, skillGroups } from '@/content/skills';
 import { skillCounts } from '@/lib/skills';
 import { slugify } from '@/lib/slug';
 import { ROUTES } from '@/lib/routes';
+import { routeDescriptions } from '@/lib/seo/copy';
+import { pageMetadata } from '@/lib/seo/metadata';
 
-export const metadata: Metadata = { title: 'skills' };
+export const metadata: Metadata = pageMetadata({
+  title: 'skills',
+  description: routeDescriptions.skills,
+  path: '/skills/',
+});
 
 const prompt = ROUTES.find((r) => r.key === 'skills')?.prompt ?? undefined;
 
