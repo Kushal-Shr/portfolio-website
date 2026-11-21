@@ -145,6 +145,14 @@ test.describe('the dock', () => {
     await expect(home).toHaveValue('a:b/c');
   });
 
+  test('a very long draft clips inside the dock and never widens the page', async ({ page }) => {
+    await dockInput(page).fill('x'.repeat(5000));
+    const overflow = await page.evaluate(
+      () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
+    );
+    expect(overflow).toBeLessThanOrEqual(0);
+  });
+
   test('neofetch sends you to the home shell', async ({ page }) => {
     await dock(page, 'neofetch');
     await expect(page).toHaveURL(/\/$/);

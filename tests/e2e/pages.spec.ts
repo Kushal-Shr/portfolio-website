@@ -75,7 +75,8 @@ test.describe('dashboard', () => {
       'true',
     );
     await expect(page.getByRole('button', { name: /zenith\// })).toBeFocused();
-    await expect(page.getByRole('heading', { level: 1 })).toContainText('zenith');
+    // The project title is the README box's heading (h3); the page's own h1 is "Dashboard".
+    await expect(page.getByRole('heading', { level: 3 })).toContainText('zenith');
     await expect(page).toHaveURL(/#zenith$/);
     await page.keyboard.press('End');
     await expect(page.getByRole('button', { name: /sanctuary\// })).toHaveAttribute(
@@ -97,7 +98,7 @@ test.describe('dashboard', () => {
     test.skip(info.project.name !== 'desktop-reduced-motion', 'reduced-motion project only');
     await page.goto('/dashboard/');
     await expect(page.getByText('✓ done')).toBeVisible();
-    await expect(page.locator('h1 > span[aria-hidden="true"]')).toContainText('rant-and-heal');
+    await expect(page.locator('main h3 > span[aria-hidden="true"]')).toContainText('rant-and-heal');
   });
 
   test('the portrait finishes revealing', async ({ page }, info) => {

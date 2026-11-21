@@ -36,10 +36,11 @@ test('typing stays fast after 200 commands (keystroke to paint under 50ms)', asy
   await input.fill('');
   await input.focus();
   for (const ch of 'portfolio keystrokes') await page.keyboard.type(ch);
-  await page.waitForTimeout(200);
-
-  const times = await page.evaluate(() => (window as unknown as { __latency: number[] }).__latency);
-  expect(times.length).toBeGreaterThanOrEqual(15);
+  const latency = () =>
+    page.evaluate(() => (window as unknown as { __latency: number[] }).__latency);
+  // Each sample is recorded two frames after its key, so wait for them instead of for a while.
+  await expect.poll(async () => (await latency()).length).toBeGreaterThanOrEqual(15);
+  const times = await latency();
   const sorted = [...times].sort((a, b) => a - b);
   const p95 = sorted[Math.floor(sorted.length * 0.95) - 1] ?? 0;
   const median = sorted[Math.floor(sorted.length / 2)] ?? 0;
@@ -69,6 +70,7 @@ test('typing the prompt moves nothing on a phone-sized page', async ({ browser, 
   });
   for (const route of ['/projects/zenith/', '/journey/', '/skills/python/', '/about/']) {
     await page.goto(`${baseURL}${route}`);
+    // A settling window: layout shifts from late fonts or typing would land inside it.
     await page.waitForTimeout(2500);
     const cls = await page.evaluate(() => (window as unknown as { __cls: number }).__cls);
     expect(cls, route).toBeLessThan(0.01);

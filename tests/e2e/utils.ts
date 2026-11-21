@@ -4,7 +4,10 @@ import { expect, type APIRequestContext, type Page } from '@playwright/test';
 export async function expectNoA11yViolations(page: Page): Promise<void> {
   // The dock and nav are one sticky group over the viewport's bottom edge; at scroll-top it hides
   // whatever sits behind it, and axe reports covered targets. At the page end it sits below the content.
-  await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
+  // `instant`: the page smooth-scrolls by default, and axe must not sample a scroll in flight.
+  await page.evaluate(() =>
+    window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'instant' }),
+  );
   const { violations } = await new AxeBuilder({ page })
     .withTags(['wcag2a', 'wcag2aa', 'wcag21aa', 'wcag22aa'])
     .analyze();

@@ -32,8 +32,14 @@ test('nav links navigate', async ({ page }) => {
   await expect(page.locator('nav [aria-current="page"]')).toContainText('3:projects*');
 });
 
-test('skip link is the first tab stop and focuses #content', async ({ page, isMobile }) => {
+test('skip link is the first tab stop and focuses #content', async ({
+  page,
+  isMobile,
+  browserName,
+}) => {
   test.skip(isMobile, 'keyboard navigation is checked on desktop');
+  // Safari's default (System Settings → Keyboard) leaves links out of the Tab order; Option+Tab adds them.
+  test.skip(browserName === 'webkit', 'desktop Safari does not Tab to links by default');
   await page.goto('/about/');
   await page.keyboard.press('Tab');
   const skip = page.getByRole('link', { name: 'skip to content' });

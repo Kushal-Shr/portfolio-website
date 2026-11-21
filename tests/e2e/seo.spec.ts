@@ -238,6 +238,19 @@ test.describe('the 404 page', () => {
     await expect(page.getByRole('link', { name: '/skills/python/' })).toBeVisible();
   });
 
+  test('points a nested unknown path at the nearest page above it', async ({ page }) => {
+    for (const [path, parent] of [
+      ['/projects/nope/', '/projects/'],
+      ['/skills/nope/', '/skills/'],
+      ['/leadership/achievements/nope/', '/leadership/achievements/'],
+      ['/projects/zenith/nope/', '/projects/zenith/'],
+    ] as const) {
+      await missing(page, path);
+      await expect(page.locator('main')).toContainText(`did you mean: ${parent}`);
+      await expect(page.getByRole('link', { name: parent, exact: true })).toBeVisible();
+    }
+  });
+
   test('lists the top-level pages like `ls ~` and the dock still works', async ({ page }) => {
     await missing(page, '/that/path');
     await expect(page.getByTestId('not-found-error')).toContainText('/that/path');

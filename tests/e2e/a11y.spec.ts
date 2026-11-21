@@ -4,7 +4,8 @@ import { builtRoutes, expectNoA11yViolations } from './utils';
 // axe on every page in the site, in every project (desktop, reduced motion, Pixel 7, iPhone 13 in
 // WebKit, 320px, tablet, 1024 and 1920).
 test('every page passes axe (WCAG 2.2 AA)', async ({ page, request }) => {
-  test.setTimeout(300_000);
+  // 61 pages in one test; WebKit under a loaded suite needs the headroom.
+  test.setTimeout(600_000);
   for (const href of await builtRoutes(request)) {
     await page.goto(href);
     await expect(page.locator('h1'), href).toHaveCount(1);
@@ -170,7 +171,10 @@ test.describe('reduced motion', () => {
   ]) {
     test(`${route}: nothing animates and nothing scrolls smoothly`, async ({ page }) => {
       await page.goto(route);
-      await page.waitForTimeout(400);
+      // Two frames: CSS animations start with the first paint, so none is running after that.
+      await page.evaluate(
+        () => new Promise((done) => requestAnimationFrame(() => requestAnimationFrame(done))),
+      );
       const running = await page.evaluate(() =>
         document
           .getAnimations()

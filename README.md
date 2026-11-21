@@ -69,4 +69,4 @@ Set `NEXT_PUBLIC_SITE_URL` (for example `https://kushal.dev`) when building for 
 
 ## Credits
 
-[JetBrains Mono](https://www.jetbrains.com/lp/mono/) by JetBrains, licensed under the SIL Open Font License 1.1 (see `assets/fonts/OFL.txt`).
+[JetBrains Mono](https://www.jetbrains.com/lp/mono/) by JetBrains, licensed under the SIL Open Font License 1.1 (see `assets/fonts/OFL.txt`). The box-drawing, block and arrow glyphs are not in Google's subsets, so `app/fonts/` holds the same font cut to just those glyphs (3 KB per weight, OFL alongside); without it every diagram would fall back to a different system font on each OS.

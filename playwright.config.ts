@@ -57,9 +57,25 @@ export default defineConfig({
       testIgnore: NOT_REGULAR,
       use: { ...desktop, reducedMotion: 'reduce' },
     },
+    // The whole regular suite in desktop Safari's engine, opt-in (`PW_WEBKIT=1`). It passes on its
+    // own (97 tests), but beside the other projects a navigation sometimes stalls for 30s+ in
+    // WebKit, so it is not part of the default run.
+    ...(process.env.PW_WEBKIT
+      ? [
+          {
+            name: 'desktop-webkit',
+            retries: 2,
+            testIgnore: NOT_REGULAR,
+            use: { ...devices['Desktop Safari'], viewport: desktop.viewport },
+          },
+        ]
+      : []),
     // iOS Safari's engine, on an iPhone 13 (390px): the only WebKit coverage there is.
     {
       name: 'mobile-webkit',
+      // Playwright's WebKit sometimes never fires `load` on a page when the whole suite is running
+      // at once (it passes in 30s alone). A retry is reported as "flaky", so it stays visible.
+      retries: 2,
       testMatch: RESPONSIVE_SPECS,
       use: devices['iPhone 13'],
     },

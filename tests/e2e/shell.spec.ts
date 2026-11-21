@@ -38,6 +38,7 @@ test.describe('boot', () => {
     await page.keyboard.press('x');
     await expect(page.locator('#shell-hint')).toBeVisible({ timeout: 500 });
     await expect(input(page)).toHaveValue(/^x$/);
+    // A negative check: left alone, the boot would have drawn the portrait within this time.
     await page.waitForTimeout(2500);
     await expect(portrait(page)).toHaveCount(0);
   });
@@ -138,7 +139,8 @@ test.describe('keyboard', () => {
     await expect(log(page)).not.toContainText('    2  c');
   });
 
-  test('Tab with an empty input moves focus out of the input', async ({ page }) => {
+  test('Tab with an empty input moves focus out of the input', async ({ page, browserName }) => {
+    test.skip(browserName === 'webkit', 'desktop Safari does not Tab to buttons by default');
     await input(page).focus();
     await expect(input(page)).toBeFocused();
     await page.keyboard.press('Tab');
