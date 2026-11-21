@@ -49,6 +49,17 @@ describe('suggestPage (the 404 page)', () => {
     expect(suggestPage(typo, hrefs)).toBe(expected);
   });
 
+  it.each([
+    ['/projects/nope/', '/projects/'],
+    ['/skills/nope/', '/skills/'],
+    ['/experience/zzz/', '/experience/'],
+    ['/projects/zenith/nope/', '/projects/zenith/'],
+    ['/leadership/achievements/nope/', '/leadership/achievements/'],
+    ['/journey/2020-01-01/', '/journey/'],
+  ])('falls back to the nearest page above: %s -> %s', (missing, expected) => {
+    expect(suggestPage(missing, hrefs)).toBe(expected);
+  });
+
   it('suggests nothing when the path is not a plausible typo', () => {
     expect(suggestPage('/that/path/', hrefs)).toBeUndefined();
     expect(suggestPage('/wp-admin/login.php', hrefs)).toBeUndefined();

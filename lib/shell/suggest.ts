@@ -30,9 +30,10 @@ const normalize = (pathname: string): string =>
   `/${(pathname.split(/[?#]/)[0] ?? '').split('/').filter(Boolean).join('/')}/`.replace('//', '/');
 
 /**
- * The page a mistyped URL most likely meant: the closest `href` by edit distance, or `undefined`
- * when nothing is a plausible typo. The distance is taken over the whole path, so
- * `/projects/zenit/` lands on `/projects/zenith/` and `/skills/pyhton/` on `/skills/python/`.
+ * The page a mistyped URL most likely meant: the closest `href` by edit distance, or else the
+ * deepest page above it that exists, or `undefined` when neither applies. The distance is taken
+ * over the whole path, so `/projects/zenit/` lands on `/projects/zenith/` and `/skills/pyhton/`
+ * on `/skills/python/`; `/projects/nope/` is no typo of anything, but `/projects/` is a fair guess.
  */
 export function suggestPage(pathname: string, hrefs: readonly string[]): string | undefined {
   const wanted = normalize(pathname).toLowerCase();
@@ -44,5 +45,13 @@ export function suggestPage(pathname: string, hrefs: readonly string[]): string 
     const d = distance(wanted, href.toLowerCase());
     if (d <= limit && (!best || d < best.d)) best = { href, d };
   }
-  return best?.href;
+  if (best) return best.href;
+
+  const known = new Set(hrefs.map((href) => href.toLowerCase()));
+  const parts = wanted.split('/').filter(Boolean);
+  for (let depth = parts.length - 1; depth >= 1; depth--) {
+    const ancestor = `/${parts.slice(0, depth).join('/')}/`;
+    if (known.has(ancestor)) return hrefs.find((href) => href.toLowerCase() === ancestor);
+  }
+  return undefined;
 }

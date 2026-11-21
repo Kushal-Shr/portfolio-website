@@ -296,7 +296,9 @@ export function ShellDock({ info, syncCwd = true }: { info: ShellInfo; syncCwd?:
             </span>
           </label>
           <div className="relative flex min-h-11 min-w-0 flex-1 items-center">
-            <span aria-hidden="true" className="invisible whitespace-pre">
+            {/* Measures the draft so the cursor sits after it. It may shrink and clip: a very long
+                line must not widen the page, and by then the cursor is at the input's right edge. */}
+            <span aria-hidden="true" className="invisible min-w-0 overflow-hidden whitespace-pre">
               {draft}
             </span>
             {focused ? <Cursor /> : null}
