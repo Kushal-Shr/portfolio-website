@@ -23,7 +23,8 @@
 }
 
 @theme inline {
-  --font-mono: var(--font-jetbrains-mono), ui-monospace, Menlo, monospace;
+  --font-mono:
+    var(--font-jetbrains-mono), var(--font-jetbrains-mono-symbols), ui-monospace, Menlo, monospace;
 }
 
 @layer base {
@@ -105,12 +106,13 @@
   }
 
   /*
-   * Links that leave the site end in an arrow. The second declaration gives the glyph an empty
-   * alternative so screen readers skip it; browsers without that syntax keep the first.
+   * Links that leave the site end in an arrow. The no-break space keeps it on the word's line. The
+   * second declaration gives the glyph an empty alternative so screen readers skip it; browsers
+   * without that syntax keep the first.
    */
   a[href^='http']::after {
-    content: ' ↗';
-    content: ' ↗' / '';
+    content: '\00a0↗';
+    content: '\00a0↗' / '';
   }
 
   /* The "┤ title ├" cut-out: the bg-coloured padding hides the box border behind the title. */
@@ -372,6 +374,20 @@ html.js [data-typing='pending'] {
 
 html {
   scroll-padding-bottom: var(--dock-h, 44px);
+}
+
+/*
+ * A phone held sideways has under 500px of height. A pinned dock and a two-row nav would take
+ * half of it, so there they sit at the end of the page instead of over the content.
+ */
+@media (max-height: 500px) and (orientation: landscape) {
+  .dock-group {
+    position: static;
+  }
+
+  html {
+    scroll-padding-bottom: 0;
+  }
 }
 
 html:not(.js) .dock {

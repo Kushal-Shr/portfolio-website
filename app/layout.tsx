@@ -1,6 +1,8 @@
 import type { Metadata, Viewport } from 'next';
 import { JetBrains_Mono } from 'next/font/google';
+import localFont from 'next/font/local';
 import { profile } from '@/content/profile';
+import { BRAND } from '@/lib/brand';
 import { RSS_PATH } from '@/lib/journey/format';
 import { RSS_TITLE } from '@/lib/journey/rss';
 import { defaultTitle, siteDescription } from '@/lib/seo/copy';
@@ -12,11 +14,27 @@ const jetbrainsMono = JetBrains_Mono({
   weight: ['400', '700'],
   subsets: ['latin'],
   display: 'swap',
-  // The generated Arial-based fallback face would supply the box-drawing glyphs (wrong width);
-  // with it off they fall through to ui-monospace / Menlo, which are monospaced.
+  // No generated fallback face, and no fallback list of its own: the Arial-based face would supply
+  // the box-drawing glyphs at the wrong width, and the system fonts must come after the symbols
+  // font below (see `--font-mono` in globals.css).
   adjustFontFallback: false,
-  fallback: ['ui-monospace', 'Menlo', 'monospace'],
+  fallback: [],
   variable: '--font-jetbrains-mono',
+});
+
+// Google's `latin` subset has no box-drawing, block or arrow glyphs, so every diagram and box title
+// would fall back to whatever monospace the visitor has, with its own metrics: gaps between rows in
+// Safari, a different width elsewhere. This is the same font, cut to just those glyphs
+// (`text=` on the Google Fonts CSS API, OFL licence alongside), so the art draws the same everywhere.
+const jetbrainsMonoSymbols = localFont({
+  src: [
+    { path: './fonts/jetbrains-mono-symbols-400.woff2', weight: '400', style: 'normal' },
+    { path: './fonts/jetbrains-mono-symbols-700.woff2', weight: '700', style: 'normal' },
+  ],
+  display: 'swap',
+  adjustFontFallback: false,
+  fallback: [],
+  variable: '--font-jetbrains-mono-symbols',
 });
 
 export const metadata: Metadata = {
@@ -57,7 +75,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: '#0c0f0d',
+  themeColor: BRAND.bg,
   colorScheme: 'dark',
   // Draw under the notch and home bar: the nav pads itself with the safe-area insets.
   viewportFit: 'cover',
@@ -69,7 +87,11 @@ const jsFlagScript = "document.documentElement.classList.add('js')";
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     // suppressHydrationWarning: the inline script adds the `js` class before React hydrates.
-    <html lang="en" className={jetbrainsMono.variable} suppressHydrationWarning>
+    <html
+      lang="en"
+      className={`${jetbrainsMono.variable} ${jetbrainsMonoSymbols.variable}`}
+      suppressHydrationWarning
+    >
       <head>
         <script dangerouslySetInnerHTML={{ __html: jsFlagScript }} />
       </head>

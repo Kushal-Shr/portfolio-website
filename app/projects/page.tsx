@@ -23,14 +23,14 @@ const prompt = ROUTES.find((r) => r.key === 'projects')?.prompt ?? undefined;
 const CARD = 'flex flex-col gap-3 px-[22px] pt-6 pb-[18px]';
 
 function Links({ project }: { project: Project }) {
-  const entries = [
-    ['readme', `/projects/${project.slug}/`],
+  const external = [
     ['source', project.links.source],
     ['devpost', project.links.devpost],
   ] as const;
   return (
     <p>
-      {entries.map(([label, href]) =>
+      <Link href={`/projects/${project.slug}/`}>[readme]</Link>{' '}
+      {external.map(([label, href]) =>
         href ? (
           <span key={label}>
             <a href={href}>[{label}]</a>{' '}
@@ -52,7 +52,7 @@ function Card({ project }: { project: Project }) {
           text={diagram}
           alt={project.diagramAlt}
           label={`${project.slug} architecture diagram`}
-          className="text-[13px] leading-[1.35]"
+          className="text-[13px]"
         />
       )}
       <Bullets items={project.bullets} />
@@ -81,7 +81,7 @@ function Card({ project }: { project: Project }) {
             text={diagram}
             alt={project.diagramAlt}
             label={`${project.slug} architecture diagram`}
-            className="text-[13px] leading-[1.35]"
+            className="text-[13px]"
           />
         </div>
       ) : (
