@@ -1,8 +1,7 @@
 'use client';
 
-import { useState } from 'react';
-import { useInterval } from '@/lib/hooks/useInterval';
 import { useReducedMotion } from '@/lib/hooks/useReducedMotion';
+import { useSpinnerFrame } from '@/lib/hooks/useSpinnerFrame';
 
 const FRAMES = ['⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏'] as const;
 const STATIC = '⠿';
@@ -10,12 +9,11 @@ const STATIC = '⠿';
 /** A braille spinner. The server and reduced-motion users get a static glyph. */
 export function Spinner() {
   const reduced = useReducedMotion();
-  const [frame, setFrame] = useState(0);
-  useInterval(() => setFrame((f) => (f + 1) % FRAMES.length), reduced ? null : 90);
+  const frame = useSpinnerFrame(!reduced);
 
   return (
     <span aria-hidden="true" className="text-yellow">
-      {reduced ? STATIC : FRAMES[frame]}
+      {frame === null ? STATIC : FRAMES[frame % FRAMES.length]}
     </span>
   );
 }
