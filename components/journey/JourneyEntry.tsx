@@ -31,7 +31,7 @@ export function JourneyEntry({ entry: e, headingLevel = 2 }: JourneyEntryProps) 
             <>
               {' '}
               <a href={e.builtLink} className="break-all">
-                ↗ {shortUrl(e.builtLink)}
+                {shortUrl(e.builtLink)}
               </a>
             </>
           ) : null}

@@ -108,7 +108,7 @@ export default async function ProjectPage({ params }: Props) {
         <Diagram text={p.diagramWide ?? p.diagram} alt={p.diagramAlt} />
       </Box>
 
-      <Box title="what I built" className="px-5 pt-6 pb-4">
+      <Box title="highlights" className="px-5 pt-6 pb-4">
         <Bullets items={p.bullets} />
       </Box>
 

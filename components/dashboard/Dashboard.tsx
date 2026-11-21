@@ -145,9 +145,9 @@ export function Dashboard({
           <ul className="m-0 list-none p-0">
             {pages.map((page) => (
               <li key={page.href}>
-                <a href={page.href} className="block py-0.5 max-lg:py-2.5">
+                <Link href={page.href} className="link-quiet block py-0.5 max-lg:py-2.5">
                   {page.file}
-                </a>
+                </Link>
               </li>
             ))}
           </ul>
@@ -183,14 +183,14 @@ export function Dashboard({
             cd {selected.slug} →
           </Link>
         </p>
-        <h1 className="text-[20px] font-bold" aria-live="polite" aria-atomic="true">
+        <h3 className="text-[20px] font-bold" aria-live="polite" aria-atomic="true">
           <span className="sr-only">{selected.slug}</span>
           <span aria-hidden="true">
             <span className="text-fg-dim"># </span>
             <span data-typing={title.pending ? 'pending' : undefined}>{title.shown}</span>
             <Cursor className="font-normal" />
           </span>
-        </h1>
+        </h3>
         <p>{selected.summary}</p>
         <p className="text-yellow">## architecture</p>
         <Diagram text={selected.diagramWide ?? selected.diagram} alt={selected.diagramAlt} />

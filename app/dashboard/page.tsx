@@ -27,6 +27,7 @@ export default function DashboardPage() {
 
   return (
     <TerminalPage padTop="compact" gap="gap-[22px]" className="text-[14px]">
+      <h1 className="sr-only">Dashboard</h1>
       <div className="text-fg-dim flex flex-wrap justify-between gap-x-4">
         <span>
           <span className="text-green font-bold">{profile.shortName}</span>@portfolio ── v1.0
