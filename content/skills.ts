@@ -1,4 +1,4 @@
-import type { Learning, SkillGroup } from './types';
+import type { SkillGroup } from './types';
 
 // The man page and the resume split "languages & web" into two lists, so each list is modelled
 // separately and the skills page merges the two.
@@ -54,18 +54,5 @@ export const skillGroups: readonly SkillGroup[] = [
       },
     ],
     alsoUsed: ['OAuth 2.0'],
-  },
-];
-
-export const learning: readonly Learning[] = [
-  {
-    name: 'Agent Engine + data agents',
-    shortName: 'Agent Engine',
-    note: 'built 2 at Schnuck Markets',
-  },
-  {
-    name: 'machine learning',
-    shortName: 'machine learning',
-    note: 'B.S. CS with an ML emphasis, through 2028',
   },
 ];

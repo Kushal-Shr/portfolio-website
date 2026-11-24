@@ -155,7 +155,8 @@ export type SkillGroup = {
   alsoUsed: readonly string[];
 };
 
-export type Learning = { name: string; shortName: string; note: string };
+/** A project Kushal is building right now (slug from `content/projects.ts`), with a short note. */
+export type NowBuilding = { project: string; note: string };
 
 export type GuideItem = {
   what: string;

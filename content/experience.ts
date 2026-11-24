@@ -1,13 +1,16 @@
-import type { Experience } from './types';
+import type { Experience, NowBuilding } from './types';
 
 /**
- * What Kushal is doing now, between jobs: the experience log's `HEAD`, above the last commit.
- * It is not a job, so it has no dates or detail page.
+ * What Kushal is doing now, between jobs: the experience log's `HEAD` (above the last commit) and
+ * the skills page's "currently building" box. It is not a job, so it has no dates or detail page.
  */
-export const now = {
+export const now: { title: string; building: readonly NowBuilding[] } = {
   title: 'Building AI and full-stack projects',
-  projects: ['rant-and-heal', 'surgipath'],
-} as const;
+  building: [
+    { project: 'rant-and-heal', note: 'AI text, voice and live therapy sessions in one app' },
+    { project: 'surgipath', note: 'AI surgical training with camera-tracked instruments' },
+  ],
+};
 
 // Newest first by end date. Avenues Khabar (ends 2024-03) sits above the freelance gig (ends
 // 2024-01) even though it started earlier, matching the resume order.

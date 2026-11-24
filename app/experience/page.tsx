@@ -41,7 +41,7 @@ export default function ExperiencePage() {
             <h2 className="text-[17px] font-bold sm:text-[20px]">{now.title}</h2>
             <p className="text-fg-dim">
               Date: now · working on{' '}
-              {now.projects.map((slug, i) => {
+              {now.building.map(({ project: slug }, i) => {
                 const p = projects.find((x) => x.slug === slug);
                 return p ? (
                   <span key={slug}>

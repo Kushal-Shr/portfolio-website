@@ -1,10 +1,10 @@
 import { achievements } from '@/content/achievements';
-import { experience } from '@/content/experience';
+import { experience, now } from '@/content/experience';
 import { guide } from '@/content/guide';
 import { leadership } from '@/content/leadership';
 import { profile } from '@/content/profile';
 import { projects } from '@/content/projects';
-import { learning, skillGroups } from '@/content/skills';
+import { skillGroups } from '@/content/skills';
 import { buildVirtualFs, type ShellContent } from '@/lib/shell/fs';
 import type { ShellInfo } from '@/lib/shell/types';
 import { buildSiteTree } from './site-tree';
@@ -17,7 +17,7 @@ export const shellContent: ShellContent = {
   leadership,
   achievements,
   skillGroups,
-  learning,
+  now,
   guide,
 };
 

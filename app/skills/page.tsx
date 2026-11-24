@@ -6,7 +6,9 @@ import { Spinner } from '@/components/skills/Spinner';
 import { SkillsFilter } from '@/components/skills/SkillsFilter';
 import { TerminalPage } from '@/components/terminal/TerminalPage';
 import { groupArt } from '@/content/art';
-import { learning, skillGroups } from '@/content/skills';
+import { now } from '@/content/experience';
+import { projects } from '@/content/projects';
+import { skillGroups } from '@/content/skills';
 import { skillCounts } from '@/lib/skills';
 import { slugify } from '@/lib/slug';
 import { ROUTES } from '@/lib/routes';
@@ -62,16 +64,22 @@ export default function SkillsPage() {
       </div>
 
       <Box
-        title="currently installing"
+        title="currently building"
         tone="yellow"
         className="flex flex-col gap-1.5 px-5 pt-6 pb-4"
       >
-        {learning.map((item) => (
-          <p key={item.name}>
-            <Spinner /> Setting up <span className="font-bold">{item.name}</span>
-            <span className="text-fg-dim"> … {item.note}</span>
-          </p>
-        ))}
+        {now.building.map((item) => {
+          const p = projects.find((x) => x.slug === item.project);
+          return p ? (
+            <p key={item.project}>
+              <Spinner /> Building{' '}
+              <Link href={`/projects/${p.slug}/`} className="link-quiet font-bold">
+                {p.name}
+              </Link>
+              <span className="text-fg-dim"> … {item.note}</span>
+            </p>
+          ) : null;
+        })}
         <p className="text-fg-dim pt-1.5 text-[13px]">
           progress gets logged daily in <Link href="/journey/">~/journey</Link>
         </p>

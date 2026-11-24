@@ -4,7 +4,7 @@ import type {
   Guide,
   Inline,
   LeadershipRole,
-  Learning,
+  NowBuilding,
   Profile,
   Project,
   SkillGroup,
@@ -36,7 +36,7 @@ export type ShellContent = {
   leadership: readonly LeadershipRole[];
   achievements: readonly Achievement[];
   skillGroups: readonly SkillGroup[];
-  learning: readonly Learning[];
+  now: { title: string; building: readonly NowBuilding[] };
   guide: Guide;
 };
 
@@ -82,7 +82,7 @@ export function buildVirtualFs(
   content: ShellContent,
   journeyEntries: readonly JourneyMeta[] = [],
 ): VirtualFs {
-  const { profile, experience, projects, leadership, achievements, skillGroups, learning, guide } =
+  const { profile, experience, projects, leadership, achievements, skillGroups, now, guide } =
     content;
   const tree = buildSiteTree(content, journeyEntries);
   const newestFirst = [...journeyEntries].sort((a, b) => b.date.localeCompare(a.date));
@@ -153,7 +153,9 @@ export function buildVirtualFs(
       case '~/skills/README.md':
         return [
           ...lists.map((l) => text(`${l.key.padEnd(13)}${l.packages.join(', ')}`)),
-          text(`${'learning'.padEnd(13)}${learning.map((l) => l.shortName).join(', ')}`),
+          text(
+            `${'building'.padEnd(13)}${now.building.map((b) => projects.find((p) => p.slug === b.project)?.name ?? b.project).join(', ')}`,
+          ),
         ];
       case JOURNEY_ARCHIVE_PATH:
         return archiveLines(newestFirst);

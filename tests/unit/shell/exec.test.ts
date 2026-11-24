@@ -238,7 +238,7 @@ describe('cat', () => {
     expect(out('cat skills/README.md')[0]).toBe(
       'languages    SQL, Python, C++, TypeScript, JavaScript',
     );
-    expect(out('cat skills/README.md')[4]).toBe('learning     Agent Engine, machine learning');
+    expect(out('cat skills/README.md')[4]).toBe('building     Rant & Heal, SurgiPath');
     expect(out('cat leadership/achievements/README.md').slice(0, 4)).toEqual([
       '# achievements',
       'Webster Hackfest 2025   Best Overall Project (Rant & Heal)',
