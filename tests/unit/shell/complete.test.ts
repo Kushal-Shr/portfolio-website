@@ -64,8 +64,9 @@ describe('complete: paths', () => {
     expect(r.candidates).toContain('about.md');
   });
 
-  it('only offers directories to cd', () => {
-    expect(tab('cd a')).toEqual({ value: 'cd a', candidates: [] });
+  it('offers directories and page files to cd, not plain files', () => {
+    expect(tab('cd a')).toEqual({ value: 'cd about.md', candidates: [] });
+    expect(tab('cd projects/zenith/R')).toEqual({ value: 'cd projects/zenith/R', candidates: [] });
     expect(tab('cat a')).toEqual({ value: 'cat about.md', candidates: [] });
   });
 

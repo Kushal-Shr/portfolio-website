@@ -10,7 +10,7 @@ const pages: { path: string; strings: string[] }[] = [
     strings: [`commit ${experience[0]?.commit}`, 'Frontend Software Engineering Intern'],
   },
   { path: '/leadership/', strings: [leadership[0]?.role ?? '', 'ls ~/achievements'] },
-  { path: '/resume/', strings: ['wget resume.pdf', 'COMPETITIONS', 'three competition wins'] },
+  { path: '/resume/', strings: ['wget resume.pdf', 'COMPETITIONS', 'Zenith — Ghost Visualizer'] },
   { path: '/dashboard/', strings: ['README.md', 'git log --oneline', profile.email] },
 ];
 

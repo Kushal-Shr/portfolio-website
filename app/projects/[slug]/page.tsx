@@ -1,6 +1,5 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { AsciiArt } from '@/components/detail/AsciiArt';
 import { DetailHeader } from '@/components/detail/DetailHeader';
 import { MetaGrid, type MetaRow } from '@/components/detail/MetaGrid';
 import { PageTrail } from '@/components/detail/PageTrail';
@@ -8,6 +7,7 @@ import { WriteUp } from '@/components/detail/WriteUp';
 import { Bullets } from '@/components/terminal/Bullets';
 import { Box } from '@/components/terminal/Box';
 import { Diagram } from '@/components/terminal/Diagram';
+import { AnimatedArt } from '@/components/terminal/AnimatedArt';
 import { TerminalPage } from '@/components/terminal/TerminalPage';
 import { projectArt } from '@/content/art';
 import { achievements } from '@/content/achievements';
@@ -84,7 +84,9 @@ export default async function ProjectPage({ params }: Props) {
   return (
     <TerminalPage prompt="cat README.md" promptPath={`~/projects/${p.slug}`}>
       <div className="flex gap-8 max-[900px]:flex-col">
-        {art ? <AsciiArt art={art.art} alt={art.alt} /> : null}
+        {art ? (
+          <AnimatedArt frames={art.frames} alt={art.alt} size={15} className="text-blue" />
+        ) : null}
         <div className="flex min-w-0 flex-1 flex-col gap-4">
           <DetailHeader
             title={

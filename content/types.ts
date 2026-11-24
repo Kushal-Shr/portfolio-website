@@ -30,7 +30,6 @@ export type Profile = {
   tagline: string;
   oneLiner: string;
   resumeHeadline: string;
-  resumeSummary: string;
   location: string;
   timezone: string;
   openTo: readonly string[];
@@ -66,8 +65,10 @@ export type Experience = {
   workMode?: 'Hybrid' | 'Remote';
   bullets: readonly string[];
   summary: string;
-  /** Only set when the resume's wording genuinely differs from `bullets`. */
-  resumeBullets?: readonly string[];
+  /** The title as the PDF resume prints it, when it differs from `title`. */
+  resumeTitle?: string;
+  /** The PDF resume's bullets, word for word (the site's `bullets` are shorter and plainer). */
+  resumeBullets: readonly string[];
   stack: readonly string[];
 };
 
@@ -81,7 +82,10 @@ export type Project = {
   tags: readonly string[];
   summary: string;
   shortSummary: string;
-  resumeSummary?: string;
+  /** The name as the PDF resume prints it, when it differs from `name`. */
+  resumeName?: string;
+  /** The PDF resume's bullets, word for word. Only for `onResume` projects. */
+  resumeBullets?: readonly string[];
   diagram: string;
   diagramWide?: string;
   diagramAlt: string;
@@ -112,8 +116,8 @@ export type LeadershipRole = {
   status: { text: string; tone: 'running' | 'exited' };
   summary?: string;
   impact?: readonly ImpactItem[];
-  /** The trailing note on the plain-text resume. */
-  resumeNote: string;
+  /** The line on the PDF resume. Roles the PDF folds into another one have none. */
+  resumeLine?: { title: string; org: string };
 };
 
 export type Achievement = {
@@ -127,8 +131,10 @@ export type Achievement = {
   project?: string;
   /** The Leadership page appends `, {location}` to the description for some rows. */
   inlineVenue: boolean;
-  /** Short label on the plain-text resume. */
+  /** Short label in the shell's achievements README. */
   resumeNote: string;
+  /** The PDF resume's wording: an inline note after the award, or a bullet underneath. */
+  resume: { inline?: string; bullet?: string };
   /** The `git log --oneline` entry on the dashboard. */
   logEntry: { name: string; award: string; venue: string };
 };
@@ -137,13 +143,14 @@ export type SkillList = {
   key: 'languages' | 'web' | 'ai-data' | 'cloud';
   /** Short flag on the man page, e.g. `l` for `-l, --languages`. */
   flag: string;
-  resumeLabel: string;
   packages: readonly string[];
 };
 
 export type SkillGroup = {
   key: 'languages' | 'ai-data' | 'cloud';
   title: string;
+  /** The group's label on the PDF resume. */
+  resumeLabel: string;
   lists: readonly SkillList[];
   alsoUsed: readonly string[];
 };

@@ -1,5 +1,14 @@
 import type { Experience } from './types';
 
+/**
+ * What Kushal is doing now, between jobs: the experience log's `HEAD`, above the last commit.
+ * It is not a job, so it has no dates or detail page.
+ */
+export const now = {
+  title: 'Building AI and full-stack projects',
+  projects: ['rant-and-heal', 'surgipath'],
+} as const;
+
 // Newest first by end date. Avenues Khabar (ends 2024-03) sits above the freelance gig (ends
 // 2024-01) even though it started earlier, matching the resume order.
 export const experience: readonly Experience[] = [
@@ -14,6 +23,7 @@ export const experience: readonly Experience[] = [
     end: '2026-09',
     location: 'St. Louis, MO',
     workMode: 'Hybrid',
+    resumeTitle: 'Data Engineering Intern - Year Round',
     bullets: [
       'Built Python data pipelines in Airflow: FastAPI in, BigQuery out',
       'Built 2 data agents and automated workflows on Agent Engine, lifting operational efficiency 20%',
@@ -22,6 +32,12 @@ export const experience: readonly Experience[] = [
     ],
     summary:
       'Airflow pipelines, 2 data agents (+20% efficiency), Oracle to BigQuery migration of 10+ datasets.',
+    resumeBullets: [
+      'Engineered Python-scripted data pipelines via Airflow, extracting from FastAPI and loading to BigQuery.',
+      'Built 2 data agents and automated workflows on Agent Engine, accelerating operational efficiency by 20%.',
+      'Orchestrated legacy migration of 10+ datasets from Oracle to BigQuery via automated Talend ETL jobs.',
+      'Validated and cleansed 3 core legacy datasets by refactoring stored procedures, ensuring 100% data quality.',
+    ],
     stack: ['python', 'airflow', 'fastapi', 'bigquery', 'oracle', 'talend', 'agent engine'],
   },
   {
@@ -38,8 +54,8 @@ export const experience: readonly Experience[] = [
     ],
     summary: 'OAuth 2.0 flows for backend endpoints; a React.js blog past 300 daily visitors.',
     resumeBullets: [
-      'Built OAuth 2.0 authentication flows to protect backend data endpoints',
-      'Grew a React.js blog past 300 daily visitors',
+      'Engineered OAuth 2.0 API authentication flows to securely protect backend data endpoints.',
+      'Increased daily visitors over 300+ to a blog website by developing and optimizing a React.js site.',
     ],
     stack: ['react.js', 'oauth 2.0'],
   },
@@ -57,8 +73,8 @@ export const experience: readonly Experience[] = [
     ],
     summary: '30% faster load times and a 40% engagement increase.',
     resumeBullets: [
-      'Cut load times 30% through defect tracking, testing and UI optimization',
-      'Drove a 40% engagement increase from traffic analysis and front-end changes',
+      'Reduced loading times by 30% through rigorous defect tracking, testing, and UI optimization.',
+      'Analyzed traffic datasets to drive a 40% user engagement increase via targeted front-end optimizations.',
     ],
     stack: ['front-end optimization', 'testing', 'traffic analytics'],
   },
@@ -75,7 +91,7 @@ export const experience: readonly Experience[] = [
     ],
     summary: '35% grade improvement with tailored Python, data analysis and MySQL plans.',
     resumeBullets: [
-      'Raised student grades 35% with tailored plans in Python, data analysis, MySQL',
+      'Achieved 35% grade improvement by developing tailored instructional plans in Python, Data Analysis, MySQL.',
     ],
     stack: ['python', 'data analysis', 'mysql'],
   },

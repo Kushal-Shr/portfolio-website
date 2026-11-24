@@ -6,17 +6,16 @@ export const skillGroups: readonly SkillGroup[] = [
   {
     key: 'languages',
     title: 'languages & web',
+    resumeLabel: 'Languages & Web',
     lists: [
       {
         key: 'languages',
         flag: 'l',
-        resumeLabel: 'Languages',
         packages: ['SQL', 'Python', 'C++', 'TypeScript', 'JavaScript'],
       },
       {
         key: 'web',
         flag: 'w',
-        resumeLabel: 'Web',
         packages: ['React', 'Next.js', 'Node.js', 'Flask', 'Tailwind CSS'],
       },
     ],
@@ -25,11 +24,11 @@ export const skillGroups: readonly SkillGroup[] = [
   {
     key: 'ai-data',
     title: 'ai & data',
+    resumeLabel: 'AI & Data Engineering',
     lists: [
       {
         key: 'ai-data',
         flag: 'a',
-        resumeLabel: 'AI & Data',
         packages: [
           'LLM',
           'scikit-learn',
@@ -46,11 +45,11 @@ export const skillGroups: readonly SkillGroup[] = [
   {
     key: 'cloud',
     title: 'cloud, devops & tools',
+    resumeLabel: 'Cloud, DevOps & Tools',
     lists: [
       {
         key: 'cloud',
         flag: 'c',
-        resumeLabel: 'Cloud & Tools',
         packages: ['AWS', 'GCP', 'REST APIs', 'Git', 'Kubernetes', 'Jenkins', 'Firebase', 'WebRTC'],
       },
     ],
@@ -62,7 +61,7 @@ export const learning: readonly Learning[] = [
   {
     name: 'Agent Engine + data agents',
     shortName: 'Agent Engine',
-    note: 'built 2 at Schnuck Markets, going deeper',
+    note: 'built 2 at Schnuck Markets',
   },
   {
     name: 'machine learning',

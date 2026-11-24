@@ -225,7 +225,7 @@ export function Dashboard({
           variant="tui"
           className="order-4 flex-1 px-3 pt-[18px] pb-3 sm:order-none"
         >
-          <div className="grid grid-cols-[72px_1fr] gap-y-0.5">
+          <div className="grid grid-cols-[10ch_1fr] gap-y-0.5">
             <span className="text-fg-dim">mail</span>
             <span className="flex flex-wrap items-baseline gap-x-2">
               <a href={`mailto:${contact.email}`} className="[overflow-wrap:anywhere]">
@@ -235,9 +235,9 @@ export function Dashboard({
                 <CopyButton value={contact.email} what="email" />
               </span>
             </span>
-            <span className="text-fg-dim">gh</span>
+            <span className="text-fg-dim">github</span>
             <a href={contact.github.href}>{contact.github.handle}</a>
-            <span className="text-fg-dim">in</span>
+            <span className="text-fg-dim">linkedin</span>
             <a href={contact.linkedin.href}>{contact.linkedin.handle}</a>
           </div>
         </Box>

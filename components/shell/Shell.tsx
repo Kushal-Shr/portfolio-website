@@ -104,9 +104,11 @@ export function Shell({ fs, info, intro, lastLogin, neofetch }: ShellProps) {
     let pause = 0;
     let draftLength = 0;
     const target = 'neofetch';
+    // A longer intro types more characters per tick, so the prompt always appears in ~80 ticks.
+    const step = Math.max(1, Math.ceil(intro.length / 80));
     const id = setInterval(() => {
       if (typed < intro.length) {
-        typed += 1;
+        typed = Math.min(intro.length, typed + step);
         dispatch({ type: 'type-intro', count: typed });
         return;
       }

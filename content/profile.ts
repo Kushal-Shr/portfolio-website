@@ -3,12 +3,11 @@ import type { Profile } from './types';
 export const profile: Profile = {
   name: 'Kushal Shrestha',
   shortName: 'kushal',
-  role: 'CS student · data & AI',
-  tagline: "Hi, I'm Kushal Shrestha — I build data pipelines and AI products in St. Louis.",
+  role: 'CS student · data & AI · full stack',
+  tagline:
+    "Hi, I'm Kushal Shrestha — full-stack AI builder in St. Louis. I turn raw data into pipelines, and pipelines into products. Known bugs: none. Unknown bugs: TBD.",
   oneLiner: 'Kushal Shrestha, computer science student building data pipelines and AI products',
   resumeHeadline: 'Data engineering · AI/ML · full-stack · St. Louis, MO',
-  resumeSummary:
-    'CS student (ML emphasis, GPA 3.82) who builds data pipelines and AI products: Airflow and BigQuery at Schnuck Markets, LLM apps on Next.js, and three competition wins.',
   location: 'St. Louis, MO',
   timezone: 'CT',
   openTo: ['AI', 'data', 'full-stack', 'devops'],
@@ -39,11 +38,11 @@ export const profile: Profile = {
   },
   about: {
     paragraphs: [
-      "I'm a Computer Science student at Webster University in St. Louis (ML emphasis, 3.82 GPA, class of 2028). I build data pipelines and AI-powered products: Airflow and BigQuery work at Schnuck Markets, plus LLM apps, a VS Code extension and a few hackathon projects on the side. I like problems that sit between data and people, and I lead the Computer Science Club as its president.",
+      "I'm a Computer Science student at Webster University in St. Louis (ML emphasis, 3.82 GPA, class of 2028). These days I build AI and full-stack projects, like Rant & Heal and SurgiPath. Before that I was a data engineering intern at Schnuck Markets, building Airflow and BigQuery pipelines. Along the way: a VS Code extension and a few hackathon projects. I like problems that sit between data and people, and I lead the Computer Science Club as its president.",
     ],
     short: [
       'CS student at Webster University in St. Louis (ML emphasis, 3.82 GPA, class of 2028).',
-      'I build data pipelines and AI products: Airflow + BigQuery at Schnuck Markets, LLM apps, a VS Code extension, hackathon projects.',
+      'Now: building AI and full-stack projects (Rant & Heal, SurgiPath). Before: Airflow + BigQuery pipelines at Schnuck Markets.',
       'Looking for roles in AI, data, full-stack and DevOps.',
     ],
   },
@@ -53,8 +52,8 @@ export const profile: Profile = {
     { label: 'Location', value: { ref: 'location' } },
     { label: 'Uptime', value: { ref: 'uptime' } },
     { label: 'Shell', value: 'portfolio-sh 1.0' },
-    { label: 'Stack', value: 'Python · TypeScript · BigQuery' },
-    { label: 'Building', value: 'this portfolio + AI side projects' },
+    { label: 'Stack', value: 'Python · TypeScript · React · Next.js · BigQuery · Airflow · GCP' },
+    { label: 'Building', value: 'Rant & Heal · SurgiPath' },
     { label: 'Learning', value: 'see ~/journey, updated daily' },
     { label: 'Contact', value: { ref: 'email' } },
   ],

@@ -17,7 +17,7 @@ export const leadership: readonly LeadershipRole[] = [
       todo('add: members, events or workshops you ran'),
       todo('add: what changed because of you'),
     ],
-    resumeNote: 'former Coding Team Lead',
+    resumeLine: { title: 'President (Former Coding Team Lead)', org: 'Computer Science Club' },
   },
   {
     slug: 'coding-team-lead',
@@ -27,7 +27,6 @@ export const leadership: readonly LeadershipRole[] = [
     scope: 'coding team',
     stat: 'Z',
     status: { text: 'exited 0 → president', tone: 'exited' },
-    resumeNote: '',
   },
   {
     slug: 'senator',
@@ -43,6 +42,9 @@ export const leadership: readonly LeadershipRole[] = [
       "elected voice for a school's students",
       todo('add: a bill, event or change you drove'),
     ],
-    resumeNote: 'GHW School of Business & Tech',
+    resumeLine: {
+      title: 'Former Senator - GHW School of Business and Technology',
+      org: 'Student Government Association',
+    },
   },
 ];

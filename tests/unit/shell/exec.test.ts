@@ -117,11 +117,29 @@ describe('cd', () => {
     expect(run('cd ..', '~').cwd).toBe('~');
   });
 
-  it('refuses files, outside paths and missing paths without navigating', () => {
-    for (const input of ['cd about.md', 'cd /etc', 'cd nowhere']) {
+  it('opens page files (about, resume, guide), with or without the extension', () => {
+    for (const [input, route] of [
+      ['cd about', '/about/'],
+      ['cd about.md', '/about/'],
+      ['cd resume', '/resume/'],
+      ['cd ~/guide', '/guide/'],
+      ['cd ../guide.md', '/guide/'],
+    ] as const) {
+      const r = run(input, input.includes('..') ? '~/projects' : '~');
+      expect(r.navigate).toBe(route);
+      expect(r.cwd).toBe('~');
+    }
+    expect(out('cd about')).toEqual(['↗ about.md is a page, not a folder — opening it -> /about/']);
+    expect(run('cd archive', '~/journey')).toMatchObject({
+      cwd: '~/journey',
+      navigate: '/journey/archive/',
+    });
+  });
+
+  it('refuses plain files, outside paths and missing paths without navigating', () => {
+    for (const input of ['cd projects/zenith/README.md', 'cd /etc', 'cd nowhere']) {
       expect(run(input).navigate).toBeUndefined();
     }
-    expect(out('cd about.md')).toEqual(['cd: not a directory: about.md — try: open about.md']);
     expect(out('cd projects/zenith/README.md')).toEqual([
       'cd: not a directory: projects/zenith/README.md',
     ]);
@@ -201,7 +219,7 @@ describe('cat', () => {
 
   it('prints the real resume with a wget link', () => {
     const lines = out('cat resume.txt');
-    expect(lines).toContain('Kushal Shrestha');
+    expect(lines.map((l) => l.trim())).toContain('Kushal Shrestha');
     expect(lines.join('\n')).toContain('Frontend Software Engineering Intern');
     expect(lines).toContain('↗ wget resume.pdf -> /resume.pdf');
     expect(lines.at(-1)).toBe('↗ open ~/resume.txt as a page -> /resume/');
@@ -435,9 +453,9 @@ describe('sudo, exit and contact', () => {
   it('contact lists email, GitHub and LinkedIn as links', () => {
     const r = run('contact');
     expect(r.lines.map(plain)).toEqual([
-      `mail  ${profile.email} -> mailto:${profile.email}`,
-      `gh    ${profile.links.github.label} -> ${profile.links.github.href}`,
-      `in    ${profile.links.linkedin.label} -> ${profile.links.linkedin.href}`,
+      `mail      ${profile.email} -> mailto:${profile.email}`,
+      `github    ${profile.links.github.label} -> ${profile.links.github.href}`,
+      `linkedin  ${profile.links.linkedin.label} -> ${profile.links.linkedin.href}`,
     ]);
   });
 });

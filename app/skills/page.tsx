@@ -1,9 +1,11 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import { AnimatedArt } from '@/components/terminal/AnimatedArt';
 import { Box } from '@/components/terminal/Box';
 import { Spinner } from '@/components/skills/Spinner';
 import { SkillsFilter } from '@/components/skills/SkillsFilter';
 import { TerminalPage } from '@/components/terminal/TerminalPage';
+import { groupArt } from '@/content/art';
 import { learning, skillGroups } from '@/content/skills';
 import { skillCounts } from '@/lib/skills';
 import { slugify } from '@/lib/slug';
@@ -33,6 +35,14 @@ export default function SkillsPage() {
             title={group.title}
             className="flex flex-col gap-1.5 px-5 pt-6 pb-4"
           >
+            <div className="border-line mb-2 flex justify-center border px-2 py-3">
+              <AnimatedArt
+                frames={groupArt[group.key].frames}
+                alt={groupArt[group.key].alt}
+                size={12}
+                className="text-green"
+              />
+            </div>
             {group.lists
               .flatMap((list) => list.packages)
               .map((name) => (

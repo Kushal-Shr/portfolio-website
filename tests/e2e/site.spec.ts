@@ -208,6 +208,28 @@ test.describe('the home shell navigates', () => {
     await expect(page).toHaveURL(/\/projects\/$/);
   });
 
+  test('cd about, cd resume and cd guide open those pages (they are files in ~)', async ({
+    page,
+  }) => {
+    await page.goto('/');
+    await page.locator('#cmd').fill('cd about');
+    await page.locator('#cmd').press('Enter');
+    await expect(page).toHaveURL(/\/about\/$/);
+    // Phones fold the dock away after each navigation; the nav bar's >_ button unfolds it.
+    const run = async (command: string) => {
+      await hydrated(page);
+      const toggle = page.getByRole('button', { name: 'command line' });
+      if (await toggle.isVisible()) await toggle.click();
+      await dockInput(page).fill(command);
+      await dockInput(page).press('Enter');
+    };
+    await run('cd resume');
+    await expect(page).toHaveURL(/\/resume\/$/);
+    await expect(page.locator('.dock label')).toContainText('guest@portfolio:~$');
+    await run('cd ../guide.md');
+    await expect(page).toHaveURL(/\/guide\/$/);
+  });
+
   test('/?run=cd projects lands on /projects/, and Back does not loop', async ({ page }) => {
     await page.goto('/about/');
     await page.goto('/?run=cd%20projects');

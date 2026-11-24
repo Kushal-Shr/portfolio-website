@@ -2,9 +2,11 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { Bullets } from '@/components/terminal/Bullets';
 import { Box } from '@/components/terminal/Box';
+import { AnimatedArt } from '@/components/terminal/AnimatedArt';
 import { Diagram } from '@/components/terminal/Diagram';
 import { TerminalPage } from '@/components/terminal/TerminalPage';
 import { achievements } from '@/content/achievements';
+import { projectArt } from '@/content/art';
 import { repoCount } from '@/content/github';
 import { extraProjects, projects } from '@/content/projects';
 import { profile } from '@/content/profile';
@@ -43,8 +45,14 @@ function Links({ project }: { project: Project }) {
 
 function Card({ project }: { project: Project }) {
   const diagram = project.featured ? (project.diagramWide ?? project.diagram) : project.diagram;
+  const art = projectArt[project.slug];
   const text = (
     <div className="flex min-w-0 flex-col gap-3">
+      {art ? (
+        <div className="border-line flex justify-center border px-3 py-4">
+          <AnimatedArt frames={art.frames} alt={art.alt} className="text-green" />
+        </div>
+      ) : null}
       <p className="text-yellow">{project.tags.map((t) => `[${t}]`).join(' ')}</p>
       <p>{project.summary}</p>
       {project.featured ? null : (

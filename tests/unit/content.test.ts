@@ -52,11 +52,11 @@ describe('uniqueness and shape', () => {
     expect(sanctuary?.onResume).toBe(false);
     expect(sanctuary?.team).toEqual({ size: 4 });
     expect(sanctuary?.bullets.some(isTodo)).toBe(true);
+    // The PDF resume lists three projects; AirDesk and Sanctuary are on the site only.
     expect(projects.filter((p) => p.onResume).map((p) => p.slug)).toEqual([
       'rant-and-heal',
       'zenith',
       'surgipath',
-      'airdesk',
     ]);
   });
 
@@ -76,9 +76,12 @@ describe('uniqueness and shape', () => {
     }
   });
 
-  it('matches the "three competition wins" resume summary', () => {
-    expect(achievements).toHaveLength(3);
-    expect(profile.resumeSummary).toContain('three competition wins');
+  it('has the three competitions the resume lists', () => {
+    expect(achievements.map((a) => a.event)).toEqual([
+      'Webster Hackfest 2025',
+      'PickHacks 2025',
+      'Byte Bash 2.0',
+    ]);
   });
 });
 

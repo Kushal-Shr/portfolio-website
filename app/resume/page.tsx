@@ -32,6 +32,13 @@ function Span({ segment }: { segment: Segment }) {
   const className = [segment.tone ? TONE[segment.tone] : '', segment.bold ? 'font-bold' : '']
     .filter(Boolean)
     .join(' ');
+  if (segment.href) {
+    return (
+      <a href={segment.href} className={className || undefined}>
+        {segment.text}
+      </a>
+    );
+  }
   return (
     <span
       // Rule rows (`=====`) are decoration: a screen reader would spell them out.
@@ -84,7 +91,7 @@ export default function ResumePage() {
         </p>
       ) : null}
       <ScrollX label="resume" className="self-center">
-        <pre className="resume-text w-[78ch] leading-[1.55] max-sm:text-[12px]">
+        <pre className="resume-text w-[112ch] leading-[1.55] max-sm:text-[12px]">
           {lines.map((line, i) => (
             <span key={i}>
               {i > 0 ? '\n' : ''}

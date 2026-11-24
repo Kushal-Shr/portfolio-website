@@ -13,6 +13,10 @@ export const achievements: readonly Achievement[] = [
     project: 'rant-and-heal',
     inlineVenue: false,
     resumeNote: 'Rant & Heal',
+    resume: {
+      bullet:
+        'Won for Rant & Heal, an AI voice therapy mental health platform (Next.js, Gemini, Firebase, WebRTC).',
+    },
     logEntry: { name: 'hackfest', award: 'Best Overall', venue: 'Webster · 2025' },
   },
   {
@@ -25,6 +29,10 @@ export const achievements: readonly Achievement[] = [
     link: 'https://devpost.com/software/imposter-akmlfj',
     inlineVenue: true,
     resumeNote: 'real-life Among Us',
+    resume: {
+      bullet:
+        'Awarded for a real-life Among Us (React Native, Firebase, NFC eliminations, real-time tracking, voice chat).',
+    },
     logEntry: { name: 'pickhacks', award: 'Community Vote', venue: 'Missouri S&T · 2025' },
   },
   {
@@ -35,6 +43,7 @@ export const achievements: readonly Achievement[] = [
     location: 'Webster University',
     inlineVenue: true,
     resumeNote: 'Webster University',
+    resume: { inline: 'Won competitive coding competition.' },
     logEntry: { name: 'bytebash', award: '1st Place', venue: 'Webster · Byte Bash 2.0' },
   },
 ];

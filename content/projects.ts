@@ -53,7 +53,11 @@ export const projects: readonly Project[] = [
       'Hybrid mental-health app that mixes AI text chat, AI voice and live therapy sessions, powered by Gemini. Won Best Overall Project at Webster Hackfest 2025.',
     shortSummary:
       'AI + human mental-health app, Hackfest 2025 Best Overall (Next.js, Gemini, WebRTC)',
-    resumeSummary: 'Hybrid AI + human mental-health app (Gemini text, voice, live therapy).',
+    resumeBullets: [
+      'Built hybrid mental-health app across AI text, voice, and therapy sessions with Gemini.',
+      'Secured 2-role care flows via Firebase Auth, Firestore rules, and scoped records.',
+      'Enabled 1:1 patient-therapist care via realtime chat and WebRTC calls via Firebase signaling.',
+    ],
     diagram: diagrams.rantAndHeal,
     diagramWide: diagrams.rantAndHealWide,
     diagramAlt:
@@ -79,7 +83,12 @@ export const projects: readonly Project[] = [
     summary:
       'Ghost Visualizer: a VS Code extension that renders real-time, AI-powered data structure visualizations while you code.',
     shortSummary: 'VS Code extension for live data structure visualization (TypeScript, p5.js)',
-    resumeSummary: 'VS Code extension that visualizes data structures live as you code.',
+    resumeName: 'Zenith — Ghost Visualizer',
+    resumeBullets: [
+      'Developed a VS Code extension rendering real-time AI-powered data structure visualizations as you code.',
+      'Engineered low-latency AST parsing to analyze cursor-level code and stream real-time algorithm playback.',
+      'Engineered memory leak debugging and Big-O profiling grounded in PC/CPU architecture principles.',
+    ],
     diagram: diagrams.zenith,
     diagramAlt:
       'The cursor position in your code is parsed into an AST, sent to an LLM, and played back as a p5.js visualization.',
@@ -103,7 +112,11 @@ export const projects: readonly Project[] = [
     summary:
       'AI surgical training simulator. Gemini writes structured training syllabi; a checklist advances itself as instruments are detected.',
     shortSummary: 'AI surgical training simulator (Python, OpenCV, Gemini)',
-    resumeSummary: 'AI surgical training simulator with instrument-triggered checklists.',
+    resumeBullets: [
+      'Prototyped an AI surgical training simulator with Gemini-generated structured training syllabi.',
+      'Researched and compared existing AI computer vision approaches for real-time instrument tracking.',
+      'Implemented auto-advancing checklists with clinical pro-tips triggered on each instrument detection event.',
+    ],
     diagram: diagrams.surgipath,
     diagramAlt:
       'A camera feeds OpenCV, which detects instruments and drives a checklist with clinical tips.',
@@ -127,7 +140,6 @@ export const projects: readonly Project[] = [
     summary:
       'Controls a Mac with hand gestures and lets you write in the air on a digital whiteboard.',
     shortSummary: 'control a Mac with hand gestures (Python)',
-    resumeSummary: 'Controls a Mac with hand gestures; write in the air on a whiteboard.',
     diagram: diagrams.airdesk,
     diagramAlt: 'A hand is tracked by a webcam, which drives Mac control and a digital whiteboard.',
     bullets: [
@@ -136,7 +148,7 @@ export const projects: readonly Project[] = [
     ],
     links: { source: 'https://github.com/Kushal-Shr/AirDesk' },
     resumeStack: ['Python'],
-    onResume: true,
+    onResume: false,
   },
   {
     slug: 'sanctuary',

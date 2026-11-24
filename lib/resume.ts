@@ -8,7 +8,8 @@ import type {
 } from '@/content/types';
 import { formatRange } from './format';
 
-export const RESUME_WIDTH = 78;
+/** Wide enough that most of the PDF's lines fit on one row, narrow enough to print on one page. */
+export const RESUME_WIDTH = 112;
 
 export type Segment = {
   text: string;
@@ -16,6 +17,8 @@ export type Segment = {
   bold?: boolean;
   /** Font size in px for the name line. */
   size?: number;
+  /** Renders as a link, like the underlined links in the PDF. */
+  href?: string;
   /** Marks the build date, which changes on every build (visual tests mask it). */
   buildDate?: boolean;
 };
@@ -28,7 +31,7 @@ export type ResumeContent = {
   leadership: readonly LeadershipRole[];
   achievements: readonly Achievement[];
   skillGroups: readonly SkillGroup[];
-  /** `YYYY-MM-DD`. When given, the closing line shows it instead of the design's note. */
+  /** `YYYY-MM-DD`. When given, the closing line shows it. */
   built?: string;
 };
 
@@ -40,92 +43,161 @@ const heading = (text: string): ResumeLine[] => [
   rule('-'),
 ];
 
-/** Greedy word wrap: `first` prefixes the first line, `rest` every continuation line. */
-function wrap(text: string, first: string, rest: string): string[] {
-  const lines: string[] = [];
-  let line = first;
-  let empty = true;
-  for (const word of text.split(' ')) {
-    const candidate = empty ? line + word : `${line} ${word}`;
-    if (!empty && candidate.length > RESUME_WIDTH) {
-      lines.push(line);
-      line = rest + word;
-    } else {
-      line = candidate;
+const width = (segments: readonly Segment[]): number =>
+  segments.reduce((n, s) => n + [...s.text].length, 0);
+
+const sameStyle = (a: Segment, b: Segment): boolean =>
+  a.tone === b.tone && a.bold === b.bold && a.href === b.href && a.size === b.size;
+
+/** Joins neighbouring segments that look the same, so a wrapped line stays a few spans. */
+function merge(segments: readonly Segment[]): ResumeLine {
+  const out: ResumeLine = [];
+  for (const s of segments) {
+    const prev = out[out.length - 1];
+    if (prev && sameStyle(prev, s)) out[out.length - 1] = { ...prev, text: prev.text + s.text };
+    else if (s.text) out.push({ ...s });
+  }
+  return out;
+}
+
+/**
+ * Greedy word wrap that keeps each word's style. Continuation lines start with `indent`, so a
+ * bullet's second line sits under its first word.
+ */
+function flow(segments: readonly Segment[], indent = ''): ResumeLine[] {
+  const words = segments.flatMap((s) =>
+    s.text
+      .split(/( +)/)
+      .filter(Boolean)
+      .map((text) => ({ ...s, text })),
+  );
+  const lines: Segment[][] = [];
+  let line: Segment[] = [];
+  let pending: Segment[] = [];
+  for (const word of words) {
+    if (word.text.startsWith(' ')) {
+      pending.push(word);
+      continue;
     }
-    empty = false;
+    if (line.length > 0 && width(line) + width(pending) + width([word]) > RESUME_WIDTH) {
+      lines.push(line);
+      line = [{ text: indent }];
+      pending = [];
+    }
+    line.push(...pending, word);
+    pending = [];
   }
   lines.push(line);
-  return lines;
+  return lines.map(merge);
 }
 
-/** A bold lead-in, then text, then `right` flush against column 78. */
-function row(lead: string, text: string, right: string): ResumeLine {
-  const gap = Math.max(1, RESUME_WIDTH - lead.length - text.length - right.length);
-  return [{ text: lead, bold: true }, { text: text + ' '.repeat(gap) + right }];
+/** `left` with `right` flush against the last column; on its own line when they don't fit. */
+function row(left: readonly Segment[], right: readonly Segment[]): ResumeLine[] {
+  const gap = RESUME_WIDTH - width(left) - width(right);
+  if (gap >= 1) return [merge([...left, { text: ' '.repeat(gap) }, ...right])];
+  return [
+    ...flow(left),
+    merge([{ text: ' '.repeat(Math.max(0, RESUME_WIDTH - width(right))) }, ...right]),
+  ];
 }
 
-const sentence = (s: string): string => (/[.!?]$/.test(s) ? s : `${s}.`);
+const center = (segments: readonly Segment[]): ResumeLine =>
+  merge([
+    { text: ' '.repeat(Math.max(0, Math.floor((RESUME_WIDTH - width(segments)) / 2))) },
+    ...segments,
+  ]);
 
-/** Builds the plain-text resume as styled lines, 78 columns wide at most. */
+const bullet = (text: string): ResumeLine[] => flow([{ text: `  • ${text}` }], '    ');
+const bar: Segment = { text: ' | ' };
+
+/** The PDF resume as styled plain-text lines, in its order and words. The phone number stays out. */
 export function renderResume(c: ResumeContent): ResumeLine[] {
   const { profile } = c;
+  const edu = profile.education;
+  const nameSize = 22;
   const lines: ResumeLine[] = [
     rule('='),
-    [{ text: profile.name, bold: true, size: 22 }],
-    [{ text: profile.resumeHeadline }],
-    [{ text: `${profile.email} · ${profile.links.github.label}` }],
-    [{ text: profile.links.linkedin.label }],
+    // The name is drawn larger, so centering it by its character count would push it right.
+    merge([
+      { text: ' '.repeat(Math.floor((RESUME_WIDTH - (profile.name.length * nameSize) / 15) / 2)) },
+      { text: profile.name, bold: true, size: nameSize },
+    ]),
+    center([
+      { text: profile.email, href: `mailto:${profile.email}` },
+      bar,
+      { text: 'LinkedIn', href: profile.links.linkedin.href },
+      bar,
+      { text: 'GitHub', href: profile.links.github.href },
+      bar,
+      { text: profile.location },
+    ]),
     rule('='),
-    ...heading('SUMMARY'),
-    ...wrap(profile.resumeSummary, '', '').map((text): ResumeLine => [{ text }]),
+    ...heading('EDUCATION'),
+    ...row([{ text: edu.school, bold: true }], [{ text: profile.location }]),
+    ...row(
+      [{ text: `${edu.degree} - Emphasis in ${edu.emphasis}`, tone: 'dim' }],
+      [{ text: `GPA: ${edu.gpa.toFixed(2)} | ${edu.start} - ${edu.end}`, tone: 'dim' }],
+    ),
     ...heading('EXPERIENCE'),
   ];
 
   for (const e of c.experience) {
-    const org = e.workMode === 'Remote' ? `${e.org} (remote)` : e.org;
-    lines.push(row(`${e.title}, `, org, formatRange(e.start, e.end, 'dash')));
-    for (const bullet of e.resumeBullets ?? e.bullets) {
-      for (const text of wrap(sentence(bullet), '  - ', '    ')) lines.push([{ text }]);
-    }
+    lines.push(
+      ...row(
+        [{ text: e.resumeTitle ?? e.title, bold: true }],
+        [{ text: formatRange(e.start, e.end, 'long') }],
+      ),
+      ...row(
+        [{ text: e.org, tone: 'dim' }],
+        [{ text: [e.workMode, e.location].filter(Boolean).join(' | '), tone: 'dim' }],
+      ),
+    );
+    for (const b of e.resumeBullets) lines.push(...bullet(b));
   }
 
   lines.push(...heading('PROJECTS'));
   for (const p of c.projects.filter((p) => p.onResume)) {
-    lines.push([{ text: p.name, bold: true }, { text: `  ${p.resumeStack.join(', ')}` }]);
-    for (const text of wrap(p.resumeSummary ?? p.shortSummary, '  ', '  ')) lines.push([{ text }]);
+    lines.push(
+      ...flow([
+        { text: p.resumeName ?? p.name, bold: true },
+        bar,
+        { text: p.resumeStack.join(', '), tone: 'dim' },
+        ...(p.links.source ? [bar, { text: 'Source Code', href: p.links.source }] : []),
+      ]),
+    );
+    for (const b of p.resumeBullets ?? []) lines.push(...bullet(b));
   }
 
-  lines.push(...heading('LEADERSHIP'));
-  for (const l of c.leadership.filter((l) => l.resumeNote)) {
-    lines.push(row(`${l.role}, `, l.org, l.resumeNote));
+  lines.push(...heading('LEADERSHIP & ACHIEVEMENTS'));
+  for (const l of c.leadership) {
+    if (l.resumeLine) {
+      lines.push(
+        ...flow([
+          { text: l.resumeLine.title, bold: true },
+          bar,
+          { text: l.resumeLine.org, tone: 'dim' },
+        ]),
+      );
+    }
+  }
+
+  lines.push(...heading('TECHNICAL SKILLS'));
+  for (const g of c.skillGroups) {
+    const packages = g.lists.flatMap((l) => l.packages).join(', ');
+    lines.push(...flow([{ text: g.resumeLabel, bold: true }, { text: `: ${packages}.` }], '  '));
   }
 
   lines.push(...heading('COMPETITIONS'));
-  for (const a of c.achievements) lines.push(row(`${a.event}, `, a.award, a.resumeNote));
-
-  const edu = profile.education;
-  lines.push(
-    ...heading('EDUCATION'),
-    row(
-      `${edu.school}, `,
-      `${edu.degreeShort} (${edu.emphasisShort} emphasis)`,
-      `${edu.start} – ${edu.end}`,
-    ),
-    [{ text: `  GPA ${edu.gpa.toFixed(2)}` }],
-    ...heading('SKILLS'),
-  );
-  const LABEL = 14;
-  for (const list of c.skillGroups.flatMap((g) => g.lists)) {
-    const wrapped = wrap(
-      list.packages.join(', '),
-      list.resumeLabel.padEnd(LABEL),
-      ' '.repeat(LABEL),
-    );
-    for (const text of wrapped) lines.push([{ text }]);
+  for (const a of c.achievements) {
+    const left: Segment[] = [{ text: a.event, bold: true }, bar, { text: a.award, tone: 'dim' }];
+    if (a.link) left.push(bar, { text: 'Project Link', href: a.link });
+    if (a.resume.inline) left.push(bar, { text: a.resume.inline });
+    lines.push(...row(left, [{ text: a.location ?? '' }]));
+    if (a.resume.bullet) lines.push(...bullet(a.resume.bullet));
   }
 
   lines.push(
+    blank,
     rule('='),
     c.built
       ? [
@@ -133,7 +205,7 @@ export function renderResume(c: ResumeContent): ResumeLine[] {
           { text: c.built, tone: 'dim', buildDate: true },
           { text: ')', tone: 'dim' },
         ]
-      : [{ text: `-- EOF --  (${RESUME_WIDTH} columns, prints cleanly on one page)`, tone: 'dim' }],
+      : [{ text: '-- EOF --', tone: 'dim' }],
   );
   return lines;
 }

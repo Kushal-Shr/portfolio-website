@@ -33,7 +33,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function ExperienceDetailPage({ params }: Props) {
-  const { job: e, index } = await find(params);
+  const { job: e } = await find(params);
   const writeup = await loadWriteup('experience', e.id);
   const where = [e.workMode, e.location].filter(Boolean).join(', ');
 
@@ -42,7 +42,6 @@ export default async function ExperienceDetailPage({ params }: Props) {
       <div className="flex flex-col gap-1">
         <p>
           <span className="text-yellow">commit {e.commit}</span>
-          {index === 0 ? <span className="text-blue font-bold"> (HEAD -&gt; main)</span> : null}
         </p>
         <p className="text-fg-dim">Author: {profile.name}</p>
         <p className="text-fg-dim">

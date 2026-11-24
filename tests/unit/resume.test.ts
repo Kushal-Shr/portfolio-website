@@ -2,82 +2,67 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { achievements, experience, leadership, profile, projects, skillGroups } from '@/content';
+import { formatRange } from '@/lib/format';
 import { lineText, renderResume, RESUME_WIDTH } from '@/lib/resume';
 import { hasDesign } from './design-files';
 
 const content = { profile, experience, projects, leadership, achievements, skillGroups };
-const ours = renderResume(content).map(lineText);
-
-function designLines(): string[] {
-  const html = readFileSync(join(process.cwd(), 'design/artboards/Resume.dc.html'), 'utf8');
-  const pre = /<pre style="align-self: center[^>]*>([\s\S]*?)<\/pre>/.exec(html)?.[1] ?? '';
-  return pre
-    .replace(/<[^>]+>/g, '')
-    .replace(/&amp;/g, '&')
-    .replace(/&gt;/g, '>')
-    .replace(/&lt;/g, '<')
-    .split('\n');
-}
-
-/** Minimal LCS line diff: `-` lines only in the design, `+` lines only in ours. */
-function lineDiff(a: string[], b: string[]): string[] {
-  const table = Array.from({ length: a.length + 1 }, () => new Array<number>(b.length + 1).fill(0));
-  for (let i = a.length - 1; i >= 0; i--) {
-    for (let j = b.length - 1; j >= 0; j--) {
-      table[i]![j] =
-        a[i] === b[j] ? table[i + 1]![j + 1]! + 1 : Math.max(table[i + 1]![j]!, table[i]![j + 1]!);
-    }
-  }
-  const out: string[] = [];
-  let i = 0;
-  let j = 0;
-  while (i < a.length && j < b.length) {
-    if (a[i] === b[j]) {
-      i++;
-      j++;
-    } else if (table[i + 1]![j]! >= table[i]![j + 1]!) out.push(`-${a[i++]}`);
-    else out.push(`+${b[j++]}`);
-  }
-  while (i < a.length) out.push(`-${a[i++]}`);
-  while (j < b.length) out.push(`+${b[j++]}`);
-  return out;
-}
+const lines = renderResume(content);
+const ours = lines.map(lineText);
 
 describe('renderResume', () => {
   it(`never renders a line wider than ${RESUME_WIDTH} columns`, () => {
     expect(Math.max(...ours.map((l) => [...l].length))).toBeLessThanOrEqual(RESUME_WIDTH);
   });
 
-  it('right-aligns dates at column 78', () => {
-    const dated = ours.filter((l) => /\d{4}-\d{2} – (\d{4}-\d{2}|present)$/.test(l));
-    expect(dated).toHaveLength(experience.length);
-    for (const line of dated) expect([...line]).toHaveLength(RESUME_WIDTH);
+  it('follows the PDF’s section order', () => {
+    const headings = lines.filter((l) => l[0]?.tone === 'heading').map(lineText);
+    expect(headings).toEqual([
+      'EDUCATION',
+      'EXPERIENCE',
+      'PROJECTS',
+      'LEADERSHIP & ACHIEVEMENTS',
+      'TECHNICAL SKILLS',
+      'COMPETITIONS',
+    ]);
   });
 
-  it('lists only on-resume projects, so Sanctuary is absent', () => {
-    expect(ours.some((l) => l.startsWith('Sanctuary'))).toBe(false);
-    expect(ours.filter((l) => /^(Rant & Heal|Zenith|SurgiPath|AirDesk) /.test(l))).toHaveLength(4);
+  it('right-aligns each job’s dates, spelled out as in the PDF', () => {
+    for (const e of experience) {
+      const range = formatRange(e.start, e.end, 'long');
+      const line = ours.find((l) => l.endsWith(range));
+      expect(line, range).toBeDefined();
+      expect([...(line ?? '')]).toHaveLength(RESUME_WIDTH);
+    }
+    expect(ours).toContain(
+      `Data Engineering Intern - Year Round${' '.repeat(RESUME_WIDTH - 61)}May 2025 - September 2026`,
+    );
+  });
+
+  it('lists only the PDF’s three projects, with their source links', () => {
+    const titles = ours.filter((l) => / \| Source Code$/.test(l));
+    expect(titles.map((l) => l.split(' | ')[0])).toEqual([
+      'Rant & Heal',
+      'Zenith — Ghost Visualizer',
+      'SurgiPath',
+    ]);
+    const links = lines.flat().filter((s) => s.text === 'Source Code');
+    expect(links.map((s) => s.href)).toEqual(
+      projects.filter((p) => p.onResume).map((p) => p.links.source),
+    );
   });
 
   it('never contains a phone-like number', () => {
     expect(ours.join('\n')).not.toMatch(/\d{3}[-. ]\d{3}[-. ]\d{4}/);
   });
 
-  it.skipIf(!hasDesign)('matches the design artboard except for the decided differences', () => {
-    expect(lineDiff(designLines(), ours)).toEqual([
-      // Phase 2: Byte Bash 2.0 is a coding competition, not a hackathon.
-      '-hackathon wins.',
-      '+competition wins.',
-      // Phase 2: the resume's real title is "Frontend Software Engineering Intern"; the date
-      // column stays right-aligned at 78.
-      '-Frontend Engineering Intern, Amigo Groups (remote)           2024-03 – 2024-06',
-      '+Frontend Software Engineering Intern, Amigo Groups (remote)  2024-03 – 2024-06',
-      // The resume (and Skills page) say "Apache Airflow"; the design shortened it, so the
-      // line wraps one word earlier.
-      '-AI & Data     LLM, scikit-learn, TensorFlow, Data Modeling, BigQuery, Airflow,',
-      '-              Talend',
-      '+AI & Data     LLM, scikit-learn, TensorFlow, Data Modeling, BigQuery, Apache',
-      '+              Airflow, Talend',
-    ]);
+  it.skipIf(!hasDesign)('carries every bullet of the PDF word for word, one per line', () => {
+    const transcript = readFileSync(join(process.cwd(), 'design/source/resume.md'), 'utf8');
+    const bullets = transcript
+      .split('\n')
+      .filter((l) => /^ *- /.test(l) && !l.includes('**'))
+      .map((l) => l.replace(/^ *- /, ''));
+    expect(bullets.length).toBeGreaterThan(15);
+    for (const b of bullets) expect(ours).toContain(`  • ${b}`);
   });
 });

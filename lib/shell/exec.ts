@@ -29,6 +29,26 @@ function pagePath(fs: VirtualFs, path: string): string {
   return node?.type === 'file' && !node.own ? path.slice(0, path.lastIndexOf('/')) : path;
 }
 
+/**
+ * The page file a path names, if any: `~/about.md` itself, or `~/about` with its extension left
+ * off. Plain files such as `README.md` are not pages.
+ */
+function pageFile(fs: VirtualFs, path: string): string | undefined {
+  const isPage = (p: string) => {
+    const node = fs[p];
+    return node?.type === 'file' && node.own === true;
+  };
+  if (isPage(path)) return path;
+  const folder = path.slice(0, path.lastIndexOf('/')) || '~';
+  const dir = fs[folder];
+  if (dir?.type !== 'dir') return undefined;
+  const name = basename(path).toLowerCase();
+  const hit = dir.children.find(
+    (c) => c.replace(/\.[a-z]+$/i, '').toLowerCase() === name && isPage(joinPath(folder, c)),
+  );
+  return hit ? joinPath(folder, hit) : undefined;
+}
+
 /** The "↗ open … as a page" link for a path that has a page. */
 function pageLink(ctx: ShellContext, path: string): Line[] {
   const route = ctx.fs[path]?.route;
@@ -149,10 +169,20 @@ export function exec(input: string, state: ShellState, ctx: ShellContext): ExecR
       }
       const path = resolve(arg, cwd);
       if (path && isDir(fs, path)) return ok([], path, fs[path]?.route);
+      // About, resume and guide are pages that live as files in `~`, but the nav bar calls them
+      // pages, so `cd about` opens them; the cwd stays the file's folder to keep matching the URL.
+      const page = path ? pageFile(fs, path) : undefined;
+      if (page) {
+        const route = fs[page]?.route ?? '/';
+        const folder = page.slice(0, page.lastIndexOf('/')) || '~';
+        return ok(
+          [link('↗ ', `${basename(page)} is a page, not a folder — opening it`, route)],
+          folder,
+          route,
+        );
+      }
       if (path && isFile(fs, path)) {
-        const node = fs[path];
-        const hint = node?.type === 'file' && node.own ? ` — try: open ${arg}` : '';
-        return ok([text(`cd: not a directory: ${arg}${hint}`, 'err')]);
+        return ok([text(`cd: not a directory: ${arg}`, 'err')]);
       }
       if (!path) return ok([text(`cd: permission denied: ${arg} (you live in ~ here)`, 'err')]);
       return ok([text(`cd: no such file or directory: ${arg}`, 'err')]);
@@ -315,9 +345,9 @@ export function exec(input: string, state: ShellState, ctx: ShellContext): ExecR
 
     case 'contact':
       return ok([
-        link('mail  ', ctx.info.email, `mailto:${ctx.info.email}`, true, ctx.info.email),
-        link('gh    ', ctx.info.github.label, ctx.info.github.href, true),
-        link('in    ', ctx.info.linkedin.label, ctx.info.linkedin.href, true),
+        link('mail      ', ctx.info.email, `mailto:${ctx.info.email}`, true, ctx.info.email),
+        link('github    ', ctx.info.github.label, ctx.info.github.href, true),
+        link('linkedin  ', ctx.info.linkedin.label, ctx.info.linkedin.href, true),
       ]);
 
     default: {

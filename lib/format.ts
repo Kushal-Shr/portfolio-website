@@ -1,9 +1,33 @@
-export type RangeStyle = 'arrow' | 'dash' | 'years';
+export type RangeStyle = 'arrow' | 'dash' | 'years' | 'long';
+
+const MONTHS = [
+  'January',
+  'February',
+  'March',
+  'April',
+  'May',
+  'June',
+  'July',
+  'August',
+  'September',
+  'October',
+  'November',
+  'December',
+] as const;
+
+/** `2025-05` → `May 2025`. */
+const longMonth = (ym: string): string =>
+  `${MONTHS[Number(ym.slice(5, 7)) - 1] ?? ''} ${ym.slice(0, 4)}`;
 
 const year = (ym: string): string => ym.slice(0, 4);
 
-/** Formats a `YYYY-MM` range for the experience log (arrow), resume (dash) or man page (years). */
+/**
+ * Formats a `YYYY-MM` range for the experience log (arrow), shell (dash), man page (years) or
+ * resume (long: `May 2025 - September 2026`, as the PDF prints it).
+ */
 export function formatRange(start: string, end: string, style: RangeStyle): string {
+  if (style === 'long')
+    return `${longMonth(start)} - ${end === 'present' ? 'Present' : longMonth(end)}`;
   const to = end === 'present' ? 'present' : end;
   if (style === 'arrow') return `${start} → ${to}`;
   if (style === 'dash') return `${start} – ${to}`;

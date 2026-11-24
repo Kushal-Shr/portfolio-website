@@ -115,6 +115,11 @@
     content: '\00a0↗' / '';
   }
 
+  /* The resume is fixed-width text: two extra characters would push its right column off the edge. */
+  .resume-text a[href^='http']::after {
+    content: none;
+  }
+
   /* The "┤ title ├" cut-out: the bg-coloured padding hides the box border behind the title. */
   .box-title,
   .box-badge {
@@ -244,12 +249,18 @@ html.js [data-typing='pending'] {
 
   .resume-text {
     width: auto !important;
-    font-size: 9pt !important;
+    /* 112 columns of JetBrains Mono (0.6em each) fit the 7.5in printable width at 7.5pt. */
+    font-size: 7.5pt !important;
     line-height: 1.1 !important;
   }
 
   .resume-text [style] {
-    font-size: 13pt !important;
+    font-size: 12pt !important;
+  }
+
+  /* The resume's columns are fixed-width text: an appended URL would push lines off the page. */
+  .resume-text a::after {
+    content: none !important;
   }
 
   a {
@@ -457,6 +468,21 @@ html:not(.js) .dock {
     font-size: min(8px, calc(100cqw / (var(--cols) * 0.6)));
     line-height: 1.125;
     min-height: calc(var(--rows) * 1.125em);
+  }
+
+  /* Project and skill pictures (`AnimatedArt`): full size up to `--art-size`, smaller in a narrow box. */
+  .art-fit {
+    container-type: inline-size;
+    width: calc(var(--cols) * 0.6 * var(--art-size));
+    max-width: 100%;
+    flex: none;
+  }
+
+  .art-fit > pre {
+    font-size: min(var(--art-size), calc(100cqw / (var(--cols) * 0.6)));
+    line-height: 1.2;
+    /* Drawn character by character: `->` must stay two strokes, not become an arrow. */
+    font-variant-ligatures: none;
   }
 }
 

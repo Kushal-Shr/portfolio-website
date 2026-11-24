@@ -39,10 +39,17 @@ export function complete(input: string, state: ShellState, ctx: ShellContext): C
   const dirPath = resolve(dirPart || '.', state.cwd);
   const node = dirPath ? ctx.fs[dirPath] : undefined;
   if (!dirPath || node?.type !== 'dir') return none;
+  // `cd` accepts folders and page files (`about.md`), not plain files like `README.md`.
+  const isPage = (p: string) => {
+    const n = ctx.fs[p];
+    return n?.type === 'file' && n.own === true;
+  };
 
   const names = node.children
     .filter((n) => n.toLowerCase().startsWith(stem.toLowerCase()))
-    .filter((n) => cmd !== 'cd' || isDir(ctx.fs, joinPath(dirPath, n)))
+    .filter(
+      (n) => cmd !== 'cd' || isDir(ctx.fs, joinPath(dirPath, n)) || isPage(joinPath(dirPath, n)),
+    )
     .sort();
   if (names.length === 0) return none;
   const label = (n: string) => (isDir(ctx.fs, joinPath(dirPath, n)) ? `${n}/` : n);
