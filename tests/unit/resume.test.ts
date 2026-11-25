@@ -3,7 +3,13 @@ import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { achievements, experience, leadership, profile, projects, skillGroups } from '@/content';
 import { formatRange } from '@/lib/format';
-import { lineText, renderResume, RESUME_WIDTH } from '@/lib/resume';
+import {
+  lineText,
+  PHONE_LAYOUT,
+  renderResume,
+  RESUME_PHONE_WIDTH,
+  RESUME_WIDTH,
+} from '@/lib/resume';
 import { hasDesign } from './design-files';
 
 const content = { profile, experience, projects, leadership, achievements, skillGroups };
@@ -64,5 +70,32 @@ describe('renderResume', () => {
       .map((l) => l.replace(/^ *- /, ''));
     expect(bullets.length).toBeGreaterThan(15);
     for (const b of bullets) expect(ours).toContain(`  • ${b}`);
+  });
+});
+
+describe('renderResume on a phone', () => {
+  const phone = renderResume(content, PHONE_LAYOUT).map(lineText);
+  const words = (text: readonly string[]) =>
+    text
+      .filter((l) => !/^[=-]+$/.test(l))
+      .join(' ')
+      .split(/\s+/)
+      .filter(Boolean);
+
+  it(`never renders a line wider than ${RESUME_PHONE_WIDTH} columns`, () => {
+    expect(Math.max(...phone.map((l) => [...l].length))).toBeLessThanOrEqual(RESUME_PHONE_WIDTH);
+  });
+
+  it('says the same words, in the same order, as the wide resume', () => {
+    expect(words(phone)).toEqual(words(ours));
+  });
+
+  it('never starts a line with a | separator', () => {
+    for (const line of phone) expect(line.trimStart()).not.toMatch(/^\|/);
+  });
+
+  it('keeps bullet continuations indented under the text', () => {
+    const i = phone.findIndex((l) => l.startsWith('  • '));
+    expect(phone[i + 1]).toMatch(/^ {4}\S/);
   });
 });

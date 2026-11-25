@@ -1,6 +1,11 @@
 import { expect, test } from '@playwright/test';
 import { ROUTES } from '../../lib/routes';
-import { collectConsoleErrors, expectNoA11yViolations, expectNoHorizontalScroll } from './utils';
+import {
+  collectConsoleErrors,
+  expectNoA11yViolations,
+  expectNoHorizontalScroll,
+  openNavMenu,
+} from './utils';
 
 for (const route of ROUTES) {
   test(`route ${route.href} is a well-formed page`, async ({ page }) => {
@@ -9,21 +14,22 @@ for (const route of ROUTES) {
     expect(response?.status()).toBe(200);
 
     await expect(page.locator('h1')).toHaveCount(1);
+    await expectNoHorizontalScroll(page);
+    await expectNoA11yViolations(page);
 
+    await openNavMenu(page);
     const links = page.getByRole('navigation', { name: 'Pages' }).getByRole('link');
     await expect(links).toHaveCount(10);
     const current = page.locator('nav[aria-label="Pages"] [aria-current="page"]');
     await expect(current).toHaveCount(1);
     await expect(current).toContainText(`${ROUTES.indexOf(route)}:${route.label}*`);
-
-    await expectNoHorizontalScroll(page);
-    await expectNoA11yViolations(page);
     expect(errors).toEqual([]);
   });
 }
 
 test('nav links navigate', async ({ page }) => {
   await page.goto('/');
+  await openNavMenu(page);
   await page
     .getByRole('navigation', { name: 'Pages' })
     .getByRole('link', { name: /projects/ })

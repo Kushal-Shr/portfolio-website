@@ -1,6 +1,7 @@
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 import type { Metadata } from 'next';
+import type { CSSProperties } from 'react';
 import Link from 'next/link';
 import { PrintButton } from '@/components/terminal/PrintButton';
 import { ScrollX } from '@/components/terminal/ScrollX';
@@ -11,7 +12,13 @@ import { leadership } from '@/content/leadership';
 import { profile } from '@/content/profile';
 import { projects } from '@/content/projects';
 import { skillGroups } from '@/content/skills';
-import { renderResume, type Segment } from '@/lib/resume';
+import {
+  PHONE_LAYOUT,
+  renderResume,
+  RESUME_PHONE_WIDTH,
+  type ResumeLine,
+  type Segment,
+} from '@/lib/resume';
 import { ROUTES } from '@/lib/routes';
 import { routeDescriptions } from '@/lib/seo/copy';
 import { pageMetadata } from '@/lib/seo/metadata';
@@ -52,10 +59,21 @@ function Span({ segment }: { segment: Segment }) {
   );
 }
 
+function ResumeLines({ lines }: { lines: readonly ResumeLine[] }) {
+  return lines.map((line, i) => (
+    <span key={i}>
+      {i > 0 ? '\n' : ''}
+      {line.map((segment, j) => (
+        <Span key={j} segment={segment} />
+      ))}
+    </span>
+  ));
+}
+
 export default function ResumePage() {
   // Safety net: never ship a broken download link if the PDF goes missing.
   const hasPdf = existsSync(join(process.cwd(), 'public', profile.resume.href));
-  const lines = renderResume({
+  const content = {
     profile,
     experience,
     projects,
@@ -63,7 +81,7 @@ export default function ResumePage() {
     achievements,
     skillGroups,
     built: new Date().toISOString().slice(0, 10),
-  });
+  };
 
   return (
     <TerminalPage prompt={prompt} className="leading-[1.55]">
@@ -85,23 +103,20 @@ export default function ResumePage() {
           cd ~
         </Link>
       </div>
-      {hasPdf ? (
-        <p data-print="hide" className="text-fg-dim sm:hidden">
-          tip: wget {profile.resume.label} for a phone-friendly copy
-        </p>
-      ) : null}
-      <ScrollX label="resume" className="self-center">
-        <pre className="resume-text w-[112ch] leading-[1.55] max-sm:text-[12px]">
-          {lines.map((line, i) => (
-            <span key={i}>
-              {i > 0 ? '\n' : ''}
-              {line.map((segment, j) => (
-                <Span key={j} segment={segment} />
-              ))}
-            </span>
-          ))}
+      <ScrollX label="resume" className="self-center max-sm:hidden print:block">
+        <pre className="resume-text w-[112ch] leading-[1.55]">
+          <ResumeLines lines={renderResume(content)} />
         </pre>
       </ScrollX>
+      {/* Phones get the same resume wrapped to the screen, so nothing scrolls sideways. */}
+      <div
+        className="resume-fit sm:hidden print:hidden"
+        style={{ '--cols': RESUME_PHONE_WIDTH } as CSSProperties}
+      >
+        <pre className="resume-text leading-[1.55]">
+          <ResumeLines lines={renderResume(content, PHONE_LAYOUT)} />
+        </pre>
+      </div>
     </TerminalPage>
   );
 }

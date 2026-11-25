@@ -214,6 +214,16 @@ test.describe('structure for screen readers', () => {
 
   test('the leadership roles read as a table with column headers', async ({ page }) => {
     await page.goto('/leadership/');
+    const width = page.viewportSize()?.width ?? 0;
+    if (width < 640) {
+      // Six columns don't fit a phone: each role is a card that names its fields instead.
+      await expect(page.getByRole('table')).toBeHidden();
+      const cards = page.locator('main li').filter({ has: page.locator('dt', { hasText: 'org' }) });
+      await expect(cards).toHaveCount(3);
+      await expect(cards.first()).toContainText('President');
+      await expect(cards.first().locator('dt')).toHaveText(['org', 'scope', 'stat']);
+      return;
+    }
     const table = page.getByRole('table');
     await expect(table.getByRole('columnheader')).toHaveText([
       'PID',
@@ -238,7 +248,9 @@ test.describe('structure for screen readers', () => {
 
   test('the resume’s rule rows are hidden from assistive tech', async ({ page }) => {
     await page.goto('/resume/');
-    const spoken = await page.locator('pre.resume-text').evaluate((pre) => {
+    // Phones and wider screens each get their own copy, wrapped to fit; only one is shown.
+    const resume = page.locator('pre.resume-text').filter({ visible: true });
+    const spoken = await resume.evaluate((pre) => {
       const visible = (n: Node): string =>
         n.nodeType === 3
           ? (n.textContent ?? '')

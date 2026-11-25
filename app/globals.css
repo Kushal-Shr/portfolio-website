@@ -470,8 +470,18 @@ html:not(.js) .dock {
    * portrait outgrew its box).
    */
   .portrait-fit > pre,
-  .art-fit > pre {
+  .art-fit > pre,
+  .resume-fit > pre {
     text-rendering: geometricPrecision;
+  }
+
+  /* The phone resume: 13px, or smaller on a screen too narrow for its columns at 13px. */
+  .resume-fit {
+    container-type: inline-size;
+  }
+
+  .resume-fit > pre {
+    font-size: min(13px, calc(100cqw / (var(--cols) * 0.6)));
   }
 
   .portrait-fit > pre {
@@ -493,6 +503,60 @@ html:not(.js) .dock {
     line-height: 1.2;
     /* Drawn character by character: `->` must stay two strokes, not become an arrow. */
     font-variant-ligatures: none;
+  }
+}
+
+/*
+ * On phones an ASCII diagram shrinks until it fits its box (down to 9px), so most never scroll
+ * sideways. Only phones: on wider screens they fit at full size, and the box sizes to them.
+ */
+@media (max-width: 639px) {
+  .diagram-fit {
+    container-type: inline-size;
+  }
+
+  .diagram-fit pre {
+    font-size: max(9px, min(1em, calc(100cqw / (var(--cols) * 0.6))));
+    text-rendering: geometricPrecision;
+  }
+}
+
+/*
+ * The phone nav (`NavBar`). The bar keeps only the current tab; `menu` opens every tab as a
+ * two-column grid that grows up out of the bar, like tmux's window chooser. Unlayered so it beats
+ * the bar's `overflow-x-auto` utility, which would clip the grid. Without JavaScript none of this
+ * applies and the tabs scroll sideways.
+ */
+html:not(.js) .nav-menu {
+  display: none;
+}
+
+@media (max-width: 639px) {
+  html.js .nav-bar {
+    overflow: visible;
+  }
+
+  html.js .nav-tabs > a:not([aria-current]) {
+    display: none;
+  }
+
+  html.js .nav-bar[data-open] .nav-tabs {
+    position: absolute;
+    right: 0;
+    bottom: 100%;
+    left: 0;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 4px;
+    padding: 8px max(10px, env(safe-area-inset-right)) 8px max(10px, env(safe-area-inset-left));
+    background: var(--color-green);
+    /* A rule in the page colour splits the grid from the bar it grew out of. */
+    border-bottom: 1px solid var(--color-bg);
+  }
+
+  html.js .nav-bar[data-open] .nav-tabs > a {
+    display: inline-flex;
+    justify-content: flex-start;
   }
 }
 

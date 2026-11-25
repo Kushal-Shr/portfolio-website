@@ -122,6 +122,91 @@ test.describe('the docked command line', () => {
   });
 });
 
+test.describe('the nav bar', () => {
+  const nav = (page: Page) => page.getByRole('navigation', { name: 'Pages', exact: true });
+  const menu = (page: Page) => nav(page).getByRole('button', { name: 'menu' });
+
+  test.beforeEach(async ({ page }) => {
+    await page.goto('/experience/');
+    await expect(menu(page)).toBeVisible();
+  });
+
+  test('shows only the current tab, and never scrolls sideways', async ({ page }) => {
+    await expect(nav(page).getByRole('link')).toHaveCount(1);
+    await expect(nav(page).getByRole('link')).toHaveText('4:experience*');
+    expect(await nav(page).evaluate((el) => el.scrollWidth - el.clientWidth)).toBeLessThanOrEqual(
+      0,
+    );
+  });
+
+  test('menu opens every tab on screen, and a tap goes there and closes it', async ({ page }) => {
+    await menu(page).tap();
+    await expect(menu(page)).toHaveAttribute('aria-expanded', 'true');
+    const links = nav(page).getByRole('link');
+    await expect(links).toHaveCount(10);
+    for (const link of await links.all()) {
+      await expect(link).toBeInViewport({ ratio: 1 });
+      expect((await link.boundingBox())?.height).toBeGreaterThanOrEqual(44);
+    }
+    // The open grid covers the page on purpose, so only the nav is checked.
+    await expectNoA11yViolations(page, 'nav[aria-label="Pages"]');
+    await nav(page).getByRole('link', { name: '8:journey' }).tap();
+    await expect(page).toHaveURL(/\/journey\/$/);
+    await expect(menu(page)).toHaveAttribute('aria-expanded', 'false');
+    await expect(nav(page).getByRole('link')).toHaveCount(1);
+  });
+
+  test('a tap outside closes the menu', async ({ page }) => {
+    await menu(page).tap();
+    await page.locator('main').tap({ position: { x: 10, y: 10 } });
+    await expect(menu(page)).toHaveAttribute('aria-expanded', 'false');
+  });
+
+  test('Escape closes the menu and hands focus back to its button', async ({ page }) => {
+    await menu(page).click();
+    await expect(nav(page).getByRole('link', { name: '4:experience*' })).toBeFocused();
+    await page.keyboard.press('Escape');
+    await expect(menu(page)).toHaveAttribute('aria-expanded', 'false');
+    await expect(menu(page)).toBeFocused();
+  });
+});
+
+test.describe('without JavaScript', () => {
+  test.use({ javaScriptEnabled: false });
+
+  test('the nav falls back to tabs that scroll sideways', async ({ page }) => {
+    await page.goto('/experience/');
+    const nav = page.getByRole('navigation', { name: 'Pages', exact: true });
+    await expect(nav.getByRole('button', { name: 'menu' })).toBeHidden();
+    await expect(nav.getByRole('link')).toHaveCount(10);
+  });
+});
+
+test.describe('nothing scrolls sideways', () => {
+  test('diagrams shrink to fit their box, but never below 9px', async ({ page }) => {
+    await page.goto('/projects/');
+    const boxes = await page.locator('.diagram-fit [data-scroll-x]').evaluateAll((els) =>
+      els.map((el) => ({
+        overflow: el.scrollWidth - el.clientWidth,
+        size: parseFloat(getComputedStyle(el.querySelector('pre') ?? el).fontSize),
+      })),
+    );
+    expect(boxes.length).toBeGreaterThan(0);
+    for (const { size } of boxes) expect(size).toBeGreaterThanOrEqual(9);
+    // Narrower than a 375px phone, a diagram that would go below 9px scrolls instead.
+    if ((page.viewportSize()?.width ?? 0) < 375) return;
+    for (const { overflow } of boxes) expect(overflow).toBeLessThanOrEqual(1);
+  });
+
+  test('the resume is wrapped to the screen', async ({ page }) => {
+    await page.goto('/resume/');
+    const resume = page.locator('pre.resume-text').filter({ visible: true });
+    const box = await resume.boundingBox();
+    expect(box && box.x + box.width).toBeLessThanOrEqual(page.viewportSize()?.width ?? 0);
+    await expect(resume).toContainText('Webster University');
+  });
+});
+
 test.describe('the dashboard', () => {
   test('lists the projects directly above the README, and a tap brings the README into view', async ({
     page,

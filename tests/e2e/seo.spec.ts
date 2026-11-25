@@ -310,10 +310,12 @@ test.describe('details', () => {
 
   test('the resume ends with its build date', async ({ page }) => {
     await page.goto('/resume/');
-    await expect(page.locator('pre.resume-text')).toContainText(
+    await expect(page.locator('pre.resume-text').filter({ visible: true })).toContainText(
       /-- EOF --\s+\(built \d{4}-\d{2}-\d{2}\)/,
     );
-    await expect(page.getByTestId('build-date')).toHaveText(/^\d{4}-\d{2}-\d{2}$/);
+    await expect(page.getByTestId('build-date').filter({ visible: true })).toHaveText(
+      /^\d{4}-\d{2}-\d{2}$/,
+    );
   });
 
   test('print: black on white, no chrome, URLs after external links, boxes keep borders', async ({
