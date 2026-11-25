@@ -17,6 +17,8 @@
     "content:todos": "tsx scripts/content-todos.ts",
     "journey:new": "tsx scripts/new-entry.ts",
     "journey:check": "tsx scripts/journey-check.ts",
+    "journey:autopublish:install": "bash scripts/journey-autopublish-install.sh",
+    "journey:autopublish:uninstall": "bash scripts/journey-autopublish-install.sh --uninstall",
     "github:sync": "tsx scripts/github-sync.ts",
     "screenshot": "tsx scripts/readme-screenshot.ts",
     "build:journey-fixtures": "JOURNEY_DIR=tests/fixtures/journey next build && rm -rf out-journey && mv out out-journey"
