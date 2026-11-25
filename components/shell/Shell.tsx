@@ -325,7 +325,7 @@ export function Shell({ fs, info, intro, lastLogin, neofetch }: ShellProps) {
               run(chip);
               inputRef.current?.focus({ preventScroll: true });
             }}
-            className="border-line bg-bg-raised text-fg min-h-11 min-w-11 flex-none cursor-pointer border px-3.5 font-[inherit] text-[13px]"
+            className="border-line bg-bg-raised text-fg min-h-11 min-w-11 flex-none cursor-pointer border px-3.5 font-[inherit] text-[13px] max-[359px]:px-2.5"
           >
             {chip}
           </button>

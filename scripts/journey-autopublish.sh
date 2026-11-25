@@ -3,9 +3,9 @@
 # content/journey/ changes (install it with `pnpm journey:autopublish:install`), for example when
 # the Claude desktop project saves an entry into the connected portfolio folder.
 #
-# It validates the entries, commits only those files to main and pushes; the CI/CD workflow then
-# tests and deploys. It never touches any other file, and it does nothing unless the repo is on
-# main. Every run logs to ~/Library/Logs/portfolio-journey.log and ends with a notification.
+# It validates the entries, commits only those files to main and pushes; Vercel then deploys.
+# It never touches any other file, and it does nothing unless the repo is on main. Every run
+# logs to ~/Library/Logs/portfolio-journey.log and ends with a notification.
 
 set -uo pipefail
 

@@ -464,6 +464,16 @@ html:not(.js) .dock {
     container-type: inline-size;
   }
 
+  /*
+   * Both fits assume each glyph is exactly 0.6em wide. Chromium on Linux rounds glyph widths to
+   * whole pixels unless text is laid out with geometric precision (4.58px became 5px, and the
+   * portrait outgrew its box).
+   */
+  .portrait-fit > pre,
+  .art-fit > pre {
+    text-rendering: geometricPrecision;
+  }
+
   .portrait-fit > pre {
     font-size: min(8px, calc(100cqw / (var(--cols) * 0.6)));
     line-height: 1.125;

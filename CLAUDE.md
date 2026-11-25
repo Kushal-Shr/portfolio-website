@@ -10,8 +10,9 @@
 
 ## Journey entries
 
-When Kushal shares what he learned, built or plans next, use the `journey` skill
-(`.claude/skills/journey/`): it writes, validates, commits and pushes the entry.
+When Kushal shares what he learned, built or plans next, write the entry following the
+"Instructions for the Claude project" block in `content/journey/README.md`, then
+`pnpm journey:check`.
 
 ## Never edit
 

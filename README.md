@@ -51,21 +51,13 @@ A few commands are not listed in `help`. Tab finds them.
 
 Set `NEXT_PUBLIC_SITE_URL` (for example `https://kushal.dev`) when building for production: canonical URLs, the sitemap, `robots.txt` and the social-image URLs are absolute and use it. On Vercel without it, the build falls back to the project's production domain.
 
-## CI/CD
+## Deploying
 
-`.github/workflows/ci.yml` runs on every push to `main` and every pull request:
-
-1. **Check:** lint, typecheck, unit tests and a production build (`pnpm check`).
-2. **Browser tests:** the Playwright suite in Chromium and WebKit. The screenshot comparisons are skipped on CI because their baselines are rendered on macOS; run `pnpm test:e2e` locally before merging a visual change.
-3. **Deploy**, only when both pass: production for `main`, a preview for pull requests. Vercel's own Git auto-deploy is off (`vercel.json`), so nothing reaches the live site without passing the tests.
-
-`.github/workflows/journey.yml` publishes branches that only add journey entries (from a Claude Code cloud session) straight to `main` after validating them, then starts CI/CD.
-
-One-time setup, in the repo's **Settings → Secrets and variables → Actions**: `VERCEL_TOKEN` (vercel.com → Account Settings → Tokens), and `VERCEL_ORG_ID` and `VERCEL_PROJECT_ID` (from `.vercel/project.json` after running `vercel link` in the repo). Set `NEXT_PUBLIC_SITE_URL` in the Vercel project's environment variables if the site has a custom domain.
+Vercel deploys every push to `main` through its GitHub connection. A malformed journey entry fails the build, so Vercel keeps the previous version live. Set `NEXT_PUBLIC_SITE_URL` in the Vercel project if the site has a custom domain.
 
 ## Posting a journey entry
 
-Tell the **Kushal's Portfolio** project in the Claude desktop app what you learned, built and want to do next. With this repo's folder connected, it saves `content/journey/<date>.md`; the journey auto-publisher (`pnpm journey:autopublish:install`, a launchd agent) validates it, commits only that file to `main` and pushes; CI/CD tests and deploys. Claude Code (the `journey` skill, plus `.github/workflows/journey.yml` for cloud sessions) and the terminal also work. Details are in [`content/journey/README.md`](content/journey/README.md).
+Tell the **Kushal's Portfolio** project in the Claude desktop app what you learned, built and want to do next. With this repo's folder connected, it saves `content/journey/<date>.md`; the journey auto-publisher (`pnpm journey:autopublish:install`, a launchd agent) validates it, commits only that file to `main` and pushes; Vercel deploys it. The terminal route (`pnpm journey:new`) also works. Details are in [`content/journey/README.md`](content/journey/README.md).
 
 ## Accessibility and performance
 

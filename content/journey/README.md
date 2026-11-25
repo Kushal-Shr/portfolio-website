@@ -13,9 +13,9 @@ is automatic:
 1. The journey auto-publisher on the Mac (`scripts/journey-autopublish.sh`, a launchd agent)
    notices the new file within seconds. It validates it, commits only that file to `main` and
    pushes. A notification says it went out, or names the field to fix.
-2. The CI/CD workflow runs the checks and browser tests, then deploys to Vercel.
+2. Vercel sees the push to `main` and deploys the site.
 
-It's live in about 10 minutes. The Mac has to be on, with the Claude desktop app open (that's
+It's live in a few minutes. The Mac has to be on, with the Claude desktop app open (that's
 how the project reaches the folder). The repo must be on `main`; otherwise the entry is saved
 but not published, and the notification says so.
 
@@ -72,13 +72,6 @@ Rules:
   other people.
 ````
 
-## Posting an entry (from Claude Code)
-
-In the Claude app's **Code** tab (or on the laptop), say what you did. The `journey` skill
-(`.claude/skills/journey/`) writes, validates and pushes the entry. A cloud session pushes a
-branch; `.github/workflows/journey.yml` publishes branches that only add journey entries to
-`main` and starts the deploy, so this route works without the Mac.
-
 ## Posting an entry (from the terminal)
 
 ```sh
@@ -110,7 +103,7 @@ below the entry's own heading, so `#` is fine too.
 - `learned`, `built` and `next` are required, 280 characters at most.
 - No other fields are allowed.
 - Dates are calendar days: no future dates beyond tomorrow.
-- A malformed entry **fails `pnpm build` and `pnpm test`** (and so the CI check and the deploy)
+- A malformed entry **fails `pnpm build` and `pnpm test`** (and so the Vercel deploy)
   with the file and field, e.g. `content/journey/2026-11-19.md: "next" is required`.
 
 ## Where an entry shows up
