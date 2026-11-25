@@ -522,41 +522,31 @@ html:not(.js) .dock {
 }
 
 /*
- * The phone nav (`NavBar`). The bar keeps only the current tab; `menu` opens every tab as a
- * two-column grid that grows up out of the bar, like tmux's window chooser. Unlayered so it beats
- * the bar's `overflow-x-auto` utility, which would clip the grid. Without JavaScript none of this
- * applies and the tabs scroll sideways.
+ * Shell output in two fixed-width layouts (`cat resume.txt`): the 112-column one wherever the
+ * terminal is at least 114 characters wide (112 plus the line's 2ch indent), else the 42-column
+ * one. A container query, so a phone turned sideways or a narrow docked panel picks the right one.
  */
-html:not(.js) .nav-menu {
+.shell-fit {
+  container-type: inline-size;
+}
+
+.shell-fit-wide {
   display: none;
 }
 
-@media (max-width: 639px) {
-  html.js .nav-bar {
-    overflow: visible;
+/* Even the narrow layout is wider than a phone's shell at full size: shrink it to fit (`--cols`). */
+.shell-fit-narrow {
+  font-size: min(1em, calc(100cqw / (var(--cols) * 0.6)));
+  text-rendering: geometricPrecision;
+}
+
+@container (min-width: 114ch) {
+  .shell-fit-wide {
+    display: block;
   }
 
-  html.js .nav-tabs > a:not([aria-current]) {
+  .shell-fit-narrow {
     display: none;
-  }
-
-  html.js .nav-bar[data-open] .nav-tabs {
-    position: absolute;
-    right: 0;
-    bottom: 100%;
-    left: 0;
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 4px;
-    padding: 8px max(10px, env(safe-area-inset-right)) 8px max(10px, env(safe-area-inset-left));
-    background: var(--color-green);
-    /* A rule in the page colour splits the grid from the bar it grew out of. */
-    border-bottom: 1px solid var(--color-bg);
-  }
-
-  html.js .nav-bar[data-open] .nav-tabs > a {
-    display: inline-flex;
-    justify-content: flex-start;
   }
 }
 

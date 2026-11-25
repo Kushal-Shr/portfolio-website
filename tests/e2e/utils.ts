@@ -1,17 +1,14 @@
 import AxeBuilder from '@axe-core/playwright';
 import { expect, type APIRequestContext, type Page } from '@playwright/test';
 
-/** `include` limits the scan to one part of the page, such as an open menu over the content. */
-export async function expectNoA11yViolations(page: Page, include?: string): Promise<void> {
+export async function expectNoA11yViolations(page: Page): Promise<void> {
   // The dock and nav are one sticky group over the viewport's bottom edge; at scroll-top it hides
   // whatever sits behind it, and axe reports covered targets. At the page end it sits below the content.
   // `instant`: the page smooth-scrolls by default, and axe must not sample a scroll in flight.
   await page.evaluate(() =>
     window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'instant' }),
   );
-  const builder = new AxeBuilder({ page });
-  if (include) builder.include(include);
-  const { violations } = await builder
+  const { violations } = await new AxeBuilder({ page })
     .withTags(['wcag2a', 'wcag2aa', 'wcag21aa', 'wcag22aa'])
     .analyze();
   const report = violations
@@ -21,19 +18,6 @@ export async function expectNoA11yViolations(page: Page, include?: string): Prom
     })
     .join('\n');
   expect(violations, `Accessibility violations:\n${report}`).toEqual([]);
-}
-
-/**
- * On a phone the nav bar shows only the current tab until its `menu` button opens the rest; on
- * wider screens every tab is already on the bar and this does nothing.
- */
-export async function openNavMenu(page: Page): Promise<void> {
-  const menu = page
-    .getByRole('navigation', { name: 'Pages', exact: true })
-    .getByRole('button', { name: 'menu' });
-  if (!(await menu.isVisible())) return;
-  if ((await menu.getAttribute('aria-expanded')) !== 'true') await menu.click();
-  await expect(menu).toHaveAttribute('aria-expanded', 'true');
 }
 
 export function collectConsoleErrors(page: Page): string[] {

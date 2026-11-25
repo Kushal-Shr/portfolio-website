@@ -37,13 +37,16 @@ export function plain(line: Line): string {
       return `${line.prefix ?? ''}${line.text} -> ${line.href}`;
     case 'items':
       return line.items.map((s) => s.text).join('  ');
+    case 'fit':
+      return line.wide.map((row) => row.map((s) => s.text).join('')).join('\n');
     case 'neofetch':
       return '[neofetch]';
   }
 }
 
+/** Each output line as plain text; a fixed-width block gives one string per row of its wide layout. */
 export const out = (input: string, cwd = '~', extra: Partial<ShellState> = {}): string[] =>
-  run(input, cwd, extra).lines.map(plain);
+  run(input, cwd, extra).lines.flatMap((line) => plain(line).split('\n'));
 
 export const runJ = (input: string, cwd = '~'): ExecResult => exec(input, state(cwd), journeyCtx);
 export const outJ = (input: string, cwd = '~'): string[] => runJ(input, cwd).lines.map(plain);

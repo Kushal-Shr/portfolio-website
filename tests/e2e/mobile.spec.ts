@@ -20,17 +20,43 @@ test.describe('the shell', () => {
     await expect(page.locator('#cmd')).not.toBeFocused();
   });
 
-  test('the chip bar shows at least 3 chips, and tapping one runs it', async ({ page }) => {
-    const bar = page.locator('[data-scroll-x]').filter({ hasText: 'run:' });
-    const visible = await bar
-      .getByRole('button')
-      .evaluateAll(
-        (buttons, edge) => buttons.filter((b) => b.getBoundingClientRect().right <= edge).length,
-        await bar.evaluate((el) => el.getBoundingClientRect().right),
-      );
-    expect(visible).toBeGreaterThanOrEqual(3);
+  test('the chips wrap so every one is in view, and tapping one runs it', async ({ page }) => {
+    const bar = page.getByRole('button', { name: 'neofetch', exact: true }).locator('..');
+    expect(await bar.evaluate((el) => el.scrollWidth - el.clientWidth)).toBeLessThanOrEqual(0);
+    for (const chip of await bar.getByRole('button').all()) {
+      await expect(chip).toBeInViewport({ ratio: 1 });
+      const box = await chip.boundingBox();
+      expect(Math.min(box?.width ?? 0, box?.height ?? 0)).toBeGreaterThanOrEqual(44);
+    }
     await bar.getByRole('button', { name: 'ls', exact: true }).tap();
     await expect(page.getByRole('log')).toContainText('projects/');
+  });
+
+  test('nothing in the shell scrolls sideways, before or after wide output', async ({ page }) => {
+    const log = page.getByRole('log');
+    // The box that scrolls is the shell body around the log (banner, intro, prompt and all).
+    const sideways = () =>
+      log.evaluate((el) => {
+        let box: Element | null = el;
+        while (box && getComputedStyle(box).overflowY !== 'auto') box = box.parentElement;
+        return box ? box.scrollWidth - box.clientWidth : Infinity;
+      });
+    // The prompt's input must shrink with the screen: a text input is ~20 characters wide by default.
+    expect(await sideways(), 'on load').toBeLessThanOrEqual(0);
+    for (const cmd of [
+      'cat resume.txt',
+      'contact',
+      'man kushal',
+      'cat experience/schnuck/README.md',
+    ]) {
+      await page.locator('#cmd').fill(cmd);
+      await page.locator('#cmd').press('Enter');
+      await expect(log).toContainText(cmd);
+      expect(await sideways(), cmd).toBeLessThanOrEqual(0);
+    }
+    // The resume switches to its narrow layout instead of wrapping the wide one.
+    await expect(page.locator('.shell-fit-narrow').last()).toBeVisible();
+    await expect(page.locator('.shell-fit-wide').last()).toBeHidden();
   });
 
   test('the title bar keeps the cwd and drops the window size', async ({ page }) => {
@@ -119,66 +145,6 @@ test.describe('the docked command line', () => {
       .locator('.dock-group')
       .evaluate((el) => el.getBoundingClientRect().height);
     expect(padding).toBeGreaterThanOrEqual(group - 1);
-  });
-});
-
-test.describe('the nav bar', () => {
-  const nav = (page: Page) => page.getByRole('navigation', { name: 'Pages', exact: true });
-  const menu = (page: Page) => nav(page).getByRole('button', { name: 'menu' });
-
-  test.beforeEach(async ({ page }) => {
-    await page.goto('/experience/');
-    await expect(menu(page)).toBeVisible();
-  });
-
-  test('shows only the current tab, and never scrolls sideways', async ({ page }) => {
-    await expect(nav(page).getByRole('link')).toHaveCount(1);
-    await expect(nav(page).getByRole('link')).toHaveText('4:experience*');
-    expect(await nav(page).evaluate((el) => el.scrollWidth - el.clientWidth)).toBeLessThanOrEqual(
-      0,
-    );
-  });
-
-  test('menu opens every tab on screen, and a tap goes there and closes it', async ({ page }) => {
-    await menu(page).tap();
-    await expect(menu(page)).toHaveAttribute('aria-expanded', 'true');
-    const links = nav(page).getByRole('link');
-    await expect(links).toHaveCount(10);
-    for (const link of await links.all()) {
-      await expect(link).toBeInViewport({ ratio: 1 });
-      expect((await link.boundingBox())?.height).toBeGreaterThanOrEqual(44);
-    }
-    // The open grid covers the page on purpose, so only the nav is checked.
-    await expectNoA11yViolations(page, 'nav[aria-label="Pages"]');
-    await nav(page).getByRole('link', { name: '8:journey' }).tap();
-    await expect(page).toHaveURL(/\/journey\/$/);
-    await expect(menu(page)).toHaveAttribute('aria-expanded', 'false');
-    await expect(nav(page).getByRole('link')).toHaveCount(1);
-  });
-
-  test('a tap outside closes the menu', async ({ page }) => {
-    await menu(page).tap();
-    await page.locator('main').tap({ position: { x: 10, y: 10 } });
-    await expect(menu(page)).toHaveAttribute('aria-expanded', 'false');
-  });
-
-  test('Escape closes the menu and hands focus back to its button', async ({ page }) => {
-    await menu(page).click();
-    await expect(nav(page).getByRole('link', { name: '4:experience*' })).toBeFocused();
-    await page.keyboard.press('Escape');
-    await expect(menu(page)).toHaveAttribute('aria-expanded', 'false');
-    await expect(menu(page)).toBeFocused();
-  });
-});
-
-test.describe('without JavaScript', () => {
-  test.use({ javaScriptEnabled: false });
-
-  test('the nav falls back to tabs that scroll sideways', async ({ page }) => {
-    await page.goto('/experience/');
-    const nav = page.getByRole('navigation', { name: 'Pages', exact: true });
-    await expect(nav.getByRole('button', { name: 'menu' })).toBeHidden();
-    await expect(nav.getByRole('link')).toHaveCount(10);
   });
 });
 

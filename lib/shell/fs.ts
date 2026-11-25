@@ -14,7 +14,7 @@ import { formatRange } from '@/lib/format';
 import { archiveLine, groupByMonth } from '@/lib/journey/format';
 import type { JourneyMeta } from '@/lib/journey/types';
 import { milestones } from '@/lib/milestones';
-import { renderResume } from '@/lib/resume';
+import { PHONE_LAYOUT, renderResume, type ResumeLine } from '@/lib/resume';
 import {
   buildSiteTree,
   flatten,
@@ -24,7 +24,7 @@ import {
 } from '@/lib/site-tree';
 import { matchesSkill } from '@/lib/skills';
 import { link, seg, text } from './lines';
-import type { FsNode, Line, VirtualFs } from './types';
+import type { FsNode, Line, Segment, VirtualFs } from './types';
 
 /** The hidden file behind `git log` (see the easter eggs). */
 export const GIT_LOG_PATH = '~/.git/log';
@@ -128,21 +128,21 @@ export function buildVirtualFs(
           ...guide.intro.map((p) => text(plainInline(p))),
           ...guide.quickStart.steps.map((p, i) => text(`${i + 1}. ${plainInline(p)}`)),
         ];
-      case '~/resume.txt':
+      case '~/resume.txt': {
+        const resume = { profile, experience, projects, leadership, achievements, skillGroups };
+        const segments = (lines: ResumeLine[]): Segment[][] =>
+          lines.map((line) =>
+            line.map((s) => seg(s.text, s.tone ? tone[s.tone] : undefined, s.bold)),
+          );
         return [
-          ...renderResume({
-            profile,
-            experience,
-            projects,
-            leadership,
-            achievements,
-            skillGroups,
-          }).map((line): Line => ({
-            kind: 'text',
-            segments: line.map((s) => seg(s.text, s.tone ? tone[s.tone] : undefined, s.bold)),
-          })),
+          {
+            kind: 'fit',
+            wide: segments(renderResume(resume)),
+            narrow: segments(renderResume(resume, PHONE_LAYOUT)),
+          },
           link('↗ ', 'wget resume.pdf', profile.resume.href),
         ];
+      }
       case '~/experience/README.md': {
         const gap = ' '.repeat(19);
         return experience.flatMap((e) => [

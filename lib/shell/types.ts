@@ -13,6 +13,11 @@ export type Line =
       copy?: string;
     }
   | { kind: 'items'; items: Segment[] }
+  /**
+   * Fixed-width text laid out twice (the resume): `wide` where the terminal has room for it,
+   * `narrow` where it doesn't, so its columns never wrap into a mess or scroll sideways.
+   */
+  | { kind: 'fit'; wide: Segment[][]; narrow: Segment[][] }
   | { kind: 'neofetch' };
 
 /**

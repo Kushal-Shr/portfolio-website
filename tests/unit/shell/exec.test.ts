@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { profile } from '@/content/profile';
+import { RESUME_PHONE_WIDTH, RESUME_WIDTH } from '@/lib/resume';
 import { ctx, out, plain, run, state } from './helpers';
 import { exec } from '@/lib/shell/exec';
 
@@ -223,6 +224,15 @@ describe('cat', () => {
     expect(lines.join('\n')).toContain('Frontend Software Engineering Intern');
     expect(lines).toContain('↗ wget resume.pdf -> /resume.pdf');
     expect(lines.at(-1)).toBe('↗ open ~/resume.txt as a page -> /resume/');
+  });
+
+  it('carries a narrow resume for terminals too small for the wide one', () => {
+    const fit = run('cat resume.txt').lines.find((l) => l.kind === 'fit');
+    if (fit?.kind !== 'fit') throw new Error('no fixed-width block');
+    const width = (rows: typeof fit.wide) =>
+      Math.max(...rows.map((row) => [...row.map((s) => s.text).join('')].length));
+    expect(width(fit.wide)).toBe(RESUME_WIDTH);
+    expect(width(fit.narrow)).toBeLessThanOrEqual(RESUME_PHONE_WIDTH);
   });
 
   it('prints experience, skills and achievements from content', () => {

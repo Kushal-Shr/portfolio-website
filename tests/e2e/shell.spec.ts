@@ -71,6 +71,16 @@ test.describe('commands', () => {
     await expect(dir).toHaveClass(/font-bold/);
   });
 
+  test('cat resume.txt prints the layout that fits the terminal', async ({ page, isMobile }) => {
+    await run(page, 'cat resume.txt');
+    const [shown, hidden] = isMobile ? ['narrow', 'wide'] : ['wide', 'narrow'];
+    await expect(log(page).locator(`.shell-fit-${shown}`).last()).toBeVisible();
+    await expect(log(page).locator(`.shell-fit-${hidden}`).last()).toBeHidden();
+    expect(await log(page).evaluate((el) => el.scrollWidth - el.clientWidth)).toBeLessThanOrEqual(
+      0,
+    );
+  });
+
   test("cd navigates to the folder's page and the shell follows the URL", async ({ page }) => {
     await run(page, 'cd projects');
     await expect(page).toHaveURL(/\/projects\/$/);

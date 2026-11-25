@@ -6,7 +6,6 @@ import { TypedChars } from '@/components/terminal/TypedChars';
 import { useKeepInputVisible } from '@/lib/hooks/useKeepInputVisible';
 import { useMounted } from '@/lib/hooks/useMounted';
 import { prefersReducedMotion } from '@/lib/hooks/useReducedMotion';
-import { useScrollFade } from '@/lib/hooks/useScrollFade';
 import { complete } from '@/lib/shell/complete';
 import { makeReducer } from '@/lib/shell/reducer';
 import { shellStore } from '@/lib/shell/store';
@@ -39,13 +38,11 @@ export function Shell({ fs, info, intro, lastLogin, neofetch }: ShellProps) {
   const mounted = useMounted();
   const inputRef = useRef<HTMLInputElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
-  const chipsRef = useRef<HTMLDivElement>(null);
   const tabStuck = useRef(false);
   const ranInit = useRef(false);
 
   useShellNavigation(fs);
   useKeepInputVisible(inputRef);
-  useScrollFade(chipsRef);
 
   const login = useMemo(
     () => (mounted ? new Date().toDateString() : lastLogin),
@@ -222,6 +219,9 @@ export function Shell({ fs, info, intro, lastLogin, neofetch }: ShellProps) {
 
       <div
         ref={scrollRef}
+        // Until the prompt's input is there and enabled nothing in here takes focus, and on a short
+        // phone the boot text already scrolls: keyboard users need another way to scroll it.
+        tabIndex={showPrompt && mounted ? undefined : 0}
         className="flex min-h-0 flex-1 flex-col-reverse overflow-y-auto px-4 py-5 sm:px-6"
         onClick={(e) => {
           if (window.getSelection()?.toString()) return;
@@ -303,19 +303,15 @@ export function Shell({ fs, info, intro, lastLogin, neofetch }: ShellProps) {
                 enterKeyHint="go"
                 aria-describedby="shell-hint"
                 data-dense=""
-                className="text-fg caret-green placeholder:text-fg-dim min-h-7 flex-1 border-0 bg-transparent p-0 font-[inherit] outline-none max-lg:min-h-11 pointer-coarse:min-h-11"
+                className="text-fg caret-green placeholder:text-fg-dim min-h-7 min-w-0 flex-1 border-0 bg-transparent p-0 font-[inherit] outline-none max-lg:min-h-11 pointer-coarse:min-h-11"
               />
             </div>
           ) : null}
         </div>
       </div>
 
-      {/* A phone's main way in: one row that scrolls sideways, with the first few chips in view. */}
-      <div
-        ref={chipsRef}
-        data-scroll-x=""
-        className="border-line flex scrollbar-none items-center gap-2 border-t px-4 py-2 max-sm:flex-nowrap max-sm:overflow-x-auto sm:flex-wrap"
-      >
+      {/* A phone's main way in: every chip in view, wrapping onto as many rows as it needs. */}
+      <div className="border-line flex flex-wrap items-center gap-2 border-t px-4 py-2">
         <span className="text-fg-dim flex-none text-[13px] max-[359px]:hidden">run:</span>
         {CHIPS.map((chip) => (
           <button
@@ -325,7 +321,7 @@ export function Shell({ fs, info, intro, lastLogin, neofetch }: ShellProps) {
               run(chip);
               inputRef.current?.focus({ preventScroll: true });
             }}
-            className="border-line bg-bg-raised text-fg min-h-11 min-w-11 flex-none cursor-pointer border px-3.5 font-[inherit] text-[13px] max-[359px]:px-2.5"
+            className="border-line bg-bg-raised text-fg min-h-11 min-w-11 flex-none cursor-pointer border px-3.5 font-[inherit] text-[13px] max-sm:px-2.5"
           >
             {chip}
           </button>

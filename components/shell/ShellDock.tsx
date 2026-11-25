@@ -4,7 +4,6 @@ import { usePathname } from 'next/navigation';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Cursor } from '@/components/terminal/Cursor';
 import { useKeepInputVisible } from '@/lib/hooks/useKeepInputVisible';
-import { useScrollFade } from '@/lib/hooks/useScrollFade';
 import { PHONE_QUERY } from '@/lib/hooks/useMatchMedia';
 import { dockUi } from '@/lib/shell/dock-ui';
 import { shellStore } from '@/lib/shell/store';
@@ -49,7 +48,6 @@ export function ShellDock({ info, syncCwd = true }: { info: ShellInfo; syncCwd?:
   const expanded = useDockExpanded();
   const pathname = usePathname();
   const rootRef = useRef<HTMLDivElement>(null);
-  const chipsRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const logRef = useRef<HTMLDivElement>(null);
   const returnFocus = useRef<HTMLElement | null>(null);
@@ -57,7 +55,6 @@ export function ShellDock({ info, syncCwd = true }: { info: ShellInfo; syncCwd?:
 
   useShellNavigation(data?.fs, syncCwd);
   useKeepInputVisible(inputRef);
-  useScrollFade(chipsRef);
 
   // A phone's dock folds away again after any navigation (a chip, `cd`, or a tap on the nav bar).
   useEffect(() => {
@@ -263,17 +260,16 @@ export function ShellDock({ info, syncCwd = true }: { info: ShellInfo; syncCwd?:
         </div>
 
         <div
-          ref={chipsRef}
           role="group"
           aria-label="quick commands"
-          className="-mx-4 flex scrollbar-none gap-2 overflow-x-auto px-4 pt-2 sm:hidden"
+          className="flex flex-wrap gap-2 pt-2 sm:hidden"
         >
           {PHONE_CHIPS.map((chip) => (
             <button
               key={chip}
               type="button"
               onClick={() => runChip(chip)}
-              className="border-line bg-bg-raised text-fg min-h-11 min-w-11 flex-none cursor-pointer border px-3.5 font-[inherit] text-[13px]"
+              className="border-line bg-bg-raised text-fg min-h-11 min-w-11 flex-none cursor-pointer border px-2.5 font-[inherit] text-[13px]"
             >
               {chip}
             </button>
