@@ -1,4 +1,4 @@
-import { defineConfig, devices } from '@playwright/test';
+import { defineConfig, devices, type PlaywrightTestConfig } from '@playwright/test';
 
 const baseURL = 'http://localhost:4173';
 // A second build of the site with the fake fixture entries (`tests/fixtures/journey`), so the
@@ -17,6 +17,24 @@ const phone = (width: number, height: number) => ({
   ...devices['Pixel 7'],
   viewport: { width, height },
 });
+
+const VISUAL_PROJECTS: NonNullable<PlaywrightTestConfig['projects']> = [
+  {
+    name: 'visual',
+    testMatch: VISUAL_SPEC,
+    use: { ...desktop, reducedMotion: 'reduce', timezoneId: 'America/Chicago' },
+  },
+  {
+    name: 'visual-fixtures',
+    testMatch: VISUAL_FIXTURE_SPEC,
+    use: {
+      ...desktop,
+      reducedMotion: 'reduce',
+      baseURL: JOURNEY_FIXTURES_URL,
+      timezoneId: 'America/Chicago',
+    },
+  },
+];
 
 export default defineConfig({
   testDir: 'tests/e2e',
@@ -106,21 +124,9 @@ export default defineConfig({
       testMatch: FIXTURE_SPECS,
       use: { ...devices['Pixel 7'], baseURL: JOURNEY_FIXTURES_URL, timezoneId: 'America/Chicago' },
     },
-    // Visual baselines: reduced motion so every page is in its final state.
-    {
-      name: 'visual',
-      testMatch: VISUAL_SPEC,
-      use: { ...desktop, reducedMotion: 'reduce', timezoneId: 'America/Chicago' },
-    },
-    {
-      name: 'visual-fixtures',
-      testMatch: VISUAL_FIXTURE_SPEC,
-      use: {
-        ...desktop,
-        reducedMotion: 'reduce',
-        baseURL: JOURNEY_FIXTURES_URL,
-        timezoneId: 'America/Chicago',
-      },
-    },
+    // Visual baselines: reduced motion so every page is in its final state. They are rendered on
+    // macOS, and Linux draws the same font a pixel differently, so CI skips them: run
+    // `pnpm test:e2e` locally before merging anything that changes how a page looks.
+    ...(process.env.CI ? [] : VISUAL_PROJECTS),
   ],
 });
